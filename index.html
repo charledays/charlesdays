@@ -63,7 +63,16 @@ body.wall-ready{visibility:visible;}
    pinned top-left, this toggle occupies the same top-right slot the
    desktop menu uses, so only one of the two is ever visible/laid out
    at a given width). ===== */
-.proto-menu-toggle{display:inline-block;background:none;border:none;padding:0;font-family:'DM Sans',sans-serif;font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);opacity:0.72;cursor:pointer;text-shadow:0 1px 2px rgba(0,0,0,0.65),0 2px 8px rgba(0,0,0,0.45),0 5px 18px rgba(0,0,0,0.3);}
+/* Home-only bug: this page's :root never defines --text (only --ink/
+   --ink-dark/--muted, meant for editorial pages' light background —
+   see below). color:var(--text) was therefore invalid at compute time,
+   which for an inherited property like `color` falls back to the
+   inherited value — html,body's color:var(--ink), a dark navy meant for
+   light backgrounds, over the Wall's dark imagery. That, not opacity
+   alone, is why MENU nearly disappeared. Fixed with an explicit light
+   color (same #f5f2ed used by the mobile nav overlay's own links below),
+   plus a slightly larger/heavier label and a stronger shadow/opacity. */
+.proto-menu-toggle{display:inline-block;background:none;border:none;padding:0;font-family:'DM Sans',sans-serif;font-size:0.7rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:#f5f2ed;opacity:0.92;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,0.8),0 2px 10px rgba(0,0,0,0.6),0 5px 20px rgba(0,0,0,0.4);}
 .proto-menu-toggle:hover{opacity:1;}
 .proto-menu-toggle:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;opacity:1;}
 @media (min-width:768px){.proto-menu-toggle{display:none;}}
