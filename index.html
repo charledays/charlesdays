@@ -49,6 +49,15 @@ body.wall-ready{visibility:visible;}
    from the homepage is a no-op anyway). z-index 40 keeps it below the nav
    (50) but above the Wall's own tiles (unlayered). */
 .proto-logo{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:40;pointer-events:none;display:inline-flex;align-items:center;}
+/* Home only: .proto-nav (z-index:50) sits above the mobile overlay
+   (z-index:45), and the centered wordmark lives inside .proto-nav — so
+   it showed through the open overlay regardless of its own inner
+   z-index:40. Fix: hide the wordmark itself while the overlay is open.
+   Targets #mobileNavOverlay.is-open directly — the overlay's own real
+   open-state class, already toggled by the existing script below — via
+   :has(), rather than a second, separately-maintained flag that could
+   drift out of sync with it. */
+body:has(#mobileNavOverlay.is-open) .proto-logo{display:none;}
 .proto-logo-img{display:block;width:125px;height:auto;}
 @media (min-width:768px){.proto-logo-img{width:230px;}}
 .proto-menu{display:none;}
@@ -70,9 +79,12 @@ body.wall-ready{visibility:visible;}
    inherited value — html,body's color:var(--ink), a dark navy meant for
    light backgrounds, over the Wall's dark imagery. That, not opacity
    alone, is why MENU nearly disappeared. Fixed with an explicit light
-   color (same #f5f2ed used by the mobile nav overlay's own links below),
-   plus a slightly larger/heavier label and a stronger shadow/opacity. */
-.proto-menu-toggle{display:inline-block;background:none;border:none;padding:0;font-family:'DM Sans',sans-serif;font-size:0.7rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:#f5f2ed;opacity:0.92;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,0.8),0 2px 10px rgba(0,0,0,0.6),0 5px 20px rgba(0,0,0,0.4);}
+   color (same #f5f2ed used by the mobile nav overlay's own links below);
+   size/weight/opacity raised further so it reads immediately as
+   navigation rather than metadata. Padding grows the tap target without
+   shifting the visible text off the nav's existing right-edge inset
+   (negative margin cancels the padding's own offset). */
+.proto-menu-toggle{display:inline-block;background:none;border:none;padding:0.5rem 0.2rem;margin:-0.5rem -0.2rem;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#f5f2ed;opacity:1;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,0.8),0 2px 10px rgba(0,0,0,0.6),0 5px 20px rgba(0,0,0,0.4);}
 .proto-menu-toggle:hover{opacity:1;}
 .proto-menu-toggle:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;opacity:1;}
 @media (min-width:768px){.proto-menu-toggle{display:none;}}
