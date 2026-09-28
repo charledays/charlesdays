@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tattoo Artist in Lima — Charles Days</title>
+<meta name="description" content="Black and red ornamental and black and grey realism tattoo work by Charles Days in Lima, Peru. View selected tattoos and request a quote via WhatsApp.">
+<link rel="canonical" href="https://charlesdays.art/tattoo/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Tattoo Artist in Lima — Charles Days">
+<meta property="og:description" content="Black and red ornamental and black and grey realism tattoo work by Charles Days in Lima, Peru. View selected tattoos and request a quote via WhatsApp.">
+<meta property="og:url" content="https://charlesdays.art/tattoo/">
+<meta property="og:image" content="https://charlesdays.art/images/wall/tattoo-neck-sky.jpg">
+<meta property="og:image:alt" content="Tatuaje de cabeza y cuello, fotografiado al aire libre con cielo y mar de fondo">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=Space+Grotesk:wght@500;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#000;--text:#f5f2ed;--text-muted:#9aa4c2;--hair:rgba(245,242,237,0.12);
+  /* Same warm bone editorial surface approved for every completed
+     project-detail page ("paper over black") — reused verbatim, not a
+     new value. */
+  --surface-bg:#f3eee5;--surface-text:#211d19;--surface-text-muted:#5e574c;
+  --font-display:'Space Grotesk', sans-serif;
+}
+html{background:var(--bg);scroll-behavior:smooth;overflow-x:clip;}
+html,body{color:var(--text);font-family:'DM Sans',sans-serif;}
+/* overflow-x:clip, not hidden, and only on html — any non-visible
+   *overflow* value (on either html or body) forces the other axis to
+   compute to "auto", turning that element into its own scroll
+   container, which silently breaks position:sticky on this page's side
+   columns further down. `clip` blocks horizontal overflow the same way
+   without that side effect. */
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
+
+/* ===== nav — same fixed/transparent treatment reused across every page ===== */
+.proto-nav{position:fixed;top:0;left:0;right:0;z-index:50;height:52px;display:flex;justify-content:flex-end;align-items:center;padding:0 1.1rem;background:transparent;}
+.proto-logo,.proto-menu a{text-shadow:0 1px 3px rgba(0,0,0,0.75),0 2px 10px rgba(0,0,0,0.55),0 5px 20px rgba(0,0,0,0.35);}
+.proto-logo{position:absolute;left:50%;top:50%;transform:translate(-50%,calc(-50% + 6px));display:inline-flex;align-items:center;}
+.proto-logo-img{filter:drop-shadow(0 1px 2px rgba(0,0,0,0.95)) drop-shadow(0 2px 5px rgba(0,0,0,0.6));}
+.proto-logo-img{display:block;width:118px;height:auto;margin-top:-8px;}
+@media (min-width:768px){.proto-logo-img{width:135px;margin-top:0;}}
+.proto-menu{display:none;}
+.proto-menu a{font-size:0.75rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);text-decoration:none;opacity:0.72;}
+.proto-menu a:hover{opacity:1;}
+.proto-menu a[aria-current="page"]{opacity:1;}
+.proto-menu a:focus-visible,.proto-logo:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;}
+@media (min-width:768px){.proto-menu{display:flex;gap:1.5rem;}}
+
+/* ===== mobile nav — MENU/CLOSE overlay, mobile-only (<768px). Desktop
+   nav (.proto-menu) is completely untouched; this is an independent
+   addition that reuses the same nav bar for its own header (logo stays
+   pinned top-left, this toggle occupies the same top-right slot the
+   desktop menu uses, so only one of the two is ever visible/laid out
+   at a given width). ===== */
+.proto-menu-toggle{display:inline-block;background:none;border:none;padding:0;font-family:'DM Sans',sans-serif;font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);opacity:0.72;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,0.55),0 2px 10px rgba(0,0,0,0.35);}
+.proto-menu-toggle:hover{opacity:1;}
+.proto-menu-toggle:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;opacity:1;}
+@media (min-width:768px){.proto-menu-toggle{display:none;}}
+
+.mobile-nav-overlay{position:fixed;inset:0;z-index:45;background:var(--bg);display:flex;align-items:center;opacity:0;visibility:hidden;transition:opacity .25s ease;}
+.mobile-nav-overlay.is-open{opacity:1;visibility:visible;}
+.mobile-nav-links{display:flex;flex-direction:column;gap:1.4rem;padding:0 1.6rem;width:100%;}
+.mobile-nav-links a{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,10vw,2.6rem);letter-spacing:0.03em;color:#f5f2ed;text-decoration:none;opacity:0.85;}
+.mobile-nav-links a:hover,.mobile-nav-links a:focus-visible{opacity:1;}
+.mobile-nav-links a[aria-current="page"]{opacity:1;text-decoration:underline;text-underline-offset:0.3em;}
+.mobile-nav-links a:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:4px;}
+@media (min-width:768px){.mobile-nav-overlay{display:none;}}
+@media (prefers-reduced-motion:reduce){.mobile-nav-overlay{transition:none;}}
+
+
+.tattoo-page{padding-top:52px;}
+
+/* ===== layout — editorial composition, not a full-bleed wall. Mobile:
+   a single simplified column (text block, then CTA actions, then one
+   photo column). Desktop (1000px+): three columns — a narrow editorial
+   note on the left, a centered bone "paper" strip holding two photo
+   columns, and a narrow quote/Instagram CTA on the right. DOM order is
+   left-note, CTA-note, paper — so on mobile (plain column stacking) the
+   title and the quote CTA both sit above the photos, visible without
+   scrolling; `order` on desktop repositions the CTA note to the right
+   without reordering the markup. ===== */
+/* ===== layout — restored 3-column desktop composition (left TATTOO info
+   / center bone paper / right discovery), same structure approved before
+   the quote module moved inside the paper. A prior pass pulled the intro
+   AND the quote fully out of this flex row into two stacked full-width
+   sections above it — that broke the desktop composition: it removed the
+   sticky left info column entirely and pushed the paper (gallery) below
+   the fold, since two full-width sections had to be scrolled past first.
+   The quote now lives INSIDE .tt-paper, above .tt-cols (see .tt-quote
+   below and the markup), so "quote above gallery" is satisfied without
+   sacrificing the 3-column composition. ===== */
+.tt-layout{display:flex;flex-direction:column;padding:2.6rem 1.2rem 0;}
+
+.tt-side{max-width:26rem;}
+.tt-side-left{margin-bottom:1.6rem;}
+.tt-side-right{margin-bottom:2.2rem;}
+
+.tt-h1{font-family:var(--font-display);font-weight:700;font-size:clamp(2rem,8vw,2.4rem);letter-spacing:-0.01em;line-height:0.95;color:var(--text);margin-bottom:0.9rem;}
+.tt-style-line{font-size:0.92rem;color:var(--text);line-height:1.5;}
+.tt-exp{margin-top:0.8rem;font-size:0.76rem;line-height:1.6;color:var(--text-muted);}
+
+.tt-kicker{font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.6rem;}
+
+.tt-ig-link{display:inline-flex;align-items:center;gap:0.4em;font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;}
+.tt-ig-link:hover{color:var(--text);}
+.tt-ig-link:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;}
+
+/* ===== shared external-link icon — same glyph as About/project pages,
+   inherits currentColor. ===== */
+.ext-icon{width:13px;height:13px;flex-shrink:0;}
+
+/* Capped below the 1000px breakpoint (overridden to 56vw there) — left
+   uncapped, a tablet-width single column would stretch past 650px,
+   upscaling sloth-hand/eagle-profile (real width 332px, see the JS
+   comment below) well past a safe ratio. 460px keeps every tile at a
+   moderate, curated size at any width below desktop, not just on phones. */
+.tt-paper{background:var(--surface-bg);width:100%;max-width:460px;margin:0 auto;padding:1.1rem;}
+
+/* ===== compact quote module — lives inside the paper, above the gallery,
+   instead of the earlier full-page .inquiry section. Reuses the same
+   .inquiry-* field/label/input/textarea/submit classes and WhatsApp JS
+   (only the wrapper and a couple of size overrides are new) so nothing
+   about the form fields or submit logic changed, just its footprint. */
+.tt-quote{margin-bottom:1.6rem;padding-bottom:1.4rem;border-bottom:1px solid rgba(33,29,25,0.12);}
+.tt-quote .inquiry-title{font-size:1.15rem;margin-bottom:1.1rem;}
+.tt-quote .inquiry-field{margin-bottom:0.9rem;}
+.tt-quote .inquiry-textarea{min-height:4rem;}
+.tt-quote .inquiry-submit{margin-top:0.9rem;}
+
+.tt-strip{display:flex;flex-direction:column;gap:0.9rem;}
+.tt-strip + .tt-strip{margin-top:0.9rem;}
+
+.tt-photo{display:block;width:100%;overflow:hidden;background:var(--surface-bg);aspect-ratio:0.95;}
+.tt-photo.is-featured{aspect-ratio:0.72;}
+.tt-photo img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .5s ease;}
+.tt-photo:hover img,.tt-photo:focus-visible img{transform:scale(1.03);}
+.tt-photo:focus-visible{outline:2px solid var(--surface-text);outline-offset:-2px;}
+
+@media (prefers-reduced-motion:reduce){
+  .tt-photo img{transition:none;}
+  .tt-photo:hover img,.tt-photo:focus-visible img{transform:none;}
+}
+
+@media (min-width:1000px){
+  .tt-layout{flex-direction:row;align-items:flex-start;justify-content:center;gap:3vw;padding:5rem 3vw 0;}
+  .tt-side{flex:0 0 auto;width:15vw;min-width:150px;position:sticky;top:6.5rem;margin-bottom:0;}
+  .tt-side-left{order:1;}
+  .tt-side-right{order:3;}
+  .tt-paper{order:2;flex:0 0 auto;width:56vw;max-width:820px;margin:0;padding:1.6rem;}
+  .tt-h1{font-size:clamp(2.2rem,3vw,2.7rem);}
+
+  /* Two independent vertical columns (not a paired grid) — a CSS grid
+     forces every row's height to match across both columns, which reads
+     as "paired rows" rather than a continuous two-strip editorial
+     gallery, and produced its own visible seams where a tall image in
+     one column forced a matching empty-looking row height in the other.
+     Each column here just stacks its own images top to bottom,
+     independent of the other. The risk with two independent columns is
+     the opposite problem — no shared row tracks means nothing keeps the
+     two columns the same total height, so a naive split (e.g. strict
+     even/odd) can still end with one column visibly longer than the
+     other. That's handled on the JS side instead: tiles are assigned to
+     whichever column currently has less accumulated height (weighted by
+     each tile's real aspect ratio — featured tiles are taller), so the
+     two columns finish within a few percent of each other without
+     touching any image's crop or size. See buildBalancedColumns() below. */
+  .tt-cols{display:flex;gap:1.3rem;}
+  .tt-cols .tt-strip{flex:1 1 0;min-width:0;}
+}
+
+/* ===== inquiry fields — minimal WhatsApp form. Lives inside the bone
+   paper now (see .tt-quote above), so these use the paper's dark-on-light
+   palette (--surface-text/--surface-text-muted), not the page's light-
+   on-black palette the old full-page black version used. */
+.inquiry-kicker{font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--surface-text-muted);margin-bottom:0.8rem;}
+.inquiry-title{font-family:var(--font-display);font-weight:700;font-size:1.5rem;letter-spacing:-0.005em;line-height:1;color:var(--surface-text);margin-bottom:1.8rem;}
+
+.inquiry-field{margin-bottom:1.2rem;}
+.inquiry-label{display:block;font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--surface-text-muted);margin-bottom:0.5rem;}
+.inquiry-input,.inquiry-textarea{
+  width:100%;background:transparent;border:none;border-bottom:1px solid rgba(33,29,25,0.18);
+  color:var(--surface-text);font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:300;
+  padding:0.5rem 0.1rem;resize:vertical;
+}
+.inquiry-textarea{min-height:6.5rem;line-height:1.5;}
+.inquiry-input::placeholder,.inquiry-textarea::placeholder{color:rgba(33,29,25,0.35);}
+.inquiry-input:focus,.inquiry-textarea:focus{outline:none;border-bottom-color:var(--surface-text);}
+
+.inquiry-submit{
+  margin-top:1.4rem;display:inline-block;width:100%;
+  background:var(--surface-text);color:var(--surface-bg);border:none;
+  font-family:'DM Sans',sans-serif;font-weight:500;
+  font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;
+  padding:1rem 1.4rem;cursor:pointer;transition:opacity .2s ease;
+}
+.inquiry-submit:hover{opacity:0.82;}
+.inquiry-submit:focus-visible{outline:2px solid var(--surface-text);outline-offset:3px;}
+</style>
+</head>
+<body>
+
+<nav class="proto-nav">
+  <a class="proto-logo" href="/"><img class="proto-logo-img" src="/images/brand/charlesdays-wordmark.png" alt="Charles Days"></a>
+  <div class="proto-menu">
+    <a href="/art-direction/">ART DIRECTION</a>
+    <a href="/tattoo/" aria-current="page">TATTOO</a>
+    <a href="/film/">FILM</a>
+    <a href="/about/">ABOUT</a>
+  <a href="/manifiesto/">MANIFIESTO</a>
+  </div>
+  <button type="button" class="proto-menu-toggle" id="mobileMenuToggle" aria-expanded="false" aria-controls="mobileNavOverlay">MENU</button>
+</nav>
+
+<div class="mobile-nav-overlay" id="mobileNavOverlay" role="dialog" aria-modal="true" aria-label="Menú principal" aria-hidden="true">
+  <nav class="mobile-nav-links" aria-label="Navegación móvil">
+    <a href="/art-direction/">ART DIRECTION</a>
+    <a href="/tattoo/" aria-current="page">TATTOO</a>
+    <a href="/film/">FILM</a>
+    <a href="/about/">ABOUT</a>
+    <a href="/manifiesto/">MANIFIESTO</a>
+  </nav>
+</div>
+
+<script>
+(function () {
+  var toggle = document.getElementById('mobileMenuToggle');
+  var overlay = document.getElementById('mobileNavOverlay');
+  if (!toggle || !overlay) return;
+  var isOpen = false;
+
+  function openMenu() {
+    isOpen = true;
+    overlay.classList.add('is-open');
+    overlay.removeAttribute('aria-hidden');
+    toggle.textContent = 'CLOSE';
+    toggle.setAttribute('aria-expanded', 'true');
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    var firstLink = overlay.querySelector('a');
+    if (firstLink) firstLink.focus();
+  }
+
+  function closeMenu() {
+    isOpen = false;
+    overlay.classList.remove('is-open');
+    overlay.setAttribute('aria-hidden', 'true');
+    toggle.textContent = 'MENU';
+    toggle.setAttribute('aria-expanded', 'false');
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+    toggle.focus();
+  }
+
+  toggle.addEventListener('click', function () {
+    if (isOpen) { closeMenu(); } else { openMenu(); }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (isOpen && e.key === 'Escape') { closeMenu(); }
+  });
+})();
+</script>
+
+<main class="tattoo-page">
+  <div class="tt-layout">
+    <aside class="tt-side tt-side-left">
+      <h1 class="tt-h1">TATTOO</h1>
+      <p class="tt-style-line">Ornamental black and red</p>
+      <p class="tt-style-line">Realism black and grey</p>
+      <p class="tt-exp">+10 años de experiencia<br>Diseños propios</p>
+    </aside>
+
+    <div class="tt-paper">
+      <section class="tt-quote" id="tattoo-inquiry" aria-labelledby="inquiry-title">
+        <p class="inquiry-kicker">Cotización</p>
+        <h2 class="inquiry-title" id="inquiry-title">¿Tienes una idea?</h2>
+        <form id="inquiryForm">
+          <div class="inquiry-field">
+            <label class="inquiry-label" for="inquiryName">Nombre</label>
+            <input class="inquiry-input" type="text" id="inquiryName" name="name" required>
+          </div>
+          <div class="inquiry-field">
+            <label class="inquiry-label" for="inquiryIdea">Idea y zona</label>
+            <textarea class="inquiry-textarea" id="inquiryIdea" name="idea" placeholder="Cuéntame tu idea y dónde te la quieres hacer" required></textarea>
+          </div>
+          <button class="inquiry-submit" type="submit">Enviar a WhatsApp</button>
+        </form>
+      </section>
+
+      <div class="tt-cols" id="ttCols" aria-label="Galería de tatuajes"></div>
+    </div>
+
+    <aside class="tt-side tt-side-right">
+      <p class="tt-kicker">Más trabajos</p>
+      <a class="tt-ig-link" href="https://www.instagram.com/charlesdays.art" target="_blank" rel="noopener noreferrer">INSTAGRAM<svg class="ext-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></a>
+    </aside>
+  </div>
+</main>
+
+<script type="module">
+/* Tattoo page — editorial correction pass. Replaces the earlier
+   full-bleed wall/masonry attempt (images too large, visible gaps,
+   heavy to browse) with the composition already approved elsewhere on
+   the site: a centered bone "paper" strip on black (--surface-bg, the
+   same value used by every project-detail page), a narrow editorial
+   note to its left, a narrow quote/Instagram note to its right — see
+   the CSS above. Reads the discipline's Wall-curated entries directly
+   from stories.js (discipline: ["tattoo"]) plus a small local array of
+   additional confirmed tattoo photos that don't need a full stories.js
+   entry. Every image is a real, already-supplied asset — nothing
+   invented. head-neck-night.jpg is a duplicate angle of the same
+   subject as tattoo-neck-sky and stays out to avoid showing the same
+   piece twice.
+
+   Sizing: two tiers only this pass (`featured` / regular), not the
+   wider large/medium/small hierarchy from the previous attempt — the
+   brief specifically wants a narrower, more curated range. `featured`
+   covers the pieces called out by name: chameleon, raccoon,
+   eagle-profile, the black/red chest, the ornamental leg, the
+   ornamental face, and neck/sky. eagle-profile is a Wall piece whose
+   only available source is a small Instagram thumbnail crop (see
+   stories.js provenance notes) — it's already near its real resolution
+   ceiling, so giving it the same featured size as the rest means a mild
+   upscale rather than a crop; there is no higher-resolution original to
+   draw from.
+
+   sloth-hand is intentionally left out of this set: its only available
+   source (see the tattoo-sloth-hand provenance note in stories.js) was
+   visibly soft/degraded once placed in this composition, and no
+   higher-quality version exists anywhere in the supplied files
+   (re-checked, nothing new since the original search) — removed rather
+   than shown at poor quality, per direction.
+
+   Two columns, each photo appears exactly once, in original TILES order:
+   on desktop the 16 tiles are split into two independent columns (see
+   buildBalancedColumns() below) that each stack their own tiles top to
+   bottom, gap-free by construction — not a paired grid, which forces
+   matching row heights across both columns and reads as awkward paired
+   rows rather than a continuous two-strip gallery. Splitting strictly by
+   even/odd index was tried first and rejected: in this curated order
+   every "featured" (taller, 0.72 aspect-ratio) tile happens to land on
+   an even index, so the even column ends up ~28% taller than the odd
+   one — a large empty gap at the bottom of the shorter column. Mobile
+   collapses to a single column (the plain 16-tile order) since there's
+   only one column there anyway. */
+import { stories } from '/stories.js';
+
+var byId = {};
+stories.forEach(function (s) { byId[s.id] = s; });
+
+function fromStory(id, featured) {
+  var s = byId[id];
+  return { src: s.cover.src, alt: s.cover.alt || '', featured: !!featured };
+}
+
+var abdomen = byId['tattoo-black-red'].supportingImages[0];
+
+var TILES = [
+  fromStory('tattoo-neck-sky', true),
+  { src: '/images/tattoo/tiki.jpg', alt: 'Tatuaje de máscara tiki con hojas, antebrazo', featured: false },
+  fromStory('tattoo-eagle-profile', true),
+  { src: '/images/tattoo/wolf.jpg', alt: 'Tatuaje realista de lobo, brazo', featured: false },
+  { src: '/images/tattoo/chameleon.jpg', alt: 'Tatuaje realista de camaleón, pierna', featured: true },
+  { src: '/images/tattoo/chest-ornamental-black.jpg', alt: 'Tatuaje ornamental negro, pecho/torso', featured: false },
+  fromStory('tattoo-black-red', true),
+  { src: '/images/tattoo/head-lettering.jpg', alt: 'Tatuaje de letras en la cabeza y detrás de la oreja', featured: false },
+  { src: '/images/tattoo/raccoon.jpg', alt: 'Tatuaje realista de mapache, antebrazo', featured: true },
+  { src: '/images/tattoo/lettering-arm.jpg', alt: 'Tatuaje de letras góticas, pierna', featured: false },
+  fromStory('tattoo-leg-red-black', true),
+  { src: '/images/tattoo/freddy.jpg', alt: 'Tatuaje realista de Freddy Krueger, muslo', featured: false },
+  fromStory('tattoo-ornamental-face', true),
+  { src: abdomen.src, alt: abdomen.alt, featured: false },
+  { src: '/images/wall/tattoo-eagle.png', alt: 'Tatuaje de águila, brazo completo', featured: false },
+  { src: '/images/tattoo/lettering-floral.jpg', alt: 'Tatuaje de letras con detalle floral, brazo completo', featured: false }
+];
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function photoHTML(tile, i) {
+  var cls = 'tt-photo' + (tile.featured ? ' is-featured' : '');
+  return '<a class="' + cls + '" href="' + tile.src + '" target="_blank" rel="noopener noreferrer">' +
+    '<img src="' + tile.src + '" alt="' + esc(tile.alt) + '" loading="' + (i < 2 ? 'eager' : 'lazy') + '" decoding="async">' +
+  '</a>';
+}
+
+function stripHTML(tiles) {
+  return '<div class="tt-strip">' + tiles.map(photoHTML).join('') + '</div>';
+}
+
+/* Desktop split: walk TILES in order, dropping each tile into whichever
+   column currently has less accumulated height. Height is approximated
+   from each tile's real aspect-ratio class (matches .tt-photo/.is-
+   featured in the CSS above: 0.72 for featured, 0.95 for regular — both
+   about the same width, so the ratio alone is a fair proxy). This keeps
+   the two columns within a few percent of each other regardless of how
+   the featured/regular tiles happen to fall in the curated order, while
+   still alternating tile-by-tile whenever the running heights are close
+   — i.e. it only ever deviates from strict alternation to prevent a
+   real height mismatch, never arbitrarily. */
+function buildBalancedColumns(tiles) {
+  var FEATURED_RATIO = 1 / 0.72, REGULAR_RATIO = 1 / 0.95;
+  var colA = [], colB = [];
+  var heightA = 0, heightB = 0;
+  tiles.forEach(function (tile) {
+    var weight = tile.featured ? FEATURED_RATIO : REGULAR_RATIO;
+    if (heightA <= heightB) { colA.push(tile); heightA += weight; }
+    else { colB.push(tile); heightB += weight; }
+  });
+  return [colA, colB];
+}
+
+var mq = window.matchMedia('(min-width: 1000px)');
+var rendered = null; // 'desktop' | 'mobile' — avoids re-rendering on unrelated resizes
+
+function render() {
+  var mode = mq.matches ? 'desktop' : 'mobile';
+  if (mode === rendered) return;
+  rendered = mode;
+  var html;
+  if (mode === 'desktop') {
+    var cols = buildBalancedColumns(TILES);
+    html = stripHTML(cols[0]) + stripHTML(cols[1]);
+  } else {
+    html = stripHTML(TILES);
+  }
+  document.getElementById('ttCols').innerHTML = html;
+}
+
+render();
+mq.addEventListener('change', render);
+
+/* WhatsApp inquiry — no backend, no validation beyond the browser's own
+   `required`. Builds a prefilled wa.me message from the two form values
+   and opens it; the conversation itself (references, size, placement,
+   availability) happens with Charles directly on WhatsApp afterward. */
+var WHATSAPP_NUMBER = '51923386692'; // Charles' WhatsApp number
+
+document.getElementById('inquiryForm').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var name = document.getElementById('inquiryName').value.trim();
+  var idea = document.getElementById('inquiryIdea').value.trim();
+  var message = 'Hola Charles, quiero cotizar un tattoo.\n\n' +
+    'Mi nombre es: ' + name + '\n\n' +
+    'Mi idea:\n' + idea;
+  var url = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(message);
+  window.open(url, '_blank', 'noopener');
+});
+
+/* ======================================================================
+   SCROLL INERTIA — same mechanism/constants already approved and
+   working on the Art Direction list page (identical INERTIA_GAIN/
+   FRICTION/STOP/MAX, identical velocity/friction rAF tick, identical
+   desktop-only + reduced-motion gating). This page has no fixed-overlay
+   scroll container (unlike a project-detail's #of-scroll) — it's the
+   plain document, so the same velocity model drives native
+   `window.scrollBy`, exactly like the Art Direction list page does. */
+var reduceMotionForInertia = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+var INERTIA_GAIN = 1.9;
+var INERTIA_FRICTION = 0.92;
+var INERTIA_STOP = 0.5;
+var INERTIA_MAX = 140;
+
+var inertiaVelocity = 0;
+var inertiaRaf = null;
+
+function isDesktopWidth() { return window.innerWidth >= 1000; }
+
+function inertiaTick() {
+  window.scrollBy(0, inertiaVelocity);
+  inertiaVelocity *= INERTIA_FRICTION;
+  if (Math.abs(inertiaVelocity) < INERTIA_STOP) {
+    inertiaVelocity = 0;
+    inertiaRaf = null;
+    return;
+  }
+  inertiaRaf = requestAnimationFrame(inertiaTick);
+}
+
+if (!reduceMotionForInertia) {
+  window.addEventListener('wheel', function (e) {
+    if (!isDesktopWidth()) return;
+    e.preventDefault();
+    inertiaVelocity += e.deltaY * INERTIA_GAIN;
+    if (inertiaVelocity > INERTIA_MAX) inertiaVelocity = INERTIA_MAX;
+    if (inertiaVelocity < -INERTIA_MAX) inertiaVelocity = -INERTIA_MAX;
+    if (inertiaRaf === null) { inertiaRaf = requestAnimationFrame(inertiaTick); }
+  }, { passive: false });
+}
+</script>
+</body>
+</html>

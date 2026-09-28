@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manifiesto — Charles Days</title>
+<meta name="description" content="Manifiesto, la primera exposición individual de Charles Days en Symbiosis Art. Una exploración de escritura, gesto, identidad, intervención y memoria.">
+<link rel="canonical" href="https://charlesdays.art/manifiesto/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Manifiesto — Charles Days">
+<meta property="og:description" content="Manifiesto, la primera exposición individual de Charles Days en Symbiosis Art. Una exploración de escritura, gesto, identidad, intervención y memoria.">
+<meta property="og:url" content="https://charlesdays.art/manifiesto/">
+<meta property="og:image" content="https://charlesdays.art/images/manifiesto/gallery-wall.jpg">
+<meta property="og:image:alt" content="Pared de la galería con obras y skates expuestos durante Manifiesto">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=Space+Grotesk:wght@500;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#000;--text:#f5f2ed;--text-muted:#9aa4c2;--hair:rgba(245,242,237,0.12);--surface-bg:#f3eee5;--surface-text:#211d19;--surface-text-muted:#5e574c;--font-display:'Space Grotesk', sans-serif;}
+html{background:var(--bg);scroll-behavior:smooth;overflow-x:clip;}
+html,body{color:var(--text);font-family:'DM Sans',sans-serif;}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
+main img{display:block;max-width:100%;height:auto;}
+
+/* ===== nav — same fixed/transparent treatment reused across every page.
+   Manifiesto is not part of primary nav prominence (see CLAUDE.md), so
+   no 5th item / aria-current is added here — same four links as
+   About/Tattoo/Film, unmarked. ===== */
+.proto-nav{position:fixed;top:0;left:0;right:0;z-index:50;height:52px;display:flex;justify-content:flex-end;align-items:center;padding:0 1.1rem;background:transparent;}
+.proto-logo,.proto-menu a{text-shadow:0 1px 3px rgba(0,0,0,0.75),0 2px 10px rgba(0,0,0,0.55),0 5px 20px rgba(0,0,0,0.35);}
+.proto-logo{position:absolute;left:50%;top:50%;transform:translate(-50%,calc(-50% + 6px));display:inline-flex;align-items:center;}
+.proto-logo-img{filter:drop-shadow(0 1px 2px rgba(0,0,0,0.95)) drop-shadow(0 2px 5px rgba(0,0,0,0.6));}
+.proto-logo-img{display:block;width:118px;height:auto;margin-top:-8px;}
+@media (min-width:768px){.proto-logo-img{width:135px;margin-top:0;}}
+.proto-menu{display:none;}
+.proto-menu a{font-size:0.75rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);text-decoration:none;opacity:0.72;}
+.proto-menu a:hover{opacity:1;}
+.proto-menu a:focus-visible,.proto-logo:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;}
+@media (min-width:768px){.proto-menu{display:flex;gap:1.5rem;}}
+
+/* ===== mobile nav — MENU/CLOSE overlay, mobile-only (<768px). Desktop
+   nav (.proto-menu) is completely untouched; this is an independent
+   addition that reuses the same nav bar for its own header (logo stays
+   pinned top-left, this toggle occupies the same top-right slot the
+   desktop menu uses, so only one of the two is ever visible/laid out
+   at a given width). ===== */
+.proto-menu-toggle{display:inline-block;background:none;border:none;padding:0;font-family:'DM Sans',sans-serif;font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);opacity:0.72;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,0.55),0 2px 10px rgba(0,0,0,0.35);}
+.proto-menu-toggle:hover{opacity:1;}
+.proto-menu-toggle:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;opacity:1;}
+@media (min-width:768px){.proto-menu-toggle{display:none;}}
+
+.mobile-nav-overlay{position:fixed;inset:0;z-index:45;background:var(--bg);display:flex;align-items:center;opacity:0;visibility:hidden;transition:opacity .25s ease;}
+.mobile-nav-overlay.is-open{opacity:1;visibility:visible;}
+.mobile-nav-links{display:flex;flex-direction:column;gap:1.4rem;padding:0 1.6rem;width:100%;}
+.mobile-nav-links a{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,10vw,2.6rem);letter-spacing:0.03em;color:#f5f2ed;text-decoration:none;opacity:0.85;}
+.mobile-nav-links a:hover,.mobile-nav-links a:focus-visible{opacity:1;}
+.mobile-nav-links a[aria-current="page"]{opacity:1;text-decoration:underline;text-underline-offset:0.3em;}
+.mobile-nav-links a:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:4px;}
+@media (min-width:768px){.mobile-nav-overlay{display:none;}}
+@media (prefers-reduced-motion:reduce){.mobile-nav-overlay{transition:none;}}
+
+
+.mf-page{padding-top:52px;}
+
+/* ===== editorial grid system — one shared inset/measure used by every
+   section on the page (identity, imagery, text, workshop, CTA,
+   closing), so nothing sits at the raw viewport edge and everything
+   reads as one designed layout rather than independent stacked blocks.
+   Mobile: plain block stacking, full padding, no columns — this system
+   is desktop-only (>=900px), matching the rest of the site's pattern. ===== */
+.mf-container{padding:0 1.2rem;max-width:1600px;margin:0 auto;}
+.mf-row{display:block;}
+@media (min-width:900px){
+  .mf-container{padding:0 8vw;}
+  .mf-row{display:flex;align-items:flex-start;gap:2.5rem;}
+  .mf-row > *{min-width:0;}
+  .mf-col-5{flex:0 0 41.6667%;max-width:41.6667%;}
+  .mf-col-6{flex:0 0 50%;max-width:50%;}
+  .mf-col-7{flex:0 0 58.3333%;max-width:58.3333%;}
+  .mf-col-8{flex:0 0 66.6667%;max-width:66.6667%;}
+}
+
+/* ===== identity — title, subtitle, gallery credit. Quiet, no split
+   hero, no eye, no opening-frame system: Manifiesto opens simply, on
+   black, before the documentary imagery takes over. ===== */
+.mf-identity{padding:4.2rem 0 2.6rem;}
+.mf-h1{font-family:var(--font-display);font-weight:700;font-size:clamp(2.4rem,11vw,4rem);letter-spacing:-0.015em;line-height:0.95;color:var(--text);margin-bottom:1.1rem;}
+.mf-subtitle{font-size:1rem;line-height:1.5;color:var(--text);opacity:0.85;margin-bottom:0.5rem;}
+.mf-gallery{font-size:0.68rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-muted);}
+.mf-gallery b{color:var(--text);font-weight:500;letter-spacing:0.06em;}
+@media (min-width:900px){.mf-identity{padding:6.5rem 0 4rem;}.mf-identity-inner{max-width:58.3333%;}}
+
+/* ===== editorial text column — measure capped inside its grid cell so
+   line length stays readable even when the cell itself is wider. ===== */
+.mf-text p{font-size:0.98rem;line-height:1.75;color:var(--text);opacity:0.92;font-weight:300;max-width:38rem;}
+.mf-text-kicker{font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.9rem;}
+.mf-text{padding:1.4rem 0;}
+@media (min-width:900px){.mf-text{padding:0;align-self:center;}}
+
+/* ===== imagery — natural aspect ratios only, no cover-crop, no
+   stretching, at every size in this grid. ===== */
+.mf-img-wrap{padding:1.4rem 0;}
+.mf-img-wrap img,.mf-subpair img{display:block;width:100%;height:auto;background:#0a0a0a;}
+@media (min-width:900px){.mf-img-wrap{padding:0;}}
+
+/* Small internal duo for the two detail/support images — modest scale,
+   never competing with the documentary/process rows around it. */
+.mf-subpair{display:flex;flex-direction:column;gap:1.1rem;}
+@media (min-width:900px){.mf-subpair{flex-direction:row;gap:1.1rem;}.mf-subpair > *{flex:1 1 0;min-width:0;}}
+
+/* ===== hero-scale rows — the opening image and the mirror/process
+   image both carry deliberately large, asymmetric weight. ===== */
+.mf-hero-figure{padding:1.4rem 0;}
+.mf-hero-figure img{width:100%;background:#0a0a0a;}
+@media (min-width:900px){.mf-hero-figure{padding:2.2rem 0;}}
+
+/* ===== HUELLA Y SUPERFICIE — the one bone-surface break on the page,
+   full-bleed panel, but its own content re-anchors to the same
+   container inset so it still reads as part of one layout system. ===== */
+.mf-workshop{background:var(--surface-bg);padding:3rem 0;}
+.mf-workshop-inner{padding:0 1.2rem;}
+.mf-workshop-title{font-family:var(--font-display);font-weight:700;font-size:clamp(1.5rem,4.2vw,1.9rem);letter-spacing:-0.005em;color:var(--surface-text);margin-bottom:0.5rem;}
+.mf-workshop-subtitle{font-size:0.82rem;color:var(--surface-text-muted);margin-bottom:1.6rem;}
+@media (min-width:900px){
+  .mf-workshop{padding:4rem 0;}
+  .mf-workshop-inner{padding:0 8vw;}
+  .mf-workshop-heading{max-width:58.3333%;}
+}
+
+/* Workshop pair — balanced by matching HEIGHT rather than width, so a
+   tall/narrow (table) and a wide/short (presentation) photo read as
+   two deliberately related masses instead of one dwarfing the other.
+   No stretching, no cropping — each image keeps width:auto at its own
+   natural ratio. Mobile keeps the simple stacked full-width photos. */
+.mf-workshop-pair{display:flex;flex-direction:column;gap:1.1rem;}
+.mf-workshop-pair img{display:block;width:100%;height:auto;background:#0a0a0a;}
+@media (min-width:900px){
+  .mf-workshop-pair{flex-direction:row;align-items:flex-end;justify-content:flex-start;gap:1.75rem;flex-wrap:wrap;}
+  .mf-workshop-pair img{width:auto;height:clamp(220px,28vw,26rem);max-width:100%;}
+}
+
+/* ===== aftermovie — a deliberate chapter break between the workshop
+   and the closing movement: centered within the shared container
+   (the one intentional break from the page's otherwise asymmetric
+   rhythm), same shared external-CTA treatment approved sitewide. ===== */
+.mf-aftermovie{padding:2.8rem 0 3.2rem;text-align:center;}
+.mf-aftermovie-link{display:inline-flex;align-items:center;gap:0.4em;font-size:0.74rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text);text-decoration:none;border-bottom:1.5px solid rgba(245,242,237,0.4);padding-bottom:0.3rem;}
+.mf-aftermovie-link:hover{border-color:var(--text);}
+.mf-aftermovie-link:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;}
+.ext-icon{width:13px;height:13px;flex-shrink:0;}
+@media (min-width:900px){.mf-aftermovie{padding:3.6rem 0 4.2rem;}}
+
+/* ===== closing image — the emotional close. Large enough to feel like
+   a real ending, generous but not excessive room around it, slightly
+   asymmetric rather than dead-centered in a black field. ===== */
+.mf-closing{padding:3.2rem 0 5.5rem;display:flex;justify-content:center;}
+.mf-closing img{display:block;width:100%;max-width:26rem;height:auto;}
+@media (min-width:900px){
+  .mf-closing{padding:4.5rem 0 7rem;justify-content:flex-start;}
+  .mf-closing img{max-width:46vw;margin-left:8.3333%;}
+}
+</style>
+</head>
+<body>
+
+<nav class="proto-nav">
+  <a class="proto-logo" href="/"><img class="proto-logo-img" src="/images/brand/charlesdays-wordmark.png" alt="Charles Days"></a>
+  <div class="proto-menu">
+    <a href="/art-direction/">ART DIRECTION</a>
+    <a href="/tattoo/">TATTOO</a>
+    <a href="/film/">FILM</a>
+    <a href="/about/">ABOUT</a>
+  <a href="/manifiesto/" aria-current="page">MANIFIESTO</a>
+  </div>
+  <button type="button" class="proto-menu-toggle" id="mobileMenuToggle" aria-expanded="false" aria-controls="mobileNavOverlay">MENU</button>
+</nav>
+
+<div class="mobile-nav-overlay" id="mobileNavOverlay" role="dialog" aria-modal="true" aria-label="Menú principal" aria-hidden="true">
+  <nav class="mobile-nav-links" aria-label="Navegación móvil">
+    <a href="/art-direction/">ART DIRECTION</a>
+    <a href="/tattoo/">TATTOO</a>
+    <a href="/film/">FILM</a>
+    <a href="/about/">ABOUT</a>
+    <a href="/manifiesto/" aria-current="page">MANIFIESTO</a>
+  </nav>
+</div>
+
+<script>
+(function () {
+  var toggle = document.getElementById('mobileMenuToggle');
+  var overlay = document.getElementById('mobileNavOverlay');
+  if (!toggle || !overlay) return;
+  var isOpen = false;
+
+  function openMenu() {
+    isOpen = true;
+    overlay.classList.add('is-open');
+    overlay.removeAttribute('aria-hidden');
+    toggle.textContent = 'CLOSE';
+    toggle.setAttribute('aria-expanded', 'true');
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    var firstLink = overlay.querySelector('a');
+    if (firstLink) firstLink.focus();
+  }
+
+  function closeMenu() {
+    isOpen = false;
+    overlay.classList.remove('is-open');
+    overlay.setAttribute('aria-hidden', 'true');
+    toggle.textContent = 'MENU';
+    toggle.setAttribute('aria-expanded', 'false');
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+    toggle.focus();
+  }
+
+  toggle.addEventListener('click', function () {
+    if (isOpen) { closeMenu(); } else { openMenu(); }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (isOpen && e.key === 'Escape') { closeMenu(); }
+  });
+})();
+</script>
+
+<main class="mf-page">
+
+  <div class="mf-container">
+
+    <section class="mf-identity">
+      <div class="mf-identity-inner">
+        <h1 class="mf-h1">MANIFIESTO</h1>
+        <p class="mf-subtitle">Primera exposición individual</p>
+        <p class="mf-gallery">Galería <b>Symbiosis Art</b></p>
+      </div>
+    </section>
+
+    <figure class="mf-hero-figure">
+      <img src="/images/manifiesto/gallery-wall.jpg" alt="Pared de la galería con obras y skates expuestos durante Manifiesto" loading="eager" decoding="async">
+    </figure>
+
+    <div class="mf-row">
+      <section class="mf-text mf-col-5">
+        <p class="mf-text-kicker">Texto curatorial — Symbiosis Art</p>
+        <p>La obra de Charles Days se erige como un ejercicio de autoexpresión radical, donde cada pieza nace del impulso de intervenir y personalizar lo que lo rodea, de inscribir la marca del yo en la materia. Su recorrido creativo atraviesa distintos soportes pero conserva siempre una misma esencia: la necesidad de comunicar a través de la palabra, el trazo y el color.</p>
+      </section>
+      <figure class="mf-img-wrap mf-col-7">
+        <img src="/images/manifiesto/floor-installation.jpg" alt="Instalación de piso durante el montaje de Manifiesto, con fotógrafos documentando la exhibición" loading="lazy" decoding="async">
+      </figure>
+    </div>
+
+    <div class="mf-row">
+      <figure class="mf-img-wrap mf-col-7">
+        <img src="/images/manifiesto/opening-room.jpg" alt="Vista general de la sala de exposición durante Manifiesto, primera exposición individual de Charles Days" loading="lazy" decoding="async">
+      </figure>
+      <section class="mf-text mf-col-5">
+        <p>El contraste sobrio entre blanco y negro estructura gran parte de su estética, mientras que los destellos de dorado y plateado irrumpen para subrayar la intensidad del gesto. En este equilibrio entre sobriedad y resplandor, la letra se convierte en textura visual: una escritura que no solo se muestra, sino que también se despliega y ocupa espacio. Tal como señala Tim Ingold, la caligrafía no es un canal de comunicación estandarizada, sino huella viva, gesto encarnado. En la obra de Charles Days, este trazo se mueve entre norma y personalidad, revelando en ocasiones fragmentos legibles que, como en la calle, invitan a descubrir sentidos allí donde antes parecía solo indescifrable. El artista juega así con la tensión entre mostrar y velar, recordándonos que en toda escritura persiste la expectativa de significado.</p>
+      </section>
+    </div>
+
+    <div class="mf-row">
+      <div class="mf-img-wrap mf-col-5">
+        <div class="mf-subpair">
+          <img src="/images/manifiesto/bust-detail.jpg" alt="Detalle de un busto escultórico intervenido por Charles Days" loading="lazy" decoding="async">
+          <img src="/images/manifiesto/fox-artwork-detail.jpg" alt="Detalle de una pintura caligráfica de un zorro, parte de la exposición Manifiesto" loading="lazy" decoding="async">
+        </div>
+      </div>
+      <section class="mf-text mf-col-7">
+        <p>Esta exploración se amplía en el ámbito tridimensional: dos bustos intervenidos se convierten en superficies de inscripción, prolongando la impronta del gesto más allá de la obra hacia el espacio que la contiene. Aquí también resuena lo que Ingold describe como el carácter performativo del trazo: no solo deja marca, sino que configura movimiento y relación. La galería, en este sentido, no neutraliza el pulso urbano, sino que lo concentra; el gesto caligráfico y la energía del graffiti se despliegan en un nuevo contexto para reafirmar una urgencia vital, la de inscribir la propia voz en diálogo con otras.</p>
+      </section>
+    </div>
+
+    <div class="mf-row">
+      <figure class="mf-hero-figure mf-col-8">
+        <img src="/images/manifiesto/process-mirror.jpg" alt="Charles Days interviniendo un espejo como parte de su proceso creativo" loading="lazy" decoding="async">
+      </figure>
+    </div>
+
+  </div>
+
+  <section class="mf-workshop" aria-labelledby="mf-workshop-title">
+    <div class="mf-workshop-inner">
+      <div class="mf-workshop-heading">
+        <h2 class="mf-workshop-title" id="mf-workshop-title">HUELLA Y SUPERFICIE</h2>
+        <p class="mf-workshop-subtitle">Taller realizado durante la exposición</p>
+      </div>
+      <div class="mf-workshop-pair">
+        <img src="/images/manifiesto/workshop-table.jpg" alt="Mesa con materiales y objetos usados durante el taller Huella y Superficie" loading="lazy" decoding="async">
+        <img src="/images/manifiesto/workshop-presentation.jpg" alt="Presentación proyectada durante el taller Huella y Superficie" loading="lazy" decoding="async">
+      </div>
+    </div>
+  </section>
+
+  <div class="mf-container">
+
+    <section class="mf-aftermovie">
+      <a class="mf-aftermovie-link" href="https://www.instagram.com/reel/DP_zxAxDtI4/" target="_blank" rel="noopener noreferrer">VER AFTERMOVIE DE LA EXPOSICIÓN<svg class="ext-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></a>
+    </section>
+
+    <section class="mf-text mf-text--final">
+      <p>Manifiesto se presenta, así, como un testimonio de que la escritura es siempre más que lenguaje; es trazo, identidad, cuerpo y memoria. En la obra de Charles Days, cada textura y cada intervención recuerdan que la calle —y la vida misma— están hechas de líneas superpuestas que nos comunican, pero que también laten como gestos vivos.</p>
+    </section>
+
+    <figure class="mf-closing">
+      <img src="/images/manifiesto/closing-charles-mother.jpg" alt="Charles Days junto a su madre" loading="lazy" decoding="async">
+    </figure>
+
+  </div>
+
+</main>
+
+<script type="module">
+/* ======================================================================
+   SCROLL INERTIA — same mechanism/constants already approved and used
+   on About/Tattoo (identical INERTIA_GAIN/FRICTION/STOP/MAX, identical
+   velocity/friction rAF tick, identical desktop-only + reduced-motion
+   gating). Manifiesto is a plain document like those pages — no
+   opening-frame system, no scroll hijacking. */
+var reduceMotionForInertia = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+var INERTIA_GAIN = 1.9;
+var INERTIA_FRICTION = 0.92;
+var INERTIA_STOP = 0.5;
+var INERTIA_MAX = 140;
+
+var inertiaVelocity = 0;
+var inertiaRaf = null;
+
+function isDesktopWidth() { return window.innerWidth >= 900; }
+
+function inertiaTick() {
+  window.scrollBy(0, inertiaVelocity);
+  inertiaVelocity *= INERTIA_FRICTION;
+  if (Math.abs(inertiaVelocity) < INERTIA_STOP) {
+    inertiaVelocity = 0;
+    inertiaRaf = null;
+    return;
+  }
+  inertiaRaf = requestAnimationFrame(inertiaTick);
+}
+
+if (!reduceMotionForInertia) {
+  window.addEventListener('wheel', function (e) {
+    if (!isDesktopWidth()) return;
+    e.preventDefault();
+    inertiaVelocity += e.deltaY * INERTIA_GAIN;
+    if (inertiaVelocity > INERTIA_MAX) inertiaVelocity = INERTIA_MAX;
+    if (inertiaVelocity < -INERTIA_MAX) inertiaVelocity = -INERTIA_MAX;
+    if (inertiaRaf === null) { inertiaRaf = requestAnimationFrame(inertiaTick); }
+  }, { passive: false });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>INTERNAZIONALE — Art Direction by Charles Days</title>
+<meta name="description" content="INTERNAZIONALE, an art direction project by Charles Days for Roc One & Zecobeats, built around music as catharsis, resistance and memory.">
+<link rel="canonical" href="https://charlesdays.art/projects/internazionale/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="INTERNAZIONALE — Art Direction by Charles Days">
+<meta property="og:description" content="INTERNAZIONALE, an art direction project by Charles Days for Roc One & Zecobeats, built around music as catharsis, resistance and memory.">
+<meta property="og:url" content="https://charlesdays.art/projects/internazionale/">
+<meta property="og:image" content="https://charlesdays.art/images/stories/internazionale/cover.jpg">
+<meta property="og:image:alt" content="Portada del álbum INTERNAZIONALE — cabezas clásicas fragmentadas, superficies metálicas doradas, fondo azul">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=Space+Grotesk:wght@500;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+:root{
+  --bg:#000;--text:#f5f2ed;--text-muted:#c7cbd6;
+  /* The editorial project body (from detail-04 onward) is a separate
+     visual space from the black cinematic Opening — a warm paper/bone
+     neutral, not pure white. Scoped to `.of-sequence` and its
+     descendants only; the Opening (.of-frame/.of-cue/nav) keeps --bg/
+     --text/--text-muted exactly as before. */
+  --surface-bg:#f3eee5;
+  --surface-text:#211d19;
+  --surface-text-muted:#5e574c;
+--font-display:'Space Grotesk', sans-serif;}
+html{background:var(--bg);}
+html,body{color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
+
+/* ===== nav — reused as-is from index.html / film.html ===== */
+.proto-nav{position:fixed;top:0;left:0;right:0;z-index:50;height:52px;display:flex;justify-content:flex-end;align-items:center;padding:0 1.1rem;background:transparent;}
+.proto-logo,.proto-menu a{text-shadow:0 1px 3px rgba(0,0,0,0.75),0 2px 10px rgba(0,0,0,0.55),0 5px 20px rgba(0,0,0,0.35);}
+.proto-logo{position:absolute;left:50%;top:50%;transform:translate(-50%,calc(-50% + 6px));display:inline-flex;align-items:center;}
+.proto-logo-img{filter:drop-shadow(0 1px 2px rgba(0,0,0,0.95)) drop-shadow(0 2px 5px rgba(0,0,0,0.6));}
+.proto-logo-img{display:block;width:118px;height:auto;margin-top:-8px;}
+@media (min-width:768px){.proto-logo-img{width:135px;margin-top:0;}}
+.proto-menu{display:none;}
+.proto-menu a{font-size:0.75rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);text-decoration:none;opacity:0.72;}
+.proto-menu a:hover{opacity:1;}
+.proto-menu a[aria-current="page"]{opacity:1;}
+.proto-menu a:focus-visible,.proto-logo:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;}
+@media (min-width:768px){.proto-menu{display:flex;gap:1.5rem;}}
+
+/* ===== mobile nav — MENU/CLOSE overlay, mobile-only (<768px). Desktop
+   nav (.proto-menu) is completely untouched; this is an independent
+   addition that reuses the same nav bar for its own header (logo stays
+   pinned top-left, this toggle occupies the same top-right slot the
+   desktop menu uses, so only one of the two is ever visible/laid out
+   at a given width). ===== */
+.proto-menu-toggle{display:inline-block;background:none;border:none;padding:0;font-family:'DM Sans',sans-serif;font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);opacity:0.72;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,0.55),0 2px 10px rgba(0,0,0,0.35);}
+.proto-menu-toggle:hover{opacity:1;}
+.proto-menu-toggle:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;opacity:1;}
+@media (min-width:768px){.proto-menu-toggle{display:none;}}
+
+.mobile-nav-overlay{position:fixed;inset:0;z-index:45;background:var(--bg);display:flex;align-items:center;opacity:0;visibility:hidden;transition:opacity .25s ease;}
+.mobile-nav-overlay.is-open{opacity:1;visibility:visible;}
+.mobile-nav-links{display:flex;flex-direction:column;gap:1.4rem;padding:0 1.6rem;width:100%;}
+.mobile-nav-links a{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,10vw,2.6rem);letter-spacing:0.03em;color:#f5f2ed;text-decoration:none;opacity:0.85;}
+.mobile-nav-links a:hover,.mobile-nav-links a:focus-visible{opacity:1;}
+.mobile-nav-links a[aria-current="page"]{opacity:1;text-decoration:underline;text-underline-offset:0.3em;}
+.mobile-nav-links a:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:4px;}
+@media (min-width:768px){.mobile-nav-overlay{display:none;}}
+@media (prefers-reduced-motion:reduce){.mobile-nav-overlay{transition:none;}}
+
+
+
+/* ======================================================================
+   OPENING FRAME PROTOTYPE — INTERNAZIONALE only.
+   Everything above this comment is the untouched cinematic-strip
+   prototype (same markup, CSS, sequence, crops). Everything below is
+   new, scoped to this isolated pass, and only ever activates for the
+   internazionale strip.
+   ====================================================================== */
+
+/* The continuity image itself. Created in JS as a clone of the strip's
+   own <img> (same decoded bitmap — no re-fetch). Starts pinned exactly
+   over the strip via inline top/left/width/height, then those same
+   inline values are changed to full-viewport once `.is-animating` is
+   present, so the browser transitions between them. Deliberately NOT a
+   transform/scale trick — for a single one-off element a plain
+   top/left/width/height transition is simpler to reason about and reads
+   just as smooth for this scale of movement. */
+.of-hero{
+  position:fixed;z-index:150;
+  object-fit:cover;pointer-events:none;
+}
+/* Movement 1 — ENTER. Strip rect → momentary immersive full-viewport
+   crop. Duration/easing kept in one place (see ENTER_MS in the script
+   below) — these two must match. */
+.of-hero.is-animating{
+  transition:
+    top .6s cubic-bezier(.22,1,.36,1),
+    left .6s cubic-bezier(.22,1,.36,1),
+    width .6s cubic-bezier(.22,1,.36,1),
+    height .6s cubic-bezier(.22,1,.36,1),
+    object-position .6s cubic-bezier(.22,1,.36,1);
+}
+/* Movement 2 — REVEAL. Same easing family, same order of magnitude as
+   Movement 1 — a quick, confident settle rather than a slow luxury-site
+   reveal. Duration must match SETTLE_MS in the script below. */
+.of-hero.is-settling{
+  transition:
+    top .6s cubic-bezier(.22,1,.36,1),
+    left .6s cubic-bezier(.22,1,.36,1),
+    width .6s cubic-bezier(.22,1,.36,1),
+    height .6s cubic-bezier(.22,1,.36,1),
+    object-position .6s cubic-bezier(.22,1,.36,1);
+}
+
+/* Siblings recede — the clicked strip is masked underneath the
+   pixel-identical clone above, so it dims along with the rest without
+   any visible seam. */
+/* Movement 2's landing composition. Positioned with ordinary responsive
+   CSS (flex + aspect-ratio), not hardcoded JS pixel math — JS only reads
+   `.of-anchor`'s rendered rect once, at the moment Movement 2 begins, so
+   this layout stays re-tunable here without touching the animation
+   logic. Off-center by construction: text hugs the left gutter, the
+   artwork the right gutter, real negative space between them (not a
+   centered museum-card layout). */
+.of-frame{
+  position:fixed;inset:0;z-index:152;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:4vw;padding:0 6vw;
+  transform:translateY(-2.4vh);
+  opacity:0;pointer-events:none;
+  transition:opacity .32s ease;
+}
+.of-frame.is-visible{opacity:1;}
+
+.of-frame-text{max-width:min(26vw,380px);}
+.of-frame-role{font-size:0.68rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1rem;text-shadow:0 1px 6px rgba(0,0,0,0.5);}
+.of-frame-title{font-family:var(--font-display);font-weight:700;text-transform:uppercase;font-size:clamp(1.8rem,3.9vw,3.5rem);line-height:0.98;letter-spacing:-0.01em;color:var(--text);text-shadow:0 2px 16px rgba(0,0,0,0.45);}
+.of-frame-year{margin-top:0.7rem;font-size:0.78rem;letter-spacing:0.18em;color:var(--text-muted);text-shadow:0 1px 6px rgba(0,0,0,0.5);}
+
+/* Invisible layout marker only — the real .of-hero <img> is animated to
+   match this box's rendered rect. aspect-ratio keeps it a perfect square
+   regardless of viewport size; height is the only sizing input, clamped
+   to stay within the requested ~55–65% of viewport height. Because the
+   box is square and the source artwork is square, object-fit:cover shows
+   the complete artwork with no cropped edges once the hero matches it. */
+.of-anchor{height:clamp(300px,58vh,600px);aspect-ratio:1/1;flex:0 0 auto;}
+
+@media (prefers-reduced-motion:reduce){
+  .of-frame{transition:opacity .01s linear;}
+}
+
+/* The scrollable layer that reveals the visual sequence. Transparent
+   spacer lets the fixed hero show through at the top; the sequence
+   beneath it is opaque and simply scrolls up over the hero as the
+   visitor scrolls — no separate "hide the hero" step is needed. */
+.of-scroll{
+  position:fixed;inset:0;z-index:155;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  overflow-anchor:none;
+  opacity:0;pointer-events:none;transition:opacity .3s ease;
+}
+.of-scroll.is-active{opacity:1;pointer-events:auto;}
+
+/* 100svh minus a sliver, so a small hint of the sequence below is
+   visible at the very bottom edge of the Opening Frame — "the page
+   doesn't feel terminal" without a visible seam or label. Deliberately
+   NOT a full extra viewport of empty space: the first image should
+   arrive quickly once the visitor actually starts scrolling. */
+.of-spacer{height:calc(100svh - 34px);position:relative;}
+@media (min-width:900px){
+  /* Approved desktop opening interaction (same system as VIDABANDIDA
+     TRACKS): the paper begins substantially lower and the entrance
+     animation (see #of-sequence.is-entering/.is-settling below) slides
+     it up into this raised resting position — ~210px of real paper
+     visible before any scroll input. */
+  .of-spacer{height:calc(100svh - 210px);}
+}
+
+/* The PAPER — a large editorial sheet, not a card. Deliberately narrower
+   than the viewport (not 100vw) so the black cinematic backdrop stays
+   visible at both sides throughout the sequence; centered, generous,
+   capped so ultra-wide displays don't stretch it endlessly. No
+   border-radius, no border, no shadow — the black/bone contrast itself
+   is the only edge treatment, which is enough at this contrast level.
+   `.of-scroll` and `.of-spacer` stay full-width/transparent, so this is
+   the ONLY thing narrower than the viewport; everything left/right of
+   it simply shows the page's own black background straight through.
+   Because the spacer above it is still full height, the paper's top
+   edge crosses up into view from below the viewport as the visitor
+   scrolls — "entering from below" needs no separate animation, it's
+   just where this block already sits in normal document flow. */
+.of-sequence{width:min(92vw,1440px);margin:0 auto;background:var(--surface-bg);}
+@media (min-width:1200px){
+  /* Same approved desktop magazine-width system as HIGHEND: narrower
+     paper so the underlying Art Direction interface stays visible on
+     both sides. Width only — internal layout untouched here. */
+  .of-sequence{width:55vw;}
+}
+
+/* Entrance slide (approved system, same as VIDABANDIDA TRACKS): the
+   paper itself starts ~120px below its raised resting position and
+   animates up into it once, right as the project opens. Only ever
+   toggled on desktop widths (see the JS trigger in openInternazionale)
+   — mobile/tablet never receive these classes. With neither class
+   present, .of-sequence has no transform at all, identical to the
+   resting position before this animation existed. */
+#of-sequence.is-entering{transform:translateY(120px);}
+#of-sequence.is-settling{transform:translateY(0);transition:transform 1s cubic-bezier(.22,.61,.36,1);}
+
+/* Opening-only "continues below" cue (approved system, same as
+   VIDABANDIDA TRACKS) — no text, no arrow, no icon: a long, thin,
+   centered editorial line. Belongs to #of-scroll's own scrollable
+   content (a child of .of-spacer, NOT fixed/sticky), positioned
+   absolutely against that spacer so it scrolls away with the opening
+   state the instant the user scrolls — it can never sit fixed over the
+   editorial paper or photographs below. Appears once the paper entrance
+   animation settles, makes a very small, slow, bounce-free vertical
+   drift, then is explicitly faded out and disabled by JS as soon as
+   real scroll input begins. 140px height, same as VIDABANDIDA TRACKS —
+   the ~168px gap between the year text and the paper's own top edge at
+   a typical 1440×900 desktop viewport is identical here (same
+   .of-frame-text/.of-frame-title/.of-frame-year values), so the same
+   cap applies without touching the title/year. */
+.of-continue-cue{
+  position:absolute;left:50%;bottom:14px;
+  width:1px;height:140px;
+  background:rgba(245,242,237,0.28);
+  transform:translateX(-50%);
+  opacity:0;pointer-events:none;
+  transition:opacity .4s ease;
+}
+.of-continue-cue.is-visible{opacity:1;}
+.of-continue-cue.is-breathing{animation:of-continue-drift 2.6s ease-in-out infinite;}
+@keyframes of-continue-drift{
+  0%,100%{transform:translateX(-50%) translateY(0);}
+  50%{transform:translateX(-50%) translateY(6px);}
+}
+@media (prefers-reduced-motion:reduce){
+  .of-continue-cue{transition:opacity .01s linear;}
+  .of-continue-cue.is-breathing{animation:none;}
+}
+
+/* Every image in the sequence renders at its native aspect ratio —
+   width:100% + height:auto, never object-fit:cover, never a fixed-
+   height crop container. Sizing/rhythm comes entirely from each
+   section's max-width and padding, not from touching the image itself. */
+.seq-img{display:block;width:100%;height:auto;}
+
+/* STEP 1 — detail-04, environmental portrait. Immediately below the
+   spacer, wide and present, minimal top padding so it reads as an
+   instant continuation rather than a new "section". */
+.seq-environmental{max-width:1400px;margin:0 auto;padding:0.6rem 1.4rem 3.2rem;}
+
+/* STEP 2 — context + detail-01, one editorial spread. Stacked on
+   narrow viewports; side-by-side (text hugging one gutter, the image
+   the other) from tablet width up. This replaces the old full-screen
+   premise wall — text and artwork now share the same composition. */
+.seq-context{
+  max-width:1100px;margin:0 auto;padding:5rem 1.4rem;
+  display:flex;flex-direction:column;gap:2.4rem;
+}
+.seq-context-text{max-width:520px;}
+.seq-kicker{font-size:0.66rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--surface-text-muted);margin-bottom:1.3rem;}
+.seq-context-body{font-size:0.98rem;line-height:1.7;color:var(--surface-text);white-space:pre-line;font-weight:300;}
+.seq-context-image{max-width:380px;}
+
+@media (min-width:900px){
+  .seq-context{flex-direction:row;align-items:center;gap:5vw;padding:6.5rem 2.4rem;}
+  .seq-context-text{flex:0 0 auto;}
+  .seq-context-image{flex:0 0 auto;margin-left:auto;}
+  .seq-context-body{font-size:1.05rem;}
+}
+@media (min-width:1200px){
+  /* The 55vw paper (see .of-sequence) is narrower than the viewport
+     this gap/flex-basis pair was tuned against: text(520)+gap(5vw)+
+     image(380) no longer fit, and .seq-context-image's flex-shrink:0
+     (inherited from "0 0 auto") kept it pinned at its full max-width
+     regardless, pushing it past the paper's right edge. gap becomes
+     paper-relative (%) and the image is allowed to actually shrink. */
+  .seq-context{gap:4%;}
+  .seq-context-image{flex:0 1 auto;min-width:0;}
+}
+
+/* STEP 3 — detail-02, back cover / tracklist. Its own moment: generous
+   space either side, sized to stay legible without surrounding UI. */
+.seq-backcover{max-width:760px;margin:0 auto;padding:4rem 1.4rem;}
+
+/* STEP 4 — detail-05 + detail-06, graphic-system pair. Side by side
+   from tablet width, equal width, no captions, no labels. */
+.seq-pair{
+  max-width:1200px;margin:0 auto;padding:2rem 1.4rem 2rem;
+  display:flex;flex-direction:column;gap:0.6rem;
+}
+@media (min-width:768px){
+  .seq-pair{flex-direction:row;gap:1rem;padding:2.5rem 2.4rem 2.5rem;}
+  /* flex items default to a content-based automatic minimum size — for
+     a 2048px-wide source image that min-width defeats flex-shrink
+     entirely and the pair stops being 50/50. min-width:0 restores
+     normal shrinking so flex:1 1 0 actually splits the row evenly. */
+  .seq-pair .seq-img{flex:1 1 0;min-width:0;width:100%;}
+}
+
+/* STEP 5 — credits + detail-03, one composed editorial spread. The
+   image keeps its exact previous size/role (right side, deliberately
+   smaller, a quieter rhythm change after the dense pair) — only the
+   negative space that used to sit empty to its left is now used, for
+   the canonical credits. Same stacked-then-row pattern already used
+   for the context+detail-01 spread above (credits first in reading
+   order, image beside it from 900px up), rather than inventing a new
+   layout primitive. */
+.seq-process{
+  max-width:1200px;margin:0 auto;padding:1.25rem 1.4rem 1.25rem;
+  display:flex;flex-direction:column;gap:1.75rem;
+}
+.seq-process-credits{max-width:320px;}
+.seq-credit{margin-bottom:1rem;}
+.seq-credit:last-child{margin-bottom:0;}
+.seq-credit-role{display:block;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--surface-text-muted);margin-bottom:0.3rem;}
+.seq-credit-name{display:block;font-size:0.92rem;color:var(--surface-text);font-weight:300;}
+.seq-process .seq-img{max-width:340px;margin:0 0 0 auto;}
+@media (min-width:900px){
+  .seq-process{padding:2rem 2.4rem 1.75rem;flex-direction:row;align-items:center;gap:6vw;}
+  .seq-process-credits{flex:0 0 auto;margin-left:4vw;}
+  .seq-process .seq-img{max-width:420px;margin-left:auto;}
+}
+@media (min-width:1200px){
+  /* Same containment issue as .seq-context above: gap/margin were
+     tuned against the old, wider paper, and the image had no
+     min-width:0, so it held its full max-width and overflowed past
+     the paper's right edge (confirmed at ~1200-1500px viewports). */
+  .seq-process{gap:4%;}
+  .seq-process-credits{margin-left:3%;}
+  .seq-process .seq-img{min-width:0;}
+}
+
+/* STEP 6 — detail-07, closing visual. Full portrait composition, real
+   presence as the last major image before the temporary end area. Only
+   the TOP padding was cut (paired with seq-process's bottom padding
+   above); bottom padding before the temporary end area is untouched. */
+.seq-closing{max-width:1200px;margin:0 auto;padding:0.75rem 1.4rem 5rem;text-align:center;}
+.seq-closing .seq-img{max-width:560px;margin:0 auto;}
+@media (min-width:900px){
+  .seq-closing{padding:1rem 2.4rem 6rem;}
+  .seq-closing .seq-img{max-width:640px;}
+}
+
+/* EPILOGUE — the deliberate end of the project, after detail-07. Same
+   bone paper, typography-only (no cards/borders/icons/filled buttons).
+   Moderate top padding only — detail-07's own existing bottom padding
+   (untouched) already provides most of the breathing room, so this
+   section doesn't duplicate it into a second empty void. */
+.seq-epilogue{max-width:640px;margin:0 auto;padding:2rem 1.4rem 6rem;}
+.seq-epilogue-film{margin-bottom:3rem;}
+.seq-epilogue-title{font-size:0.92rem;color:var(--surface-text);font-weight:300;margin-bottom:0.7rem;}
+.seq-epilogue-link{display:inline-block;font-size:0.7rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--surface-text-muted);text-decoration:none;}
+.seq-epilogue-link:hover{color:var(--surface-text);}
+.seq-epilogue-external{margin-bottom:3rem;}
+.seq-epilogue-ext-link{display:inline-flex;align-items:center;gap:0.4em;padding-bottom:0.3rem;font-size:0.74rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--surface-text);text-decoration:none;border-bottom:1.5px solid rgba(33,29,25,0.45);}
+.ext-icon{width:13px;height:13px;flex-shrink:0;}
+.seq-epilogue-ext-link:hover{border-color:var(--surface-text);}
+.seq-epilogue-ext-link:focus-visible{outline:2px solid var(--surface-text);outline-offset:3px;}
+/* Larger and darker than the fixed persistent control — reads as the
+   deliberate, conclusive end-of-project action, not a duplicate. */
+.seq-epilogue-return{
+  display:inline-block;font-family:'DM Sans',sans-serif;
+  font-size:0.9rem;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--surface-text);text-decoration:none;
+  padding:13px 2px;
+}
+.seq-epilogue-return:hover{opacity:0.65;}
+
+@media (min-width:900px){
+  .seq-epilogue{padding:2.5rem 2.4rem 7rem;}
+}
+
+/* Explicit exit — available for the whole time the Opening Composition
+   or sequence is on screen (z-index above `.of-scroll`), restrained to
+   match the nav's own microtype treatment. */
+/* ONLY TEXT — no background, gradient, shadow, blur, or pseudo-element
+   of any kind. Every property that could produce a halo/plate/glow is
+   reset explicitly here rather than just left at its default, so
+   nothing (browser default or otherwise) can reintroduce one. The only
+   thing that ever changes between the two environments is `color`. */
+.of-exit{
+  position:fixed;bottom:1.3rem;left:1.2rem;z-index:200;
+  font-size:0.875rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--text);text-decoration:none;opacity:0;pointer-events:none;
+  background:none;box-shadow:none;filter:none;
+  -webkit-backdrop-filter:none;backdrop-filter:none;outline:none;
+  /* Restrained black aura directly on the text — not a vignette: no
+     pseudo-element, no background, no blur layer. Same subtle value in
+     both states; only `color` adapts between black and bone. */
+  text-shadow:0 0 8px rgba(0,0,0,.4);
+  transition:opacity .3s ease;
+  padding:13px 14px;
+  display:inline-block;
+}
+.of-exit::before,.of-exit::after{content:none;}
+.of-exit.is-visible{opacity:.8;pointer-events:auto;}
+.of-exit:hover,.of-exit:focus-visible{opacity:1;}
+/* Same control, adapted for the bone surface once scrolled past the
+   Opening (toggled by JS purely from scroll + horizontal position —
+   see _exitContrastHandler). Color only. */
+.of-exit.is-on-surface{color:var(--surface-text);}
+
+@media (min-width:768px){
+  .of-exit{bottom:1.6rem;left:2.4rem;}
+}
+</style>
+</head>
+<body>
+
+<nav class="proto-nav">
+  <a class="proto-logo" href="/"><img class="proto-logo-img" src="/images/brand/charlesdays-wordmark.png" alt="Charles Days"></a>
+  <div class="proto-menu">
+    <a href="/art-direction/" aria-current="page">ART DIRECTION</a>
+    <a href="/tattoo/">TATTOO</a>
+    <a href="/film/">FILM</a>
+    <a href="/about/">ABOUT</a>
+  <a href="/manifiesto/">MANIFIESTO</a>
+  </div>
+  <button type="button" class="proto-menu-toggle" id="mobileMenuToggle" aria-expanded="false" aria-controls="mobileNavOverlay">MENU</button>
+</nav>
+
+<div class="mobile-nav-overlay" id="mobileNavOverlay" role="dialog" aria-modal="true" aria-label="Menú principal" aria-hidden="true">
+  <nav class="mobile-nav-links" aria-label="Navegación móvil">
+    <a href="/art-direction/" aria-current="page">ART DIRECTION</a>
+    <a href="/tattoo/">TATTOO</a>
+    <a href="/film/">FILM</a>
+    <a href="/about/">ABOUT</a>
+    <a href="/manifiesto/">MANIFIESTO</a>
+  </nav>
+</div>
+
+<script>
+(function () {
+  var toggle = document.getElementById('mobileMenuToggle');
+  var overlay = document.getElementById('mobileNavOverlay');
+  if (!toggle || !overlay) return;
+  var isOpen = false;
+
+  function openMenu() {
+    isOpen = true;
+    overlay.classList.add('is-open');
+    overlay.removeAttribute('aria-hidden');
+    toggle.textContent = 'CLOSE';
+    toggle.setAttribute('aria-expanded', 'true');
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    var firstLink = overlay.querySelector('a');
+    if (firstLink) firstLink.focus();
+  }
+
+  function closeMenu() {
+    isOpen = false;
+    overlay.classList.remove('is-open');
+    overlay.setAttribute('aria-hidden', 'true');
+    toggle.textContent = 'MENU';
+    toggle.setAttribute('aria-expanded', 'false');
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+    toggle.focus();
+  }
+
+  toggle.addEventListener('click', function () {
+    if (isOpen) { closeMenu(); } else { openMenu(); }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (isOpen && e.key === 'Escape') { closeMenu(); }
+  });
+})();
+</script>
+
+<main>
+  <h1 class="sr-only">INTERNAZIONALE — Charles Days</h1>
+</main>
+
+<!-- Opening Frame prototype layers — inert until INTERNAZIONALE is clicked -->
+<div class="of-frame" id="of-frame">
+  <div class="of-frame-text">
+    <p class="of-frame-role" id="of-frame-role"></p>
+    <h2 class="of-frame-title" id="of-frame-title"></h2>
+    <p class="of-frame-year" id="of-frame-year"></p>
+  </div>
+  <div class="of-anchor" id="of-anchor"></div>
+</div>
+
+<a href="/art-direction/" class="of-exit" id="of-exit">&larr; ART DIRECTION</a>
+
+<div class="of-scroll" id="of-scroll">
+  <div class="of-spacer">
+    <div class="of-continue-cue" id="of-continue-cue" aria-hidden="true"></div>
+  </div>
+  <div class="of-sequence" id="of-sequence"></div>
+</div>
+
+<script type="module">
+/* Standalone visual prototype (Opening Frame pass) for the future
+   /projects/internazionale. Reads the real entry directly from
+   stories.js — same SEQUENCE/crops/rendering as
+   art-direction-cinematic-strips-prototype.html, which is left
+   completely untouched by this file. Only the click behavior for the
+   internazionale strip differs; the other 11 strips keep today's
+   no-op preventDefault. */
+import { stories } from '/stories.js';
+
+var byId = {};
+stories.forEach(function (s) { byId[s.id] = s; });
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/* Shared external-link glyph — same icon/markup used sitewide (About,
+   Tattoo, every project epilogue), replacing the previous emoji. */
+var EXT_ICON_SVG = '<svg class="ext-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+
+/* ======================================================================
+   VISUAL SEQUENCE — INTERNAZIONALE only.
+
+   Built once from the real `supportingImages` array in stories.js — no
+   duplicated/renamed/re-optimized assets, no invented copy. The six
+   images are matched by filename fragment rather than by array index,
+   so this stays correct even though the PRESENTATION order below
+   deliberately differs from supportingImages' own canonical order
+   (which is left untouched in stories.js). Canonical `context` is used
+   verbatim, only HTML-escaped for safe insertion, never rewritten or
+   shortened.
+   ====================================================================== */
+function findSupportingImage(story, fragment) {
+  return story.supportingImages.filter(function (img) {
+    return img.src.indexOf(fragment) !== -1;
+  })[0];
+}
+
+function seqImg(image) {
+  return '<img class="seq-img" src="' + image.src + '" alt="' + esc(image.alt || '') + '" loading="lazy" decoding="async">';
+}
+
+/* Canonical credits — the underlying story.credits array (and its
+   role/name values) is read exactly as stored and never mutated; this
+   only GROUPS entries that share the same role at render time, so two
+   "Artist" entries become one "ARTISTS" heading with both names listed
+   beneath it, instead of repeating the role label per entry. Grouping
+   order follows first-appearance order in the canonical array (Artist,
+   Artist, Graphic Design, Photography → Artists, Graphic Design,
+   Photography). Pluralization is presentation-only (append "s" when a
+   group has more than one name) and never touches stories.js. `url` is
+   null for every current INTERNAZIONALE credit, so names are plain
+   text — the field simply isn't used while it stays null. */
+function seqCredits(story) {
+  var order = [];
+  var byRole = {};
+  story.credits.forEach(function (c) {
+    if (!byRole[c.role]) { byRole[c.role] = []; order.push(c.role); }
+    byRole[c.role].push(c.name);
+  });
+  return '<div class="seq-process-credits">' +
+    order.map(function (role) {
+      var names = byRole[role];
+      var label = names.length > 1 ? role + 's' : role;
+      return '<p class="seq-credit">' +
+        '<span class="seq-credit-role">' + esc(label) + '</span>' +
+        names.map(function (n) { return '<span class="seq-credit-name">' + esc(n) + '</span>'; }).join('') +
+      '</p>';
+    }).join('') +
+  '</div>';
+}
+
+function buildInternazionaleSequence(story) {
+  var img01 = findSupportingImage(story, 'detail-01');
+  var img02 = findSupportingImage(story, 'detail-02');
+  var img03 = findSupportingImage(story, 'detail-03');
+  var img04 = findSupportingImage(story, 'detail-04');
+  var img05 = findSupportingImage(story, 'detail-05');
+  var img06 = findSupportingImage(story, 'detail-06');
+  var img07 = findSupportingImage(story, 'detail-07');
+  var role = Array.isArray(story.role) ? story.role.join(', ') : '';
+
+  return '' +
+    /* STEP 1 — environmental portrait, first thing the visitor sees
+       once they start scrolling past the Opening Composition. */
+    '<section class="seq seq-environmental">' + seqImg(img04) + '</section>' +
+
+    /* STEP 2 — context + physical artwork, one spread. */
+    '<section class="seq seq-context">' +
+      '<div class="seq-context-text">' +
+        '<p class="seq-kicker">' + esc(role) + '</p>' +
+        '<p class="seq-context-body">' + esc(story.context || '') + '</p>' +
+      '</div>' +
+      '<div class="seq-context-image">' + seqImg(img01) + '</div>' +
+    '</section>' +
+
+    /* STEP 3 — back cover / tracklist, its own moment. */
+    '<section class="seq seq-backcover">' + seqImg(img02) + '</section>' +
+
+    /* STEP 4 — graphic-system pair, presented together. */
+    '<section class="seq seq-pair">' + seqImg(img05) + seqImg(img06) + '</section>' +
+
+    /* STEP 5 — credits + process image, one composed spread. Credits
+       occupy the negative space beside detail-03 rather than sitting
+       in a separate section; detail-03 keeps its exact prior size and
+       right-side role. */
+    '<section class="seq seq-process">' + seqCredits(story) + seqImg(img03) + '</section>' +
+
+    /* STEP 6 — closing visual. */
+    '<section class="seq seq-closing">' + seqImg(img07) + '</section>' +
+
+    buildEpilogue(story);
+}
+
+/* ======================================================================
+   EPILOGUE — after detail-07. No Next Project yet (out of scope for
+   this pass). Two real relationships, both read from stories.js, never
+   invented:
+
+   1. AVIREX / LOST FRAMES (Film). Confirmed by reading film.html: cards
+      only ever link out to their own externalLinks[0].url directly
+      (see cardMarkup/watchLink there) — there is no hash, query-param,
+      or anchor route to land on one specific entry. So this is a
+      TEMPORARY FALLBACK to the general Film page (`film.html`, the
+      same relative path this file's own nav already uses), not an
+      invented deep link. The visible copy still names the specific
+      relationship (AVIREX — LOST FRAMES, both canonical: the entry's
+      title and its series' own label in film.html's SERIES list).
+
+   2. The canonical INTERNAZIONALE externalLinks[0] (currently "LISTEN
+      TO THE FULL ALBUM →", already a real YouTube URL) — rendered
+      verbatim, opened in a new tab. Nothing else in externalLinks is
+      used, and avirex's own externalLinks (its Instagram Reel) is
+      deliberately NOT surfaced here — that would skip straight past
+      the Film page, which CLAUDE.md's External Media Links section
+      says this site doesn't do yet.
+   ====================================================================== */
+function buildEpilogue(story) {
+  var filmDestination = 'film.html'; // temporary fallback — no per-entry Film route exists yet
+  var albumLink = story.externalLinks && story.externalLinks[0];
+
+  return '<section class="seq seq-epilogue">' +
+    '<div class="seq-epilogue-film">' +
+      '<p class="seq-kicker">Related / Film</p>' +
+      '<p class="seq-epilogue-title">AVIREX &mdash; LOST FRAMES</p>' +
+      '<a href="' + filmDestination + '" class="seq-epilogue-link">VIEW IN FILM &rarr;</a>' +
+    '</div>' +
+    (albumLink ?
+      '<div class="seq-epilogue-external">' +
+        '<p class="seq-kicker">Relacionado</p>' +
+        '<a href="' + albumLink.url + '" target="_blank" rel="noopener noreferrer" class="seq-epilogue-ext-link">' + esc(albumLink.label) + EXT_ICON_SVG + '</a>' +
+      '</div>'
+      : '') +
+    /* Real navigation back to the main ART DIRECTION page — this is
+       the end-of-project exit, distinct from the persistent #of-exit
+       control used mid-sequence (which still closes/resets in place). */
+    '<a href="/art-direction/" class="seq-epilogue-return" id="of-exit-end">&larr; RETURN TO ART DIRECTION</a>' +
+  '</section>';
+}
+
+document.getElementById('of-sequence').innerHTML = buildInternazionaleSequence(byId['internazionale']);
+openInternazionale(byId['internazionale']);
+
+/* ======================================================================
+   OPENING FRAME — INTERNAZIONALE only.
+
+   Technique: FLIP-style continuity via a single cloned <img>, not a
+   route change — unchanged from the previous pass. The clicked strip's
+   own image element is measured (getBoundingClientRect), a fixed-
+   position clone is created at that exact rect using the same src
+   (already decoded — no network refetch), siblings recede via an
+   opacity class, and the clone's inline top/left/width/height/
+   object-position are then animated in TWO successive stages rather
+   than one:
+
+     Movement 1 (ENTER)   strip rect  → momentary full-viewport crop
+     [brief image-only beat]
+     Movement 2 (REVEAL)  full-viewport crop → `.of-anchor`'s rect
+                           (a real square — the complete, uncropped
+                           1:1 cover)
+
+   Both stages reuse the same top/left/width/height/object-position
+   transition technique (no object-fit swap needed: once the box itself
+   is square, cover-fit shows the whole square image). Everything still
+   happens inside this one document — no new page, no /projects/
+   routing needed for this isolated prototype.
+
+   IMMERSIVE_CROP is the temporary placeholder object-position for the
+   momentary full-viewport beat in Movement 1 (same value reviewed in
+   the previous pass — cover.jpg is a roughly square 1391x1400
+   composition, the two fragmented heads centered slightly below the
+   image's midline). It is separate from, and does not alter, the
+   approved strip crop (50% 66%), and it no longer describes the final
+   resting state — Movement 2 always ends on the complete artwork.
+
+   Pacing (tuned so click-to-readable-landing lands around ~1.2–1.5s
+   total, not the ~2.7s the previous pass added up to): text/cue no
+   longer wait for Movement 2's transitionend — they're scheduled to
+   start during its final third, so the layout already reads before the
+   artwork visually finishes settling. ENTER_MS/SETTLE_MS here must
+   match the .is-animating/.is-settling durations in the CSS above. */
+var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var IMMERSIVE_CROP = '50% 52%'; // TEMPORARY — placeholder for art direction review
+
+var BEAT_MS = 130;    // full-frame pause between the two movements
+var SETTLE_MS = 600;  // Movement 2 duration — matches .of-hero.is-settling
+var TEXT_LEAD_MS = Math.round(SETTLE_MS * 2 / 3); // start text in Movement 2's final third
+var PAPER_ENTER_MS = 1000; // matches #of-sequence.is-settling's transition-duration below
+
+/* Paper entrance slide — approved system, same as VIDABANDIDA TRACKS.
+   Runs once, right as the paper fades in: starts 120px below the
+   approved resting position, animates up into it, then both classes
+   are cleared so .of-sequence is left with no transform at all — no
+   residual effect on scroll/inertia. Skipped entirely below the 900px
+   desktop breakpoint used for the raised resting position itself. */
+function animatePaperEntrance() {
+  if (window.innerWidth < 900) return;
+  var paperEl = document.getElementById('of-sequence');
+  paperEl.classList.add('is-entering');
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      paperEl.classList.add('is-settling');
+      paperEl.classList.remove('is-entering');
+    });
+  });
+  setTimeout(function () {
+    paperEl.classList.remove('is-settling');
+    showContinueCue();
+  }, PAPER_ENTER_MS);
+}
+
+/* Opening-only "continues below" cue — approved system, same as
+   VIDABANDIDA TRACKS. Fades in once the paper entrance settles, then
+   breathes a few px down and back. Belongs only to the opening state:
+   as soon as real scroll input arrives it is faded out and disabled
+   for the rest of that open session. */
+function showContinueCue() {
+  if (window.innerWidth < 900) return;
+  var cueEl = document.getElementById('of-continue-cue');
+  cueEl.classList.add('is-visible');
+  cueEl.classList.add('is-breathing');
+}
+
+function hideContinueCue() {
+  var cueEl = document.getElementById('of-continue-cue');
+  cueEl.classList.remove('is-visible', 'is-breathing');
+}
+
+function openInternazionale(story) {
+  document.documentElement.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
+  document.getElementById('of-scroll').scrollTop = 0;
+
+  var hero = document.createElement('img');
+  hero.className = 'of-hero';
+  hero.src = story.cover.src;
+  hero.alt = '';
+  hero.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(hero);
+
+  var frameEl = document.getElementById('of-frame');
+  var anchorEl = document.getElementById('of-anchor');
+  var scrollEl = document.getElementById('of-scroll');
+  var exitEl = document.getElementById('of-exit');
+
+  document.getElementById('of-frame-title').textContent = story.title || '';
+  document.getElementById('of-frame-year').textContent = story.year ? String(story.year) : '';
+  document.getElementById('of-frame-role').textContent = Array.isArray(story.role) ? story.role.join(', ') : '';
+
+  function settleImmersive() {
+    hero.style.top = '0px';
+    hero.style.left = '0px';
+    hero.style.width = window.innerWidth + 'px';
+    hero.style.height = window.innerHeight + 'px';
+    hero.style.objectPosition = IMMERSIVE_CROP;
+  }
+
+  /* Movement 2 target: `.of-anchor`'s own rendered rect. Reading it live
+     (rather than hardcoding numbers here) means the composition in the
+     CSS above is the single source of truth for where/how large the
+     artwork lands. */
+  function settleToArtwork() {
+    var r = anchorEl.getBoundingClientRect();
+    hero.style.top = r.top + 'px';
+    hero.style.left = r.left + 'px';
+    hero.style.width = r.width + 'px';
+    hero.style.height = r.height + 'px';
+    hero.style.objectPosition = '50% 50%';
+  }
+
+  if (reduceMotion) {
+    settleToArtwork();
+    scrollEl.classList.add('is-active');
+    frameEl.classList.add('is-visible');
+    exitEl.classList.add('is-visible');
+    showContinueCue();
+    return;
+  }
+
+  settleImmersive();
+
+  setTimeout(function () {
+    hero.classList.add('is-settling');
+    settleToArtwork();
+
+    setTimeout(function () {
+      scrollEl.classList.add('is-active');
+      frameEl.classList.add('is-visible');
+      exitEl.classList.add('is-visible');
+      animatePaperEntrance();
+    }, TEXT_LEAD_MS);
+  }, BEAT_MS);
+
+  /* Opening-only cue: the moment real scroll input arrives, fade it out
+     and stop it from ever reappearing for the rest of this open
+     session. */
+  if (scrollEl._cueHideHandler) {
+    scrollEl.removeEventListener('scroll', scrollEl._cueHideHandler);
+  }
+  var cueDismissed = false;
+  scrollEl._cueHideHandler = function () {
+    if (cueDismissed) return;
+    if (scrollEl.scrollTop > 4) {
+      cueDismissed = true;
+      hideContinueCue();
+      scrollEl.removeEventListener('scroll', scrollEl._cueHideHandler);
+    }
+  };
+  scrollEl.addEventListener('scroll', scrollEl._cueHideHandler);
+
+  /* The fixed exit control must read correctly on both the black
+     Opening and the bone paper — and now that the paper is narrower
+     than the viewport, "over the paper" also depends on whether the
+     exit control's fixed x-position actually falls within the paper's
+     horizontal span at the current viewport width (at wide viewports
+     the paper's side margin can be wider than the exit's own inset,
+     so it may sit in the black margin the whole time — correctly
+     staying in its black-appropriate state). Reversible both
+     directions, same de-dupe pattern as the cue-hide handler. */
+  if (scrollEl._exitContrastHandler) {
+    scrollEl.removeEventListener('scroll', scrollEl._exitContrastHandler);
+  }
+  scrollEl._exitContrastHandler = function () {
+    var spacer = document.querySelector('.of-spacer');
+    var pastSpacer = scrollEl.scrollTop >= spacer.offsetHeight - 8;
+    var exitRect = exitEl.getBoundingClientRect();
+    var paperRect = document.getElementById('of-sequence').getBoundingClientRect();
+    var overPaper = exitRect.left >= paperRect.left && exitRect.right <= paperRect.right;
+    exitEl.classList.toggle('is-on-surface', pastSpacer && overPaper);
+  };
+  scrollEl.addEventListener('scroll', scrollEl._exitContrastHandler);
+  scrollEl._exitContrastHandler();
+}
+
+/* Explicit, required exit — reverses openInternazionale() so the
+   visitor is never trapped inside the project. No reload, no History
+   API: this stays inside the current all-client-side prototype model.
+   Because opening never called window.scrollTo or otherwise touched
+   the underlying document's scroll position (only `overflow:hidden`,
+   which pauses scrolling without moving it), restoring overflow here
+   is enough to bring back the Wall/strips at exactly the scroll
+   position the visitor left them at — no manual save/restore needed. */
+
+/* ======================================================================
+   SCROLL INERTIA — adapted from the Wall's own approved mechanism.
+   Read-only inspection of wall-final-test.html (the current approved
+   Wall interaction reference, per CLAUDE.md) found a velocity/friction
+   model: wheel deltaY accumulates into a velocity value (clamped to
+   MAX_VELOCITY), a requestAnimationFrame loop applies it every frame
+   and decays it by FRICTION until it drops below STOP_THRESHOLD, driven
+   through a real scroll call rather than a transform — GAIN 1.9,
+   FRICTION 0.92, STOP_THRESHOLD 0.5, MAX_VELOCITY 140, desktop-only
+   (innerWidth >= 768), fully skipped under prefers-reduced-motion.
+
+   That mechanism IS safely reusable here, unchanged, because it never
+   assumes it's scrolling `window` — the tick function only ever calls
+   one scroll primitive on one target. The Wall drives `window.scrollBy`
+   because the Wall scrolls the real document; this prototype's project
+   body scrolls independently inside `#of-scroll` (a fixed overlay,
+   while the underlying document stays locked), so the same algorithm
+   and the same constants are reused verbatim, just retargeted at
+   `#of-scroll` instead of `window`. Live only while INTERNAZIONALE's
+   sequence is active (`#of-scroll.is-active`) — the underlying Wall/
+   strips list is untouched by this and keeps its ordinary native
+   scroll, exactly as before this pass. */
+var reduceMotionForInertia = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+var INERTIA_GAIN = 1.9;
+var INERTIA_FRICTION = 0.92;
+var INERTIA_STOP = 0.5;
+var INERTIA_MAX = 140;
+
+var inertiaVelocity = 0;
+var inertiaRaf = null;
+
+function isDesktopWidth() { return window.innerWidth >= 900; }
+
+function stopInertia() {
+  inertiaVelocity = 0;
+  if (inertiaRaf !== null) { cancelAnimationFrame(inertiaRaf); inertiaRaf = null; }
+}
+
+function inertiaTick() {
+  var scrollEl = document.getElementById('of-scroll');
+  scrollEl.scrollTop += inertiaVelocity;
+  inertiaVelocity *= INERTIA_FRICTION;
+  if (Math.abs(inertiaVelocity) < INERTIA_STOP) {
+    inertiaVelocity = 0;
+    inertiaRaf = null;
+    return;
+  }
+  inertiaRaf = requestAnimationFrame(inertiaTick);
+}
+
+if (!reduceMotionForInertia) {
+  window.addEventListener('wheel', function (e) {
+    var scrollEl = document.getElementById('of-scroll');
+    if (!isDesktopWidth() || !scrollEl.classList.contains('is-active')) return;
+    e.preventDefault();
+    inertiaVelocity += e.deltaY * INERTIA_GAIN;
+    if (inertiaVelocity > INERTIA_MAX) inertiaVelocity = INERTIA_MAX;
+    if (inertiaVelocity < -INERTIA_MAX) inertiaVelocity = -INERTIA_MAX;
+    if (inertiaRaf === null) { inertiaRaf = requestAnimationFrame(inertiaTick); }
+  }, { passive: false });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Art Direction — Charles Days</title>
+<meta name="description" content="Art direction and visual intervention work by Charles Days — murals, album art, vehicle and object interventions, and brand identity.">
+<link rel="canonical" href="https://charlesdays.art/art-direction/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Art Direction — Charles Days">
+<meta property="og:description" content="Art direction and visual intervention work by Charles Days — murals, album art, vehicle and object interventions, and brand identity.">
+<meta property="og:url" content="https://charlesdays.art/art-direction/">
+<meta property="og:image" content="https://charlesdays.art/images/stories/interlock/cover.jpg">
+<meta property="og:image:alt" content="Mural terminado — grandes formas geométricas azules entrelazadas con elementos caligráficos blancos/plateados sobre fondo oscuro">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=Space+Grotesk:wght@500;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#000;--text:#f5f2ed;--text-muted:#c7cbd6;--font-display:'Space Grotesk', sans-serif;}
+html{background:var(--bg);}
+html,body{color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
+
+/* ===== nav — reused as-is from index.html / film.html ===== */
+.proto-nav{position:fixed;top:0;left:0;right:0;z-index:50;height:52px;display:flex;justify-content:flex-end;align-items:center;padding:0 1.1rem;background:transparent;}
+.proto-logo,.proto-menu a{text-shadow:0 1px 3px rgba(0,0,0,0.75),0 2px 10px rgba(0,0,0,0.55),0 5px 20px rgba(0,0,0,0.35);}
+.proto-logo{position:absolute;left:50%;top:50%;transform:translate(-50%,calc(-50% + 6px));display:inline-flex;align-items:center;}
+.proto-logo-img{filter:drop-shadow(0 1px 2px rgba(0,0,0,0.95)) drop-shadow(0 2px 5px rgba(0,0,0,0.6));}
+.proto-logo-img{display:block;width:118px;height:auto;margin-top:-8px;}
+@media (min-width:768px){.proto-logo-img{width:135px;margin-top:0;}}
+.proto-menu{display:none;}
+.proto-menu a{font-size:0.75rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);text-decoration:none;opacity:0.72;}
+.proto-menu a:hover{opacity:1;}
+.proto-menu a[aria-current="page"]{opacity:1;}
+.proto-menu a:focus-visible,.proto-logo:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;}
+@media (min-width:768px){.proto-menu{display:flex;gap:1.5rem;}}
+
+/* ===== mobile nav — MENU/CLOSE overlay, mobile-only (<768px). Desktop
+   nav (.proto-menu) is completely untouched; this is an independent
+   addition that reuses the same nav bar for its own header (logo stays
+   pinned top-left, this toggle occupies the same top-right slot the
+   desktop menu uses, so only one of the two is ever visible/laid out
+   at a given width). ===== */
+.proto-menu-toggle{display:inline-block;background:none;border:none;padding:0;font-family:'DM Sans',sans-serif;font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);opacity:0.72;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,0.55),0 2px 10px rgba(0,0,0,0.35);}
+.proto-menu-toggle:hover{opacity:1;}
+.proto-menu-toggle:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;opacity:1;}
+@media (min-width:768px){.proto-menu-toggle{display:none;}}
+
+.mobile-nav-overlay{position:fixed;inset:0;z-index:45;background:var(--bg);display:flex;align-items:center;opacity:0;visibility:hidden;transition:opacity .25s ease;}
+.mobile-nav-overlay.is-open{opacity:1;visibility:visible;}
+.mobile-nav-links{display:flex;flex-direction:column;gap:1.4rem;padding:0 1.6rem;width:100%;}
+.mobile-nav-links a{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,10vw,2.6rem);letter-spacing:0.03em;color:#f5f2ed;text-decoration:none;opacity:0.85;}
+.mobile-nav-links a:hover,.mobile-nav-links a:focus-visible{opacity:1;}
+.mobile-nav-links a[aria-current="page"]{opacity:1;text-decoration:underline;text-underline-offset:0.3em;}
+.mobile-nav-links a:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:4px;}
+@media (min-width:768px){.mobile-nav-overlay{display:none;}}
+@media (prefers-reduced-motion:reduce){.mobile-nav-overlay{transition:none;}}
+
+
+/* ===== opening — extremely compact, clears the nav and stops ===== */
+.intro{padding:3.2rem 1.2rem 0.5rem;}
+.intro h1{font-family:var(--font-display);font-weight:700;font-size:clamp(1.4rem,3.4vw,2.1rem);letter-spacing:-0.01em;line-height:1;color:var(--text);}
+
+/* ===== strips — edge to edge, near-continuous vertical stack ===== */
+.strips{display:flex;flex-direction:column;}
+
+.strip{
+  position:relative;display:block;overflow:hidden;isolation:isolate;
+  height:35vh;margin-bottom:2px;background:#050505;
+  text-decoration:none;color:inherit;cursor:pointer;
+  transition:height .45s cubic-bezier(.22,1,.36,1);
+}
+.strip:last-child{margin-bottom:0;}
+.strip:hover,.strip:focus-visible{height:37vh;}
+.strip:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:-3px;}
+
+/* Explicit z-index (not just DOM order) — .strip-img and .strip::before
+   both use transitions on transform/opacity, which can promote either
+   to its own compositing layer. With z-index:auto on both, the browser
+   is free to composite them in whichever order it likes, which produced
+   real, per-strip-inconsistent stacking in Safari (image over gradient
+   on some strips, gradient over image on others). `isolation:isolate`
+   on .strip plus explicit z-index below removes that ambiguity. */
+.strip-img{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;transition:transform .6s ease;-webkit-user-drag:none;}
+.strip:hover .strip-img,.strip:focus-visible .strip-img{transform:scale(1.035);}
+
+/* Single horizontal vignette from the left edge, protecting the title/
+   metadata block. Same values on every strip — no per-project darkness
+   values. */
+.strip::before{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background: linear-gradient(
+    90deg,
+    rgba(0,0,0,0.78) 0%,
+    rgba(0,0,0,0.58) 18%,
+    rgba(0,0,0,0.30) 36%,
+    rgba(0,0,0,0.10) 52%,
+    rgba(0,0,0,0) 66%
+  );
+  transition:opacity .4s ease;
+}
+.strip:hover::before,.strip:focus-visible::before{opacity:0.82;}
+
+.strip-meta{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:1.4rem 1.6rem;max-width:min(92%,980px);}
+.strip-title{font-family:var(--font-display);font-weight:700;text-transform:uppercase;font-size:clamp(1.6rem,2.8vw,3rem);letter-spacing:-0.01em;line-height:0.98;color:var(--text);}
+.strip-sub{margin-top:0.3rem;font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);}
+
+.strip-hint{position:absolute;right:1.3rem;bottom:1.5rem;z-index:2;font-size:0.58rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text);text-shadow:0 1px 4px rgba(0,0,0,0.7),0 2px 12px rgba(0,0,0,0.55);opacity:0;transition:opacity .3s ease;pointer-events:none;}
+.strip:hover .strip-hint,.strip:focus-visible .strip-hint{opacity:1;}
+
+@media (min-width:768px){
+  .strip-meta{padding:1.8rem 2.4rem;}
+  .strip-hint{right:2rem;bottom:1.9rem;}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .strip{transition:none;}
+  .strip-img{transition:none;}
+  .strip:hover .strip-img,.strip:focus-visible .strip-img{transform:none;}
+  .strip::before{transition:none;}
+}
+
+/* ===== mobile — taller strips, still near-continuous, no hover dependency ===== */
+@media (max-width:767px){
+  .intro{padding:3rem 1rem 0.5rem;}
+  .strip{height:34vh;}
+  .strip:hover,.strip:focus-visible{height:inherit;}
+  .strip-meta{padding:1.2rem 1.1rem;max-width:100%;}
+  .strip-title{font-size:clamp(1.5rem,6vw,2.2rem);}
+}
+</style>
+</head>
+<body>
+
+<nav class="proto-nav">
+  <a class="proto-logo" href="/"><img class="proto-logo-img" src="/images/brand/charlesdays-wordmark.png" alt="Charles Days"></a>
+  <div class="proto-menu">
+    <a href="/art-direction/" aria-current="page">ART DIRECTION</a>
+    <a href="/tattoo/">TATTOO</a>
+    <a href="/film/">FILM</a>
+    <a href="/about/">ABOUT</a>
+  <a href="/manifiesto/">MANIFIESTO</a>
+  </div>
+  <button type="button" class="proto-menu-toggle" id="mobileMenuToggle" aria-expanded="false" aria-controls="mobileNavOverlay">MENU</button>
+</nav>
+
+<div class="mobile-nav-overlay" id="mobileNavOverlay" role="dialog" aria-modal="true" aria-label="Menú principal" aria-hidden="true">
+  <nav class="mobile-nav-links" aria-label="Navegación móvil">
+    <a href="/art-direction/" aria-current="page">ART DIRECTION</a>
+    <a href="/tattoo/">TATTOO</a>
+    <a href="/film/">FILM</a>
+    <a href="/about/">ABOUT</a>
+    <a href="/manifiesto/">MANIFIESTO</a>
+  </nav>
+</div>
+
+<script>
+(function () {
+  var toggle = document.getElementById('mobileMenuToggle');
+  var overlay = document.getElementById('mobileNavOverlay');
+  if (!toggle || !overlay) return;
+  var isOpen = false;
+
+  function openMenu() {
+    isOpen = true;
+    overlay.classList.add('is-open');
+    overlay.removeAttribute('aria-hidden');
+    toggle.textContent = 'CLOSE';
+    toggle.setAttribute('aria-expanded', 'true');
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    var firstLink = overlay.querySelector('a');
+    if (firstLink) firstLink.focus();
+  }
+
+  function closeMenu() {
+    isOpen = false;
+    overlay.classList.remove('is-open');
+    overlay.setAttribute('aria-hidden', 'true');
+    toggle.textContent = 'MENU';
+    toggle.setAttribute('aria-expanded', 'false');
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+    toggle.focus();
+  }
+
+  toggle.addEventListener('click', function () {
+    if (isOpen) { closeMenu(); } else { openMenu(); }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (isOpen && e.key === 'Escape') { closeMenu(); }
+  });
+})();
+</script>
+
+<main>
+  <header class="intro">
+    <h1>ART DIRECTION</h1>
+  </header>
+
+  <div id="strips" class="strips"></div>
+</main>
+
+<script type="module">
+/* Standalone visual prototype (Prototype C) for /art-direction. Reads
+   real entries directly from stories.js (discipline: ["art-direction"])
+   — no parallel content database, and only each story's own `cover` is
+   used by default; supportingImages are never read except for the one
+   explicit, documented strip-image override below. Sequence and
+   per-project object-position are prototype-only curation, kept out of
+   stories.js — not wired into production nav. index.html/film.html/
+   stories.js and the two earlier prototypes are untouched.
+
+   Strip height is intentionally uniform now (see .strip in the CSS) —
+   an earlier regular/feature two-height system added geometry variety
+   that didn't read as meaningfully different in real-browser review, so
+   it was normalized. Visual variety comes from imagery/crop/color only. */
+import { stories } from '/stories.js';
+
+var byId = {};
+stories.forEach(function (s) { byId[s.id] = s; });
+
+/* Deliberately cropped teasers, not full-photograph documentation —
+   object-position chosen per cover so the strongest recognizable
+   visual information survives a short, wide strip.
+
+   3rd Gen Building Systems is the one entry with an `image` override:
+   its canonical cover already carries the full "3RDGEN BUILDING
+   SYSTEMS" wordmark, which fought the strip's own title overlay
+   (redundant typography). This prototype strip uses the existing
+   supportingImages[1] (the crane/HVAC installation photo — no logo)
+   instead. The canonical cover in stories.js is untouched; this is a
+   prototype-local presentation choice only. */
+var SEQUENCE = [
+  { id: 'art', pos: '50% 41%' },
+  { id: 'vida-bandida-tracks', pos: '50% 34%' },
+  { id: 'highend-night-car-meet', pos: '32% 42%' },
+  {
+    id: 'new-yorker-85',
+    pos: '50% 40%',
+    posMobile: '50% 40%',
+    image: { src: '/images/stories/new-yorker-85/detail-01.png', alt: 'Persona sentada frente al costado del auto amarillo' }
+  },
+  { id: 'internazionale', pos: '50% 66%' },
+  {
+    id: '3rd-gen-building-systems',
+    pos: '50% 33%',
+    image: { src: '/images/stories/3rd-gen-building-systems/detail-02.png', alt: 'Instalación de equipo HVAC en azotea, grúa levantando equipo, dos trabajadores' }
+  },
+  { id: 'vidabandida-buenas-malas-decisiones', pos: '50% 8%' },
+  {
+    id: 'vidabandida-chlorotype-series',
+    pos: '50% 20%',
+    image: { src: '/images/stories/vidabandida-chlorotype-series/detail-06.jpeg', alt: 'Los tres integrantes de Vidabandida — Chlorotype caminando por la calle: gorro bucket a la izquierda, trenzas al centro, gorra rosa a la derecha' }
+  },
+  { id: 'ufology', pos: '50% 50%' },
+  { id: 'mr-enz-x-charles-days', pos: '50% 30%' },
+  { id: 'reflections', pos: '45% 42%' },
+  { id: 'interlock', pos: '50% 42%' }
+];
+
+function esc(s) { return String(s == null ? '' : s).replace(/"/g, '&quot;'); }
+
+function metaLine(story) {
+  var role = Array.isArray(story.role) && story.role.length ? story.role.join(', ') : '';
+  var year = story.year ? String(story.year) : '';
+  if (role && year) return role + ' · ' + year;
+  return role || year || '';
+}
+
+function stripHTML(entry, index) {
+  var s = byId[entry.id];
+  if (!s) return '';
+  var sub = metaLine(s);
+  var loading = index === 0 ? 'eager' : 'lazy';
+  var mobilePos = entry.posMobile || entry.pos;
+  var image = entry.image || s.cover;
+  return '' +
+    '<a class="strip" href="' + s.destinationUrl + '" data-proto-link data-id="' + s.id + '">' +
+      '<img class="strip-img" src="' + image.src + '" alt="' + esc(image.alt || '') + '" loading="' + loading + '" decoding="async" ' +
+        'style="object-position:' + entry.pos + ';" ' +
+        'data-pos-desktop="' + entry.pos + '" data-pos-mobile="' + mobilePos + '">' +
+      '<div class="strip-meta">' +
+        '<h2 class="strip-title">' + (s.title || '') + '</h2>' +
+        (sub ? '<p class="strip-sub">' + sub + '</p>' : '') +
+      '</div>' +
+      '<span class="strip-hint">VIEW PROJECT &#8599;</span>' +
+    '</a>';
+}
+
+document.getElementById('strips').innerHTML = SEQUENCE.map(stripHTML).join('');
+
+/* Mobile object-position overrides — applied via JS rather than a CSS
+   media query per image, since only a couple of covers actually need a
+   different crop at a taller mobile strip ratio. */
+var mq = window.matchMedia('(max-width: 767px)');
+function applyPositions() {
+  document.querySelectorAll('.strip-img').forEach(function (img) {
+    img.style.objectPosition = mq.matches ? img.dataset.posMobile : img.dataset.posDesktop;
+  });
+}
+applyPositions();
+mq.addEventListener('change', applyPositions);
+
+/* Every /projects/[slug]/ destination now exists as a real route, so
+   each strip's href (set from s.destinationUrl in stripHTML above) is
+   left as-is — no override map, no click interception needed. */
+
+/* ======================================================================
+   SCROLL INERTIA — same mechanism/constants already approved and
+   working in every project-detail page's own "SCROLL INERTIA" block
+   (identical INERTIA_GAIN/FRICTION/STOP/MAX, identical velocity/
+   friction rAF tick, identical desktop-only + reduced-motion gating).
+   Only the scroll target changes: the project-detail pages drive a
+   custom #of-scroll overlay container via scrollTop, while this page
+   has no such overlay — it's the plain document, so the same velocity
+   model drives native `window.scrollBy` instead. Nothing else about
+   the mechanism is reinterpreted. (Those pages' stopInertia() exists
+   only to cancel inertia on their own overlay-close teardown; this
+   page has no equivalent close/teardown state, so it isn't ported —
+   there's nothing here that would call it.) */
+var reduceMotionForInertia = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+var INERTIA_GAIN = 1.9;
+var INERTIA_FRICTION = 0.92;
+var INERTIA_STOP = 0.5;
+var INERTIA_MAX = 140;
+
+var inertiaVelocity = 0;
+var inertiaRaf = null;
+
+function isDesktopWidth() { return window.innerWidth >= 768; }
+
+function inertiaTick() {
+  window.scrollBy(0, inertiaVelocity);
+  inertiaVelocity *= INERTIA_FRICTION;
+  if (Math.abs(inertiaVelocity) < INERTIA_STOP) {
+    inertiaVelocity = 0;
+    inertiaRaf = null;
+    return;
+  }
+  inertiaRaf = requestAnimationFrame(inertiaTick);
+}
+
+if (!reduceMotionForInertia) {
+  window.addEventListener('wheel', function (e) {
+    if (!isDesktopWidth()) return;
+    e.preventDefault();
+    inertiaVelocity += e.deltaY * INERTIA_GAIN;
+    if (inertiaVelocity > INERTIA_MAX) inertiaVelocity = INERTIA_MAX;
+    if (inertiaVelocity < -INERTIA_MAX) inertiaVelocity = -INERTIA_MAX;
+    if (inertiaRaf === null) { inertiaRaf = requestAnimationFrame(inertiaTick); }
+  }, { passive: false });
+}
+</script>
+</body>
+</html>

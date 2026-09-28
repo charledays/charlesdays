@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Charles Days — Visual Artist &amp; Art Director</title>
+<meta name="description" content="Charles Days is a multidisciplinary visual artist working across art direction, tattoo, film and visual art. Explore his creative process, selected work and interview.">
+<link rel="canonical" href="https://charlesdays.art/about/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Charles Days — Visual Artist & Art Director">
+<meta property="og:description" content="Charles Days is a multidisciplinary visual artist working across art direction, tattoo, film and visual art. Explore his creative process, selected work and interview.">
+<meta property="og:url" content="https://charlesdays.art/about/">
+<meta property="og:image" content="https://charlesdays.art/images/stories/interlock/detail-01.jpg">
+<meta property="og:image:alt" content="Charles Days de pie frente al mural, trabajando en él, visto principalmente desde atrás">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Charles Days",
+  "url": "https://charlesdays.art/",
+  "sameAs": ["https://www.instagram.com/charlesdays.art"],
+  "jobTitle": "Visual Artist & Art Director"
+}
+</script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=Space+Grotesk:wght@500;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#000;--text:#f5f2ed;--text-muted:#9aa4c2;--hair:rgba(245,242,237,0.12);--surface-bg:#f3eee5;--surface-text:#211d19;--surface-text-muted:#5e574c;
+  /* Real, loaded display typeface (Google Fonts, see @import above) —
+     replaces the earlier 'Neue Machina' placeholder, which was never a
+     real asset (no local file, no CDN, not on Google Fonts) and silently
+     fell back to the browser's plain sans-serif. Space Grotesk was
+     approved on /film/ first, then rolled out sitewide from here. */
+  --font-display:'Space Grotesk', sans-serif;
+  --font-body:'DM Sans', sans-serif;
+}
+html{background:var(--bg);scroll-behavior:smooth;overflow-x:clip;}
+html,body{color:var(--text);font-family:var(--font-body);}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
+
+/* ===== nav — same fixed/transparent treatment reused across every page ===== */
+.proto-nav{position:fixed;top:0;left:0;right:0;z-index:50;height:52px;display:flex;justify-content:flex-end;align-items:center;padding:0 1.1rem;background:transparent;}
+.proto-logo,.proto-menu a{text-shadow:0 1px 3px rgba(0,0,0,0.75),0 2px 10px rgba(0,0,0,0.55),0 5px 20px rgba(0,0,0,0.35);}
+.proto-logo{position:absolute;left:50%;top:50%;transform:translate(-50%,calc(-50% + 6px));display:inline-flex;align-items:center;text-decoration:none;}
+.proto-logo-img{filter:drop-shadow(0 1px 2px rgba(0,0,0,0.95)) drop-shadow(0 2px 5px rgba(0,0,0,0.6));}
+.proto-logo-img{display:block;width:118px;height:auto;margin-top:-8px;}
+@media (min-width:768px){.proto-logo-img{width:135px;margin-top:0;}}
+.proto-menu{display:none;}
+.proto-menu a{font-size:0.75rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);text-decoration:none;opacity:0.72;}
+.proto-menu a:hover{opacity:1;}
+.proto-menu a[aria-current="page"]{opacity:1;}
+.proto-menu a:focus-visible,.proto-logo:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;}
+@media (min-width:768px){.proto-menu{display:flex;gap:1.5rem;}}
+
+/* ===== mobile nav — MENU/CLOSE overlay, mobile-only (<768px). Desktop
+   nav (.proto-menu) is completely untouched; this is an independent
+   addition that reuses the same nav bar for its own header (logo stays
+   pinned top-left, this toggle occupies the same top-right slot the
+   desktop menu uses, so only one of the two is ever visible/laid out
+   at a given width). ===== */
+.proto-menu-toggle{display:inline-block;background:none;border:none;padding:0;font-family:'DM Sans',sans-serif;font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);opacity:0.72;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,0.55),0 2px 10px rgba(0,0,0,0.35);}
+.proto-menu-toggle:hover{opacity:1;}
+.proto-menu-toggle:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;opacity:1;}
+@media (min-width:768px){.proto-menu-toggle{display:none;}}
+
+.mobile-nav-overlay{position:fixed;inset:0;z-index:45;background:var(--bg);display:flex;align-items:center;opacity:0;visibility:hidden;transition:opacity .25s ease;}
+.mobile-nav-overlay.is-open{opacity:1;visibility:visible;}
+.mobile-nav-links{display:flex;flex-direction:column;gap:1.4rem;padding:0 1.6rem;width:100%;}
+.mobile-nav-links a{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,10vw,2.6rem);letter-spacing:0.03em;color:#f5f2ed;text-decoration:none;opacity:0.85;}
+.mobile-nav-links a:hover,.mobile-nav-links a:focus-visible{opacity:1;}
+.mobile-nav-links a[aria-current="page"]{opacity:1;text-decoration:underline;text-underline-offset:0.3em;}
+.mobile-nav-links a:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:4px;}
+@media (min-width:768px){.mobile-nav-overlay{display:none;}}
+@media (prefers-reduced-motion:reduce){.mobile-nav-overlay{transition:none;}}
+
+
+.about-page{padding-top:52px;}
+
+/* ===== hero — image-led, asymmetrical: image first on mobile (stacked),
+   side by side on desktop. No paper/55vw system here — About is simpler
+   than a project detail page. ===== */
+.ab-hero{display:flex;flex-direction:column;}
+.ab-hero-media{width:100%;aspect-ratio:4/5;overflow:hidden;background:#0a0a0a;}
+.ab-hero-media img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 20%;}
+.ab-hero-text{padding:2.2rem 1.2rem 2.6rem;max-width:44rem;}
+.ab-h1{font-family:var(--font-display);font-weight:700;font-size:clamp(2.2rem,9vw,3rem);letter-spacing:-0.01em;line-height:0.95;color:var(--text);margin-bottom:1.3rem;}
+.ab-va-line{font-size:1.05rem;line-height:1.5;color:var(--text);margin-bottom:0.4rem;}
+.ab-va-exp{margin-top:1rem;font-size:0.92rem;line-height:1.65;color:var(--text-muted);max-width:38ch;}
+
+@media (min-width:900px){
+  .ab-hero{flex-direction:row;align-items:stretch;}
+  .ab-hero-media{width:42vw;aspect-ratio:auto;}
+  .ab-hero-text{width:58vw;max-width:34rem;padding:6rem 5vw;align-self:center;}
+  .ab-h1{font-size:clamp(2.6rem,4vw,3.6rem);}
+  .ab-va-line{font-size:1.15rem;}
+}
+
+/* ===== disciplines — reads as a continuation of the hero text column,
+   not a detached strip: no rule above it, same left edge as the hero
+   copy, only a hairline below to mark the move into the process
+   section. ===== */
+.ab-disciplines{padding:0 1.2rem 1.8rem;border-bottom:1px solid var(--hair);}
+.ab-disciplines p{font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-muted);line-height:1.9;}
+.ab-disciplines span{color:var(--text);opacity:0.4;margin:0 0.15em;}
+@media (min-width:900px){.ab-disciplines{padding:0 5vw 2.2rem;margin-left:42vw;max-width:34rem;}}
+
+/* ===== process / interview — same bone surface as before, but now set
+   as a left-aligned column sharing the hero's text edge and measure,
+   so it reads as the next paragraph of the same page rather than an
+   isolated centered card. ===== */
+.ab-process{background:var(--surface-bg);padding:3rem 1.2rem;}
+.ab-process-inner{max-width:38ch;}
+.ab-kicker{font-size:0.62rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--surface-text-muted);margin-bottom:0.9rem;}
+.ab-process-title{font-family:var(--font-display);font-weight:700;font-size:clamp(1.6rem,4.2vw,1.9rem);letter-spacing:-0.005em;color:var(--surface-text);margin-bottom:1.3rem;}
+.ab-process-link{display:inline-flex;align-items:center;gap:0.4em;font-size:0.74rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--surface-text);text-decoration:none;border-bottom:1.5px solid rgba(33,29,25,0.45);padding-bottom:0.3rem;}
+.ab-process-link:hover{border-color:var(--surface-text);}
+.ab-process-link:focus-visible{outline:2px solid var(--surface-text);outline-offset:3px;}
+@media (min-width:900px){.ab-process{padding:4rem 5vw;}.ab-process-inner{margin-left:42vw;max-width:34rem;}}
+
+/* ===== contact / social — the page's closing gesture: same left edge
+   and measure as everything above it, but set larger and heavier so it
+   reads as a deliberate final line, not a generic footer link. ===== */
+.ab-contact{padding:3rem 1.2rem 4.5rem;border-top:1px solid var(--hair);}
+.ab-contact-inner{max-width:38ch;}
+.ab-contact-link{display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--font-display);font-weight:500;font-size:clamp(1.4rem,5vw,1.7rem);letter-spacing:-0.005em;color:var(--text);text-decoration:none;}
+.ab-contact-link:hover{opacity:0.75;}
+.ab-contact-link:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;}
+
+/* ===== shared external-link icon — one inline SVG chain glyph reused
+   for every external CTA sitewide (About, Tattoo, project pages),
+   replacing the previous emoji. Inherits currentColor, no fill/box. ===== */
+.ext-icon{width:13px;height:13px;flex-shrink:0;}
+.ext-icon-lg{width:20px;height:20px;}
+@media (min-width:900px){.ab-contact{padding:3.6rem 5vw 5.5rem;}.ab-contact-inner{margin-left:42vw;max-width:34rem;}}
+</style>
+</head>
+<body>
+
+<nav class="proto-nav">
+  <a class="proto-logo" href="/"><img class="proto-logo-img" src="/images/brand/charlesdays-wordmark.png" alt="Charles Days"></a>
+  <div class="proto-menu">
+    <a href="/art-direction/">ART DIRECTION</a>
+    <a href="/tattoo/">TATTOO</a>
+    <a href="/film/">FILM</a>
+    <a href="/about/" aria-current="page">ABOUT</a>
+  <a href="/manifiesto/">MANIFIESTO</a>
+  </div>
+  <button type="button" class="proto-menu-toggle" id="mobileMenuToggle" aria-expanded="false" aria-controls="mobileNavOverlay">MENU</button>
+</nav>
+
+<div class="mobile-nav-overlay" id="mobileNavOverlay" role="dialog" aria-modal="true" aria-label="Menú principal" aria-hidden="true">
+  <nav class="mobile-nav-links" aria-label="Navegación móvil">
+    <a href="/art-direction/">ART DIRECTION</a>
+    <a href="/tattoo/">TATTOO</a>
+    <a href="/film/">FILM</a>
+    <a href="/about/" aria-current="page">ABOUT</a>
+    <a href="/manifiesto/">MANIFIESTO</a>
+  </nav>
+</div>
+
+<script>
+(function () {
+  var toggle = document.getElementById('mobileMenuToggle');
+  var overlay = document.getElementById('mobileNavOverlay');
+  if (!toggle || !overlay) return;
+  var isOpen = false;
+
+  function openMenu() {
+    isOpen = true;
+    overlay.classList.add('is-open');
+    overlay.removeAttribute('aria-hidden');
+    toggle.textContent = 'CLOSE';
+    toggle.setAttribute('aria-expanded', 'true');
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    var firstLink = overlay.querySelector('a');
+    if (firstLink) firstLink.focus();
+  }
+
+  function closeMenu() {
+    isOpen = false;
+    overlay.classList.remove('is-open');
+    overlay.setAttribute('aria-hidden', 'true');
+    toggle.textContent = 'MENU';
+    toggle.setAttribute('aria-expanded', 'false');
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+    toggle.focus();
+  }
+
+  toggle.addEventListener('click', function () {
+    if (isOpen) { closeMenu(); } else { openMenu(); }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (isOpen && e.key === 'Escape') { closeMenu(); }
+  });
+})();
+</script>
+
+<main class="about-page">
+  <section class="ab-hero">
+    <div class="ab-hero-media">
+      <img src="/images/stories/interlock/detail-01.jpg" alt="Charles Days de pie frente a un mural en proceso, visto principalmente desde atrás" loading="eager" decoding="async">
+    </div>
+    <div class="ab-hero-text">
+      <h1 class="ab-h1">SOBRE MÍ</h1>
+      <p class="ab-va-line">¿Has oído hablar de un Visual Alchemist?</p>
+      <p class="ab-va-line">Yo tampoco.</p>
+      <p class="ab-va-line">Pero probablemente es el término que mejor define lo que hago.</p>
+      <p class="ab-va-exp">+10 años creando, experimentando y haciendo side quests en distintos formatos. Hoy uso todo eso para construir universos visuales para marcas, artistas y proyectos.</p>
+    </div>
+  </section>
+
+  <section class="ab-disciplines" aria-label="Disciplinas">
+    <p>ART DIRECTION <span aria-hidden="true">·</span> TATTOO <span aria-hidden="true">·</span> FILM <span aria-hidden="true">·</span> VISUAL ART</p>
+  </section>
+
+  <section class="ab-process" aria-labelledby="ab-process-title">
+    <div class="ab-process-inner">
+      <h2 class="ab-process-title" id="ab-process-title">CONOCE MI MANERA DE VER EL ARTE</h2>
+      <a class="ab-process-link" href="https://www.youtube.com/watch?v=Pl3LlSB1sKU&t=1014s" target="_blank" rel="noopener noreferrer">VER ENTREVISTA<svg class="ext-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></a>
+    </div>
+  </section>
+
+  <section class="ab-contact" aria-label="Contacto">
+    <div class="ab-contact-inner">
+      <p class="ab-kicker">Connect</p>
+      <a class="ab-contact-link" href="https://www.instagram.com/charlesdays.art" target="_blank" rel="noopener noreferrer">INSTAGRAM<svg class="ext-icon ext-icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></a>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+/* ======================================================================
+   SCROLL INERTIA — same mechanism/constants already approved and used on
+   tattoo.html / the Art Direction list page (identical INERTIA_GAIN/
+   FRICTION/STOP/MAX, identical velocity/friction rAF tick, identical
+   desktop-only + reduced-motion gating). About is a plain document like
+   those pages — window.scrollBy, no fixed-overlay scroll container. */
+var reduceMotionForInertia = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+var INERTIA_GAIN = 1.9;
+var INERTIA_FRICTION = 0.92;
+var INERTIA_STOP = 0.5;
+var INERTIA_MAX = 140;
+
+var inertiaVelocity = 0;
+var inertiaRaf = null;
+
+function isDesktopWidth() { return window.innerWidth >= 900; }
+
+function inertiaTick() {
+  window.scrollBy(0, inertiaVelocity);
+  inertiaVelocity *= INERTIA_FRICTION;
+  if (Math.abs(inertiaVelocity) < INERTIA_STOP) {
+    inertiaVelocity = 0;
+    inertiaRaf = null;
+    return;
+  }
+  inertiaRaf = requestAnimationFrame(inertiaTick);
+}
+
+if (!reduceMotionForInertia) {
+  window.addEventListener('wheel', function (e) {
+    if (!isDesktopWidth()) return;
+    e.preventDefault();
+    inertiaVelocity += e.deltaY * INERTIA_GAIN;
+    if (inertiaVelocity > INERTIA_MAX) inertiaVelocity = INERTIA_MAX;
+    if (inertiaVelocity < -INERTIA_MAX) inertiaVelocity = -INERTIA_MAX;
+    if (inertiaRaf === null) { inertiaRaf = requestAnimationFrame(inertiaTick); }
+  }, { passive: false });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Film / Moving Image — Charles Days</title>
+<meta name="description" content="Charles Days — Film y moving image: frames, campañas e imágenes en movimiento.">
+<link rel="canonical" href="https://charlesdays.art/film/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Film / Moving Image — Charles Days">
+<meta property="og:description" content="Charles Days — Film y moving image: frames, campañas e imágenes en movimiento.">
+<meta property="og:url" content="https://charlesdays.art/film/">
+<meta property="og:image" content="https://charlesdays.art/images/wall/avirex.png">
+<meta property="og:image:alt" content="Fotograma de un proyecto de Film de Charles Days">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=Space+Grotesk:wght@500;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#000;--text:#f5f2ed;--text-muted:#9aa4c2;--ink-dark:#0f1d42;--hair:rgba(245,242,237,0.12);--font-display:'Space Grotesk', sans-serif;}
+html{background:var(--bg);}
+html,body{color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
+
+/* ===== minimal nav — same fixed/transparent treatment as the Wall =====
+   Reused as-is (text-shadow only, no background/blur) so this page stays
+   part of the same visual system rather than introducing a new header. */
+.proto-nav{position:fixed;top:0;left:0;right:0;z-index:50;height:52px;display:flex;justify-content:flex-end;align-items:center;padding:0 1.1rem;background:transparent;}
+.proto-logo,.proto-menu a{text-shadow:0 1px 3px rgba(0,0,0,0.75),0 2px 10px rgba(0,0,0,0.55),0 5px 20px rgba(0,0,0,0.35);}
+.proto-logo{position:absolute;left:50%;top:50%;transform:translate(-50%,calc(-50% + 6px));display:inline-flex;align-items:center;}
+.proto-logo-img{filter:drop-shadow(0 1px 2px rgba(0,0,0,0.95)) drop-shadow(0 2px 5px rgba(0,0,0,0.6));}
+.proto-logo-img{display:block;width:118px;height:auto;margin-top:-8px;}
+@media (min-width:768px){.proto-logo-img{width:135px;margin-top:0;}}
+.proto-menu{display:none;}
+.proto-menu a{font-size:0.75rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);text-decoration:none;opacity:0.72;}
+.proto-menu a:hover{opacity:1;}
+.proto-menu a[aria-current="page"]{opacity:1;}
+.proto-menu a:focus-visible,.proto-logo:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;}
+@media (min-width:768px){.proto-menu{display:flex;gap:1.5rem;}}
+
+/* ===== mobile nav — MENU/CLOSE overlay, mobile-only (<768px). Desktop
+   nav (.proto-menu) is completely untouched; this is an independent
+   addition that reuses the same nav bar for its own header (logo stays
+   pinned top-left, this toggle occupies the same top-right slot the
+   desktop menu uses, so only one of the two is ever visible/laid out
+   at a given width). ===== */
+.proto-menu-toggle{display:inline-block;background:none;border:none;padding:0;font-family:'DM Sans',sans-serif;font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);opacity:0.72;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,0.55),0 2px 10px rgba(0,0,0,0.35);}
+.proto-menu-toggle:hover{opacity:1;}
+.proto-menu-toggle:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;opacity:1;}
+@media (min-width:768px){.proto-menu-toggle{display:none;}}
+
+.mobile-nav-overlay{position:fixed;inset:0;z-index:45;background:var(--bg);display:flex;align-items:center;opacity:0;visibility:hidden;transition:opacity .25s ease;}
+.mobile-nav-overlay.is-open{opacity:1;visibility:visible;}
+.mobile-nav-links{display:flex;flex-direction:column;gap:1.4rem;padding:0 1.6rem;width:100%;}
+.mobile-nav-links a{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,10vw,2.6rem);letter-spacing:0.03em;color:#f5f2ed;text-decoration:none;opacity:0.85;}
+.mobile-nav-links a:hover,.mobile-nav-links a:focus-visible{opacity:1;}
+.mobile-nav-links a[aria-current="page"]{opacity:1;text-decoration:underline;text-underline-offset:0.3em;}
+.mobile-nav-links a:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:4px;}
+@media (min-width:768px){.mobile-nav-overlay{display:none;}}
+@media (prefers-reduced-motion:reduce){.mobile-nav-overlay{transition:none;}}
+
+
+/* ===== intro ===== */
+.film-page{padding-top:52px;}
+.film-intro{padding:3.6rem 1.2rem 2rem;}
+.film-h1{font-family:var(--font-display);font-weight:700;font-size:clamp(2.2rem,9vw,3.4rem);letter-spacing:-0.01em;line-height:0.95;color:var(--text);}
+.film-subtitle{margin-top:0.7rem;font-size:0.85rem;line-height:1.55;color:var(--text-muted);max-width:34ch;}
+@media (min-width:768px){.film-intro{padding:5.5rem 2rem 2.6rem;}}
+
+/* ===== mobile series index — editorial, not ecommerce pills =====
+   Hidden at desktop widths: desktop shows every section in full, so the
+   quick-jump index is a mobile-only affordance against long scroll. */
+.film-index{display:flex;gap:1.5rem;padding:0 1.2rem 2rem;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--hair);}
+.film-index::-webkit-scrollbar{display:none;}
+.film-index-btn{background:none;border:none;padding:0.35rem 0 0.6rem;font-family:'DM Sans',sans-serif;font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:color .2s ease,border-color .2s ease;}
+.film-index-btn.is-active{color:var(--text);border-color:var(--text);}
+.film-index-btn:hover{color:var(--text);}
+.film-index-btn:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:2px;}
+@media (min-width:768px){.film-index{display:none;}}
+
+/* ===== series sections ===== */
+.film-series{padding:0 1.2rem 3.2rem;}
+.film-series-title{font-family:var(--font-display);font-weight:700;font-size:1.25rem;letter-spacing:-0.005em;color:var(--text);margin-bottom:1.2rem;}
+@media (min-width:768px){
+  .film-series{padding:0 2rem 4.5rem;}
+  .film-series-title{font-size:1.55rem;margin-bottom:1.5rem;}
+}
+
+.film-empty{font-size:0.68rem;letter-spacing:0.05em;color:var(--text-muted);padding-top:0.2rem;}
+
+.film-grid{display:grid;grid-template-columns:1fr;gap:2.4rem;}
+@media (min-width:768px){.film-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.4rem;}}
+@media (min-width:1200px){.film-grid{gap:1.8rem;}}
+
+/* Lost Frames, Vidabandida and Days Off, mobile only: 2-column editorial
+   grid. Desktop is untouched (the >=768px rule above still applies to
+   every series, since this override sits under max-width:767px). */
+@media (max-width:767px){
+  .film-grid[data-series-grid="lost-frames"],
+  .film-grid[data-series-grid="vidabandida"],
+  .film-grid[data-series-grid="days-off"]{grid-template-columns:1fr 1fr;gap:1.8rem 0.8rem;}
+  .film-grid[data-series-grid="lost-frames"] .film-card-meta,
+  .film-grid[data-series-grid="vidabandida"] .film-card-meta,
+  .film-grid[data-series-grid="days-off"] .film-card-meta{flex-direction:column;align-items:flex-start;gap:0.2rem;}
+}
+
+.film-card{display:block;text-decoration:none;color:inherit;}
+.film-card-frame{position:relative;overflow:hidden;background:#0a0a0a;aspect-ratio:4/5;}
+.film-card-frame img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s ease;}
+a.film-card:hover .film-card-frame img,a.film-card:focus-visible .film-card-frame img{transform:scale(1.035);}
+a.film-card:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;}
+
+/* INTERNAZIONALE STATEMENT only: the canonical still has faint white
+   margins baked into its left/right edges. object-fit:cover alone doesn't
+   remove them here (this image's aspect ratio makes the card crop
+   top/bottom, not sides), so a small scoped zoom hides them without
+   touching the source file or any other Film card. Values chosen from the
+   actual image so the additional crop only trims empty wall/table space
+   around the subject, not the person, artwork, or tablet. */
+.film-card[data-id="internazionale-statement"] .film-card-frame img{transform:scale(1.14);}
+a.film-card[data-id="internazionale-statement"]:hover .film-card-frame img,
+a.film-card[data-id="internazionale-statement"]:focus-visible .film-card-frame img{transform:scale(1.18);}
+
+.film-card-overlay{position:absolute;inset:0;display:flex;align-items:flex-end;padding:0.8rem;background:linear-gradient(transparent 55%,rgba(0,0,0,0.55));opacity:0;transition:opacity .3s ease;}
+a.film-card:hover .film-card-overlay,a.film-card:focus-visible .film-card-overlay{opacity:1;}
+.film-card-overlay-text{font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);}
+
+.film-card-meta{margin-top:0.65rem;display:flex;justify-content:space-between;align-items:baseline;gap:0.6rem;}
+.film-card-title{font-family:var(--font-display);font-weight:500;font-size:0.82rem;letter-spacing:0;color:var(--text);}
+.film-card-year{font-size:0.62rem;color:var(--text-muted);letter-spacing:0.06em;flex:0 0 auto;}
+
+.film-viewall{display:inline-block;margin-top:1.1rem;font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);text-decoration:none;border-bottom:1px solid rgba(245,242,237,0.4);padding-bottom:0.15rem;}
+.film-viewall:hover{border-color:var(--text);}
+.film-viewall:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;}
+.film-viewall[hidden]{display:none;}
+@media (min-width:768px){.film-viewall{display:none;}}
+
+@media (prefers-reduced-motion: reduce){
+  .film-card-frame img{transition:none;}
+  a.film-card:hover .film-card-frame img,a.film-card:focus-visible .film-card-frame img{transform:none;}
+  /* Re-apply the INTERNAZIONALE STATEMENT crop: it corrects framing, it
+     isn't a hover animation, so it must persist under reduced motion too. */
+  .film-card[data-id="internazionale-statement"] .film-card-frame img{transform:scale(1.14);}
+  .film-card-overlay{transition:none;}
+}
+</style>
+</head>
+<body>
+
+<nav class="proto-nav">
+  <a class="proto-logo" href="/"><img class="proto-logo-img" src="/images/brand/charlesdays-wordmark.png" alt="Charles Days"></a>
+  <div class="proto-menu">
+    <a href="/art-direction/">ART DIRECTION</a>
+    <a href="/tattoo/">TATTOO</a>
+    <a href="/film/" aria-current="page">FILM</a>
+    <a href="/about/">ABOUT</a>
+  <a href="/manifiesto/">MANIFIESTO</a>
+  </div>
+  <button type="button" class="proto-menu-toggle" id="mobileMenuToggle" aria-expanded="false" aria-controls="mobileNavOverlay">MENU</button>
+</nav>
+
+<div class="mobile-nav-overlay" id="mobileNavOverlay" role="dialog" aria-modal="true" aria-label="Menú principal" aria-hidden="true">
+  <nav class="mobile-nav-links" aria-label="Navegación móvil">
+    <a href="/art-direction/">ART DIRECTION</a>
+    <a href="/tattoo/">TATTOO</a>
+    <a href="/film/" aria-current="page">FILM</a>
+    <a href="/about/">ABOUT</a>
+    <a href="/manifiesto/">MANIFIESTO</a>
+  </nav>
+</div>
+
+<script>
+(function () {
+  var toggle = document.getElementById('mobileMenuToggle');
+  var overlay = document.getElementById('mobileNavOverlay');
+  if (!toggle || !overlay) return;
+  var isOpen = false;
+
+  function openMenu() {
+    isOpen = true;
+    overlay.classList.add('is-open');
+    overlay.removeAttribute('aria-hidden');
+    toggle.textContent = 'CLOSE';
+    toggle.setAttribute('aria-expanded', 'true');
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    var firstLink = overlay.querySelector('a');
+    if (firstLink) firstLink.focus();
+  }
+
+  function closeMenu() {
+    isOpen = false;
+    overlay.classList.remove('is-open');
+    overlay.setAttribute('aria-hidden', 'true');
+    toggle.textContent = 'MENU';
+    toggle.setAttribute('aria-expanded', 'false');
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+    toggle.focus();
+  }
+
+  toggle.addEventListener('click', function () {
+    if (isOpen) { closeMenu(); } else { openMenu(); }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (isOpen && e.key === 'Escape') { closeMenu(); }
+  });
+})();
+</script>
+
+<main class="film-page">
+  <header class="film-intro">
+    <h1 class="film-h1">FILM</h1>
+    <p class="film-subtitle">Frames, campaigns and moving images.</p>
+  </header>
+
+  <div class="film-index" role="group" aria-label="Filtrar Film por serie">
+    <button type="button" class="film-index-btn is-active" data-filter="all" aria-pressed="true">ALL</button>
+    <button type="button" class="film-index-btn" data-filter="lost-frames" aria-pressed="false">LOST FRAMES</button>
+    <button type="button" class="film-index-btn" data-filter="vidabandida" aria-pressed="false">VIDABANDIDA</button>
+    <button type="button" class="film-index-btn" data-filter="days-off" aria-pressed="false">DAYS OFF</button>
+  </div>
+
+  <div id="filmContent">
+    <section class="film-series" data-series="lost-frames" aria-labelledby="lost-frames-heading">
+      <h2 id="lost-frames-heading" class="film-series-title">LOST FRAMES</h2>
+      <div class="film-grid" data-series-grid="lost-frames"></div>
+      <a href="#" class="film-viewall" data-series-viewall="lost-frames" hidden>View all →</a>
+    </section>
+
+    <section class="film-series" data-series="vidabandida" aria-labelledby="vidabandida-heading">
+      <h2 id="vidabandida-heading" class="film-series-title">VIDABANDIDA</h2>
+      <div class="film-grid" data-series-grid="vidabandida"></div>
+      <a href="#" class="film-viewall" data-series-viewall="vidabandida" hidden>View all →</a>
+    </section>
+
+    <section class="film-series" data-series="days-off" aria-labelledby="days-off-heading">
+      <h2 id="days-off-heading" class="film-series-title">DAYS OFF</h2>
+      <div class="film-grid" data-series-grid="days-off"></div>
+      <a href="#" class="film-viewall" data-series-viewall="days-off" hidden>View all →</a>
+    </section>
+  </div>
+</main>
+
+<script type="module">
+/* Film page: reads Film entries directly out of the shared stories.js
+   content model (discipline: ["film"]) — no second/parallel schema.
+   Currently renders empty states everywhere because no Film entries are
+   approved yet (see CONTENT_PENDING.md "Film" / PENDING_CONTENT.film in
+   stories.js). Adding a real, approved entry to `stories` is the only
+   change needed to populate this page — no markup/behavior changes. */
+import { stories } from '/stories.js';
+
+var SERIES = [
+  { key: 'lost-frames', label: 'LOST FRAMES' },
+  { key: 'vidabandida', label: 'VIDABANDIDA' },
+  { key: 'days-off', label: 'DAYS OFF' }
+];
+var MOBILE_PREVIEW_COUNT = { 'lost-frames': 4, 'vidabandida': 4, 'days-off': 4 };
+
+var filmEntries = stories.filter(function (s) {
+  return Array.isArray(s.discipline) && s.discipline.indexOf('film') !== -1;
+});
+
+var bySeries = {};
+SERIES.forEach(function (s) { bySeries[s.key] = []; });
+filmEntries.forEach(function (entry) {
+  if (entry.series && bySeries[entry.series]) {
+    bySeries[entry.series].push(entry);
+  }
+});
+
+var activeFilter = 'all';
+var mq = window.matchMedia('(max-width: 767px)');
+
+function watchLink(entry) {
+  if (!entry.externalLinks || !entry.externalLinks.length) return null;
+  var link = entry.externalLinks[0];
+  return link && link.url ? link : null;
+}
+
+function cardMarkup(entry) {
+  var link = watchLink(entry);
+  var titleText = entry.title || '';
+  var yearText = entry.year || '';
+  var altText = (entry.cover && entry.cover.alt) || '';
+  var src = entry.cover && entry.cover.src ? entry.cover.src : '';
+
+  var overlay = link
+    ? '<div class="film-card-overlay"><span class="film-card-overlay-text">' + (link.label || 'WATCH') + ' ↗</span></div>'
+    : '';
+
+  var frame = '<div class="film-card-frame">' +
+    '<img src="' + src + '" alt="' + altText + '" loading="lazy" decoding="async">' +
+    overlay +
+    '</div>';
+
+  var meta = '<div class="film-card-meta">' +
+    '<span class="film-card-title">' + titleText + '</span>' +
+    (yearText ? '<span class="film-card-year">' + yearText + '</span>' : '') +
+    '</div>';
+
+  if (link) {
+    return '<a class="film-card" data-id="' + entry.id + '" href="' + link.url + '" target="_blank" rel="noopener noreferrer">' + frame + meta + '</a>';
+  }
+  return '<div class="film-card" data-id="' + entry.id + '">' + frame + meta + '</div>';
+}
+
+function setActive(key) {
+  activeFilter = key;
+  document.querySelectorAll('.film-index-btn').forEach(function (b) {
+    var isActive = b.getAttribute('data-filter') === key;
+    b.classList.toggle('is-active', isActive);
+    b.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+  });
+  render();
+}
+
+function render() {
+  var isMobile = mq.matches;
+
+  SERIES.forEach(function (s) {
+    var section = document.querySelector('.film-series[data-series="' + s.key + '"]');
+    if (!section) return;
+    var grid = section.querySelector('[data-series-grid]');
+    var viewAll = section.querySelector('[data-series-viewall]');
+    var entries = bySeries[s.key];
+
+    var visible = activeFilter === 'all' || activeFilter === s.key;
+    section.hidden = !visible;
+    if (!visible) return;
+
+    var previewCount = MOBILE_PREVIEW_COUNT[s.key] || 3;
+    var isPreview = isMobile && activeFilter === 'all';
+    var toRender = isPreview ? entries.slice(0, previewCount) : entries;
+
+    grid.innerHTML = entries.length
+      ? toRender.map(cardMarkup).join('')
+      : '<p class="film-empty">Stills pending.</p>';
+
+    if (viewAll) {
+      viewAll.hidden = !(isPreview && entries.length > previewCount);
+    }
+  });
+}
+
+document.querySelectorAll('.film-index-btn').forEach(function (btn) {
+  btn.addEventListener('click', function () { setActive(btn.getAttribute('data-filter')); });
+});
+
+document.querySelectorAll('[data-series-viewall]').forEach(function (link) {
+  link.addEventListener('click', function (e) {
+    e.preventDefault();
+    setActive(link.getAttribute('data-series-viewall'));
+  });
+});
+
+var resizeTimer = null;
+window.addEventListener('resize', function () {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(render, 150);
+});
+
+render();
+
+/* ======================================================================
+   SCROLL INERTIA — same mechanism/constants already approved and used on
+   Art Direction/Tattoo/About/Manifiesto (identical INERTIA_GAIN/FRICTION/
+   STOP/MAX, identical velocity/friction rAF tick, identical desktop-only
+   + reduced-motion gating). Film is a plain document like those pages —
+   window.scrollBy, no fixed-overlay scroll container. Desktop here
+   begins at 768px, the same breakpoint where .film-index (the mobile-
+   only horizontal filter-chip row) is hidden and the nav switches to
+   its desktop menu — so this listener and that row's native horizontal
+   scroll never overlap: below 768px the row is visible and this
+   listener is inactive; at/above 768px the row doesn't exist in the
+   layout at all. Only e.deltaY drives velocity, so a trackpad's
+   horizontal component is never read by this handler either way.
+   ====================================================================== */
+var reduceMotionForInertia = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+var INERTIA_GAIN = 1.9;
+var INERTIA_FRICTION = 0.92;
+var INERTIA_STOP = 0.5;
+var INERTIA_MAX = 140;
+
+var inertiaVelocity = 0;
+var inertiaRaf = null;
+
+function isDesktopWidth() { return window.innerWidth >= 768; }
+
+function inertiaTick() {
+  window.scrollBy(0, inertiaVelocity);
+  inertiaVelocity *= INERTIA_FRICTION;
+  if (Math.abs(inertiaVelocity) < INERTIA_STOP) {
+    inertiaVelocity = 0;
+    inertiaRaf = null;
+    return;
+  }
+  inertiaRaf = requestAnimationFrame(inertiaTick);
+}
+
+if (!reduceMotionForInertia) {
+  window.addEventListener('wheel', function (e) {
+    if (!isDesktopWidth()) return;
+    e.preventDefault();
+    inertiaVelocity += e.deltaY * INERTIA_GAIN;
+    if (inertiaVelocity > INERTIA_MAX) inertiaVelocity = INERTIA_MAX;
+    if (inertiaVelocity < -INERTIA_MAX) inertiaVelocity = -INERTIA_MAX;
+    if (inertiaRaf === null) { inertiaRaf = requestAnimationFrame(inertiaTick); }
+  }, { passive: false });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HIGHEND — Night Car Meet — Art Direction by Charles Days</title>
+<meta name="description" content="HIGHEND — Night Car Meet, art direction and vehicle intervention by Charles Days blending car culture, music and visual intervention.">
+<link rel="canonical" href="https://charlesdays.art/projects/highend-night-car-meet/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="HIGHEND — Night Car Meet — Art Direction by Charles Days">
+<meta property="og:description" content="HIGHEND — Night Car Meet, art direction and vehicle intervention by Charles Days blending car culture, music and visual intervention.">
+<meta property="og:url" content="https://charlesdays.art/projects/highend-night-car-meet/">
+<meta property="og:image" content="https://charlesdays.art/images/stories/highend-night-car-meet/cover.jpeg">
+<meta property="og:image:alt" content="Charles Days inclinado sobre el capó de un Mercedes-Benz AMG blanco, interviniendo el vehículo con un marcador amarillo, ambiente nocturno de car meet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=Space+Grotesk:wght@500;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+:root{
+  --bg:#000;--text:#f5f2ed;--text-muted:#c7cbd6;
+  /* Same warm bone editorial surface approved for INTERNAZIONALE —
+     reused verbatim (item 6 in the brief), not a new value. */
+  --surface-bg:#f3eee5;
+  --surface-text:#211d19;
+  --surface-text-muted:#5e574c;
+--font-display:'Space Grotesk', sans-serif;}
+html{background:var(--bg);}
+html,body{color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
+
+/* ===== nav — reused as-is from index.html / film.html ===== */
+.proto-nav{position:fixed;top:0;left:0;right:0;z-index:50;height:52px;display:flex;justify-content:flex-end;align-items:center;padding:0 1.1rem;background:transparent;}
+.proto-logo,.proto-menu a{text-shadow:0 1px 3px rgba(0,0,0,0.75),0 2px 10px rgba(0,0,0,0.55),0 5px 20px rgba(0,0,0,0.35);}
+.proto-logo{position:absolute;left:50%;top:50%;transform:translate(-50%,calc(-50% + 6px));display:inline-flex;align-items:center;}
+.proto-logo-img{filter:drop-shadow(0 1px 2px rgba(0,0,0,0.95)) drop-shadow(0 2px 5px rgba(0,0,0,0.6));}
+.proto-logo-img{display:block;width:118px;height:auto;margin-top:-8px;}
+@media (min-width:768px){.proto-logo-img{width:135px;margin-top:0;}}
+.proto-menu{display:none;}
+.proto-menu a{font-size:0.75rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);text-decoration:none;opacity:0.72;}
+.proto-menu a:hover{opacity:1;}
+.proto-menu a[aria-current="page"]{opacity:1;}
+.proto-menu a:focus-visible,.proto-logo:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;}
+@media (min-width:768px){.proto-menu{display:flex;gap:1.5rem;}}
+
+/* ===== mobile nav — MENU/CLOSE overlay, mobile-only (<768px). Desktop
+   nav (.proto-menu) is completely untouched; this is an independent
+   addition that reuses the same nav bar for its own header (logo stays
+   pinned top-left, this toggle occupies the same top-right slot the
+   desktop menu uses, so only one of the two is ever visible/laid out
+   at a given width). ===== */
+.proto-menu-toggle{display:inline-block;background:none;border:none;padding:0;font-family:'DM Sans',sans-serif;font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);opacity:0.72;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,0.55),0 2px 10px rgba(0,0,0,0.35);}
+.proto-menu-toggle:hover{opacity:1;}
+.proto-menu-toggle:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;opacity:1;}
+@media (min-width:768px){.proto-menu-toggle{display:none;}}
+
+.mobile-nav-overlay{position:fixed;inset:0;z-index:45;background:var(--bg);display:flex;align-items:center;opacity:0;visibility:hidden;transition:opacity .25s ease;}
+.mobile-nav-overlay.is-open{opacity:1;visibility:visible;}
+.mobile-nav-links{display:flex;flex-direction:column;gap:1.4rem;padding:0 1.6rem;width:100%;}
+.mobile-nav-links a{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,10vw,2.6rem);letter-spacing:0.03em;color:#f5f2ed;text-decoration:none;opacity:0.85;}
+.mobile-nav-links a:hover,.mobile-nav-links a:focus-visible{opacity:1;}
+.mobile-nav-links a[aria-current="page"]{opacity:1;text-decoration:underline;text-underline-offset:0.3em;}
+.mobile-nav-links a:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:4px;}
+@media (min-width:768px){.mobile-nav-overlay{display:none;}}
+@media (prefers-reduced-motion:reduce){.mobile-nav-overlay{transition:none;}}
+
+
+
+/* ======================================================================
+   OPENING FRAME PROTOTYPE — HIGHEND only. Independent file, not a
+   modification of art-direction-cinematic-strips-prototype.html or
+   internazionale-opening-frame-prototype.html — same pattern already
+   established for isolated per-project prototyping. Everything above
+   this comment is the untouched cinematic-strip system (same markup/
+   CSS/behavior). Everything below is scoped to this file and only
+   ever activates for the highend-night-car-meet strip.
+
+   REUSE VS. DIFFERENCE (see the final report for the full rationale):
+   reused unchanged — FLIP continuity technique, two-movement timing,
+   paper-over-black concept + width, bone surface color, fixed exit
+   control + its adaptive contrast + aura, inertia mechanism/constants,
+   teardown. Different on purpose — the Opening anchor is landscape
+   (3:2, HIGHEND's own source aspect ratio) instead of INTERNAZIONALE's
+   square, and the entire body sequence is composed from HIGHEND's own
+   material rather than reusing INTERNAZIONALE's spread shapes.
+   ====================================================================== */
+
+.of-hero{
+  position:fixed;z-index:150;
+  object-fit:cover;pointer-events:none;
+}
+.of-hero.is-animating{
+  transition:
+    top .6s cubic-bezier(.22,1,.36,1),
+    left .6s cubic-bezier(.22,1,.36,1),
+    width .6s cubic-bezier(.22,1,.36,1),
+    height .6s cubic-bezier(.22,1,.36,1),
+    object-position .6s cubic-bezier(.22,1,.36,1);
+}
+.of-hero.is-settling{
+  transition:
+    top .6s cubic-bezier(.22,1,.36,1),
+    left .6s cubic-bezier(.22,1,.36,1),
+    width .6s cubic-bezier(.22,1,.36,1),
+    height .6s cubic-bezier(.22,1,.36,1),
+    object-position .6s cubic-bezier(.22,1,.36,1);
+}
+
+/* Movement 2's landing composition — same flex mechanism as
+   INTERNAZIONALE (text column + anchor box, JS reads the anchor's live
+   rect), but stacked on narrow viewports and row from 900px up, since
+   a landscape anchor at INTERNAZIONALE's fixed clamp sizing would
+   overflow a narrow screen where a square anchor didn't. */
+.of-frame{
+  position:fixed;inset:0;z-index:152;
+  display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
+  gap:1.6rem;padding:0 6vw;
+  opacity:0;pointer-events:none;
+  transition:opacity .32s ease;
+}
+.of-frame.is-visible{opacity:1;}
+
+.of-frame-text{max-width:420px;}
+.of-frame-role{font-size:0.68rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1rem;text-shadow:0 1px 6px rgba(0,0,0,0.5);}
+/* Title kept modest — "should not overpower the car" — smaller clamp
+   ceiling than INTERNAZIONALE's title treatment. */
+.of-frame-title{font-family:var(--font-display);font-weight:700;text-transform:uppercase;font-size:clamp(1.5rem,3vw,2.5rem);line-height:1;letter-spacing:-0.01em;color:var(--text);text-shadow:0 2px 16px rgba(0,0,0,0.45);}
+.of-frame-year{margin-top:0.6rem;font-size:0.78rem;letter-spacing:0.18em;color:var(--text-muted);text-shadow:0 1px 6px rgba(0,0,0,0.5);}
+
+/* Invisible layout marker — landscape (3:2), matching cover.jpeg's own
+   native ratio, so cover-fit at this exact box shows the complete
+   frame with no cropped edges once the hero settles here. Width-based
+   (not height-based like INTERNAZIONALE's square) since a landscape
+   photograph reads as dominant through its width. */
+.of-anchor{width:min(60vw,880px);aspect-ratio:3/2;flex:0 0 auto;}
+
+@media (min-width:900px){
+  .of-frame{flex-direction:row;align-items:center;justify-content:space-between;gap:4vw;}
+  .of-frame-text{max-width:min(22vw,300px);}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .of-frame{transition:opacity .01s linear;}
+}
+
+.of-scroll{
+  position:fixed;inset:0;z-index:155;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  overflow-anchor:none;
+  opacity:0;pointer-events:none;transition:opacity .3s ease;
+}
+.of-scroll.is-active{opacity:1;pointer-events:auto;}
+
+.of-spacer{height:calc(100svh - 34px);position:relative;}
+@media (min-width:900px){
+  /* Approved desktop opening interaction (same system as VIDABANDIDA
+     TRACKS): the paper begins substantially lower and the entrance
+     animation (see #of-sequence.is-entering/.is-settling below) slides
+     it up into this raised resting position. HIGHEND's own .of-frame
+     has no translateY offset and a smaller title clamp than the other
+     three projects, so this value was verified live rather than
+     assumed — see the project report for the confirmed gap. */
+  .of-spacer{height:calc(100svh - 210px);}
+}
+
+/* The PAPER — identical concept and width to INTERNAZIONALE's (item 7:
+   reused, not redesigned): narrower than the viewport, centered,
+   capped, so the darker Art Direction backdrop stays visible at both
+   sides throughout. */
+.of-sequence{width:min(92vw,1440px);margin:0 auto;background:var(--surface-bg);}
+@media (min-width:1200px){
+  /* Width-only layout test: narrower paper so more of the underlying
+     Art Direction strips stay visible at both sides, approximating the
+     proportion seen at Safari 50% zoom. Internal layout is untouched —
+     content simply reflows inside the narrower canvas. */
+  .of-sequence{width:55vw;}
+}
+
+/* Entrance slide (approved system, same as VIDABANDIDA TRACKS): the
+   paper itself starts ~120px below its raised resting position and
+   animates up into it once, right as the project opens. Only ever
+   toggled on desktop widths (see the JS trigger in openHighend) —
+   mobile/tablet never receive these classes. */
+#of-sequence.is-entering{transform:translateY(120px);}
+#of-sequence.is-settling{transform:translateY(0);transition:transform 1s cubic-bezier(.22,.61,.36,1);}
+
+/* Opening-only "continues below" cue (approved system, same as
+   VIDABANDIDA TRACKS) — no text, no arrow, no icon: a long, thin,
+   centered editorial line. Belongs to #of-scroll's own scrollable
+   content (a child of .of-spacer, NOT fixed/sticky), positioned
+   absolutely against that spacer so it scrolls away with the opening
+   state the instant the user scrolls. Appears once the paper entrance
+   animation settles, makes a very small, slow, bounce-free vertical
+   drift, then is explicitly faded out and disabled by JS as soon as
+   real scroll input begins. HIGHEND-specific adjustment: 120px (not the
+   140px used on INTERNAZIONALE/NEW YORKER 85'/VIDABANDIDA TRACKS) —
+   HIGHEND's .of-frame has no translateY offset and centers differently,
+   so its year text sits lower on screen; 140px measured live left only
+   ~2px of clearance above the year, so this was reduced to restore a
+   safe gap (verified live — see the project report). */
+.of-continue-cue{
+  position:absolute;left:50%;bottom:14px;
+  width:1px;height:120px;
+  background:rgba(245,242,237,0.28);
+  transform:translateX(-50%);
+  opacity:0;pointer-events:none;
+  transition:opacity .4s ease;
+}
+.of-continue-cue.is-visible{opacity:1;}
+.of-continue-cue.is-breathing{animation:of-continue-drift 2.6s ease-in-out infinite;}
+@keyframes of-continue-drift{
+  0%,100%{transform:translateX(-50%) translateY(0);}
+  50%{transform:translateX(-50%) translateY(6px);}
+}
+@media (prefers-reduced-motion:reduce){
+  .of-continue-cue{transition:opacity .01s linear;}
+  .of-continue-cue.is-breathing{animation:none;}
+}
+
+.seq-img{display:block;width:100%;height:auto;}
+
+/* STEP 1 — INTERVENTION diptych: detail-02 (the wider working shot)
+   beside detail-01 (the tight close-up of the same act) — a real
+   compositional relationship (wide → close, same moment), not two
+   arbitrary images placed side by side. Arrives immediately below the
+   spacer, same principle as INTERNAZIONALE's quick-arrival first step. */
+.hi-pair{
+  max-width:1200px;margin:0 auto;padding:0.6rem 1.4rem 2.5rem;
+  display:flex;flex-direction:column;gap:0.6rem;
+}
+@media (min-width:768px){
+  .hi-pair{flex-direction:row;gap:0.75rem;padding:0.8rem 2.4rem 3rem;}
+  /* Same fix as INTERNAZIONALE's pair — these are 2048px-wide source
+     photos; without min-width:0 a flex item can't shrink below its
+     intrinsic content size and the 50/50 split breaks. */
+  .hi-pair .seq-img{flex:1 1 0;min-width:0;width:100%;}
+}
+
+/* STEP 2 — brief project story. Deliberately NOT paired with an image
+   (unlike INTERNAZIONALE's context+detail-01 spread) — the copy is
+   short enough to stand alone as a quiet beat, then get out of the way
+   for photography, per the brief's own "let photography do most of
+   the work". Left-aligned, modest width, modest padding — a pause,
+   not a wall. */
+.hi-story{max-width:620px;margin:0 auto;padding:2.5rem 1.4rem;}
+.hi-story-body{font-size:0.98rem;line-height:1.7;color:var(--surface-text);white-space:pre-line;font-weight:300;}
+@media (min-width:900px){
+  .hi-story{padding:3rem 2.4rem;}
+  .hi-story-body{font-size:1.03rem;}
+}
+
+/* STEP 3 — detail-03, EVENT/ENVIRONMENT. Given more surrounding
+   negative space than the STEP 1 pair on purpose: this image is about
+   atmosphere, not action, so it's allowed to breathe rather than sit
+   edge-to-edge. */
+.hi-event{max-width:1100px;margin:0 auto;padding:1rem 1.4rem 3rem;}
+@media (min-width:900px){
+  .hi-event{padding:1.5rem 2.4rem 4rem;}
+}
+@media (min-width:1200px){
+  /* Tighter rhythm immediately above the STEP 4 image now that it
+     renders smaller inside the 55vw paper — see STEP 4 below. */
+  .hi-event{padding:1.5rem 2.4rem 2rem;}
+}
+
+/* STEP 4 — detail-04 (the finished intervention, a clean hero detail
+   shot with no people in it) + credits, one composed spread. Same
+   "credits occupy the real negative space beside a smaller image"
+   principle approved for INTERNAZIONALE's credits+detail-03 spread,
+   adapted to a landscape image instead of a portrait one. */
+.hi-detail{
+  max-width:1200px;margin:0 auto;padding:1.5rem 1.4rem;
+  display:flex;flex-direction:column;gap:1.75rem;
+}
+.hi-detail-credits{max-width:320px;}
+.hi-credit{margin-bottom:1rem;}
+.hi-credit:last-child{margin-bottom:0;}
+.hi-credit-role{display:block;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--surface-text-muted);margin-bottom:0.3rem;}
+.hi-credit-name{display:block;font-size:0.92rem;color:var(--surface-text);font-weight:300;}
+.hi-detail .seq-img{max-width:420px;margin:0 auto 0 0;}
+@media (min-width:900px){
+  .hi-detail{padding:2.5rem 2.4rem;flex-direction:row-reverse;align-items:center;gap:6vw;}
+  .hi-detail-credits{flex:0 0 auto;margin-right:4vw;}
+  .hi-detail .seq-img{max-width:620px;margin:0;}
+}
+@media (min-width:1200px){
+  /* The 55vw paper (see .of-sequence) is narrower than the viewport
+     this gap/margin were tuned against, so both were sized off the
+     wrong reference and pushed the 620px-capped image past the paper's
+     left edge. Fix: gap/inset become relative to the paper's own
+     content width (%), and the image gets min-width:0 — same fix
+     already applied to STEP 1's .hi-pair — so it can actually shrink
+     to fit instead of holding its max-width regardless of available
+     space. Tighter top/bottom padding follows the image's smaller
+     rendered size, matching the sections directly above/below it. */
+  .hi-detail{padding:1.25rem 2.4rem;gap:4%;}
+  .hi-detail-credits{margin-right:0;}
+  .hi-detail .seq-img{min-width:0;}
+}
+
+/* STEP 5 — detail-08 (IMG_6386) + detail-07 (IMG_6381), one paired
+   editorial composition: INTERVENTION DETAIL → EVENT/PERSON/CAR REVEAL.
+   Desktop: both images share one explicit row height (not a width
+   split) so they read as one resolved unit with matching top/bottom
+   edges — each seq-img gets height:100%/width:auto so its own aspect
+   ratio still drives its rendered width; nothing is cropped or
+   stretched. Mobile keeps the plain stacked column (no height rule
+   applies below 768px). */
+.hi-intervention-pair{
+  max-width:1200px;margin:0 auto;padding:1.5rem 1.4rem 2rem;
+  display:flex;flex-direction:column;gap:1rem;
+}
+@media (min-width:768px){
+  .hi-intervention-pair{
+    flex-direction:row;justify-content:center;align-items:flex-start;
+    gap:1.25rem;padding:2rem 2.4rem 2.5rem;
+    height:clamp(340px,34vw,560px);
+  }
+  .hi-intervention-pair .seq-img{width:auto;height:100%;flex:0 0 auto;}
+}
+@media (min-width:1200px){
+  /* Follows STEP 4's tighter padding above — the image immediately
+     above (detail-04) now sits closer, so this pair's own top inset
+     is reduced to match, closing the oversized gap that was tuned for
+     STEP 4's previous, larger rendered size. */
+  .hi-intervention-pair{padding-top:1rem;}
+}
+
+/* STEP 6 — detail-06, Charles' portrait by the finished car. Closing
+   visual — centered, real presence, same role INTERNAZIONALE's
+   detail-07 plays (a reused INTERACTION principle: the sequence ends
+   on a confident single portrait), sized for HIGHEND's own portrait
+   ratio (2:3, taller than INTERNAZIONALE's 07). */
+.hi-closing{max-width:1200px;margin:0 auto;padding:1rem 1.4rem 5rem;text-align:center;}
+.hi-closing .seq-img{max-width:480px;margin:0 auto;}
+@media (min-width:900px){
+  .hi-closing{padding:1.5rem 2.4rem 6rem;}
+  .hi-closing .seq-img{max-width:560px;}
+}
+
+/* EPILOGUE — real canonical DJ-set link (unlike AVIREX in
+   INTERNAZIONALE, this one already has a confirmed stored URL — no
+   fallback needed) + the deliberate, larger, end-of-project Return. */
+.hi-epilogue{max-width:640px;margin:0 auto;padding:2rem 1.4rem 6rem;}
+.hi-epilogue-kicker{font-size:0.66rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--surface-text-muted);margin-bottom:1rem;}
+.hi-epilogue-link{display:inline-flex;align-items:center;gap:0.4em;margin-bottom:3rem;padding-bottom:0.3rem;font-size:0.74rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--surface-text);text-decoration:none;border-bottom:1.5px solid rgba(33,29,25,0.45);}
+.ext-icon{width:13px;height:13px;flex-shrink:0;}
+.hi-epilogue-link:hover{border-color:var(--surface-text);}
+.hi-epilogue-link:focus-visible{outline:2px solid var(--surface-text);outline-offset:3px;}
+.hi-epilogue-return{
+  display:inline-block;font-family:'DM Sans',sans-serif;
+  font-size:0.9rem;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--surface-text);text-decoration:none;
+  padding:13px 2px;
+}
+.hi-epilogue-return:hover{opacity:0.65;}
+@media (min-width:900px){
+  .hi-epilogue{padding:2.5rem 2.4rem 7rem;}
+}
+
+/* Fixed exit — identical rules to the INTERNAZIONALE-approved control
+   (item 9: reused verbatim). ONLY TEXT: no background, gradient,
+   shadow-halo, pseudo-element, or blur — only the approved subtle
+   aura and the adaptive color swap. */
+.of-exit{
+  position:fixed;bottom:1.3rem;left:1.2rem;z-index:200;
+  font-size:0.875rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--text);text-decoration:none;opacity:0;pointer-events:none;
+  background:none;box-shadow:none;filter:none;
+  -webkit-backdrop-filter:none;backdrop-filter:none;outline:none;
+  text-shadow:0 0 8px rgba(0,0,0,.4);
+  transition:opacity .3s ease;
+  padding:13px 14px;
+  display:inline-block;
+}
+.of-exit::before,.of-exit::after{content:none;}
+.of-exit.is-visible{opacity:.8;pointer-events:auto;}
+.of-exit:hover,.of-exit:focus-visible{opacity:1;}
+.of-exit.is-on-surface{color:var(--surface-text);}
+
+@media (min-width:768px){
+  .of-exit{bottom:1.6rem;left:2.4rem;}
+}
+</style>
+</head>
+<body>
+
+<nav class="proto-nav">
+  <a class="proto-logo" href="/"><img class="proto-logo-img" src="/images/brand/charlesdays-wordmark.png" alt="Charles Days"></a>
+  <div class="proto-menu">
+    <a href="/art-direction/" aria-current="page">ART DIRECTION</a>
+    <a href="/tattoo/">TATTOO</a>
+    <a href="/film/">FILM</a>
+    <a href="/about/">ABOUT</a>
+  <a href="/manifiesto/">MANIFIESTO</a>
+  </div>
+  <button type="button" class="proto-menu-toggle" id="mobileMenuToggle" aria-expanded="false" aria-controls="mobileNavOverlay">MENU</button>
+</nav>
+
+<div class="mobile-nav-overlay" id="mobileNavOverlay" role="dialog" aria-modal="true" aria-label="Menú principal" aria-hidden="true">
+  <nav class="mobile-nav-links" aria-label="Navegación móvil">
+    <a href="/art-direction/" aria-current="page">ART DIRECTION</a>
+    <a href="/tattoo/">TATTOO</a>
+    <a href="/film/">FILM</a>
+    <a href="/about/">ABOUT</a>
+    <a href="/manifiesto/">MANIFIESTO</a>
+  </nav>
+</div>
+
+<script>
+(function () {
+  var toggle = document.getElementById('mobileMenuToggle');
+  var overlay = document.getElementById('mobileNavOverlay');
+  if (!toggle || !overlay) return;
+  var isOpen = false;
+
+  function openMenu() {
+    isOpen = true;
+    overlay.classList.add('is-open');
+    overlay.removeAttribute('aria-hidden');
+    toggle.textContent = 'CLOSE';
+    toggle.setAttribute('aria-expanded', 'true');
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    var firstLink = overlay.querySelector('a');
+    if (firstLink) firstLink.focus();
+  }
+
+  function closeMenu() {
+    isOpen = false;
+    overlay.classList.remove('is-open');
+    overlay.setAttribute('aria-hidden', 'true');
+    toggle.textContent = 'MENU';
+    toggle.setAttribute('aria-expanded', 'false');
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+    toggle.focus();
+  }
+
+  toggle.addEventListener('click', function () {
+    if (isOpen) { closeMenu(); } else { openMenu(); }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (isOpen && e.key === 'Escape') { closeMenu(); }
+  });
+})();
+</script>
+
+<main>
+  <h1 class="sr-only">HIGHEND — Night Car Meet — Charles Days</h1>
+</main>
+
+<!-- Opening Frame prototype layers — inert until HIGHEND is clicked -->
+<div class="of-frame" id="of-frame">
+  <div class="of-frame-text">
+    <p class="of-frame-role" id="of-frame-role"></p>
+    <h2 class="of-frame-title" id="of-frame-title"></h2>
+    <p class="of-frame-year" id="of-frame-year"></p>
+  </div>
+  <div class="of-anchor" id="of-anchor"></div>
+</div>
+
+<a href="/art-direction/" class="of-exit" id="of-exit">&larr; ART DIRECTION</a>
+
+<div class="of-scroll" id="of-scroll">
+  <div class="of-spacer">
+    <div class="of-continue-cue" id="of-continue-cue" aria-hidden="true"></div>
+  </div>
+  <div class="of-sequence" id="of-sequence"></div>
+</div>
+
+<script type="module">
+/* Standalone visual prototype (Opening Frame pass) for HIGHEND — Night
+   Car Meet. Reads the real entry directly from stories.js. Does not
+   modify art-direction-cinematic-strips-prototype.html or
+   internazionale-opening-frame-prototype.html — this file embeds its
+   own copy of the strip list (same pattern INTERNAZIONALE's prototype
+   already established), so it can be evaluated independently. Only
+   the click behavior for the highend-night-car-meet strip differs;
+   every other strip keeps today's no-op preventDefault. */
+import { stories } from '/stories.js?v=20260923';
+
+var byId = {};
+stories.forEach(function (s) { byId[s.id] = s; });
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/* Shared external-link glyph — same icon/markup used sitewide (About,
+   Tattoo, every project epilogue), replacing the previous emoji. */
+var EXT_ICON_SVG = '<svg class="ext-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+
+/* ======================================================================
+   VISUAL SEQUENCE — HIGHEND only. Built from the real supportingImages
+   array in stories.js, matched by filename fragment. Canonical
+   `context`, `role`, and `credits` are used verbatim (HTML-escaped
+   only), never rewritten. Presentation order below is an editorial
+   decision (CAR/opening → INTERVENTION diptych → story → EVENT →
+   DETAIL+credits → dramatic DETAIL → PEOPLE/closing → epilogue) and
+   intentionally differs from supportingImages' own stored order,
+   exactly as already established for INTERNAZIONALE.
+   ====================================================================== */
+function findSupportingImage(story, fragment) {
+  return story.supportingImages.filter(function (img) {
+    return img.src.indexOf(fragment) !== -1;
+  })[0];
+}
+
+function seqImg(image) {
+  return '<img class="seq-img" src="' + image.src + '" alt="' + esc(image.alt || '') + '" loading="lazy" decoding="async">';
+}
+
+/* Same grouping approach approved for INTERNAZIONALE's credits: group
+   by identical role, first-appearance order, presentation-only
+   pluralization (role + "s" when a group has more than one name).
+   HIGHEND's own role/name values are different (e.g. "Camera" not
+   "Photography") and are rendered exactly as stored — nothing here
+   renames a canonical role to match the brief's example copy. Charles'
+   own role is not added as a credit row: stories.js has no credits
+   entry for him here either (same situation as INTERNAZIONALE), so
+   none is invented — his role is surfaced via story.role instead
+   (see of-frame-role and the project-story kicker). */
+function hiCredits(story) {
+  var order = [];
+  var byRole = {};
+  story.credits.forEach(function (c) {
+    if (!byRole[c.role]) { byRole[c.role] = []; order.push(c.role); }
+    byRole[c.role].push(c.name);
+  });
+  return '<div class="hi-detail-credits">' +
+    order.map(function (role) {
+      var names = byRole[role];
+      var label = names.length > 1 ? role + 's' : role;
+      return '<p class="hi-credit">' +
+        '<span class="hi-credit-role">' + esc(label) + '</span>' +
+        names.map(function (n) { return '<span class="hi-credit-name">' + esc(n) + '</span>'; }).join('') +
+      '</p>';
+    }).join('') +
+  '</div>';
+}
+
+function buildHighendSequence(story) {
+  var img01 = findSupportingImage(story, 'detail-01');
+  var img02 = findSupportingImage(story, 'detail-02');
+  var img03 = findSupportingImage(story, 'detail-03');
+  var img04 = findSupportingImage(story, 'detail-04');
+  var img06 = findSupportingImage(story, 'detail-06');
+  var img07 = findSupportingImage(story, 'detail-07');
+  var img08 = findSupportingImage(story, 'detail-08');
+  var role = Array.isArray(story.role) ? story.role.join(', ') : '';
+
+  return '' +
+    /* STEP 1 — INTERVENTION diptych: wide working shot + tight close-up
+       of the same act. Arrives immediately below the spacer. */
+    '<section class="seq hi-pair">' + seqImg(img02) + seqImg(img01) + '</section>' +
+
+    /* STEP 2 — brief project story, standalone (no paired image). */
+    '<section class="seq hi-story">' +
+      '<p class="seq-kicker">' + esc(role) + '</p>' +
+      '<p class="hi-story-body">' + esc(story.context || '') + '</p>' +
+    '</section>' +
+
+    /* STEP 3 — EVENT/ENVIRONMENT, given room to breathe. */
+    '<section class="seq hi-event">' + seqImg(img03) + '</section>' +
+
+    /* STEP 4 — finished-intervention DETAIL hero + credits spread. */
+    '<section class="seq hi-detail">' + hiCredits(story) + seqImg(img04) + '</section>' +
+
+    /* STEP 5 — INTERVENTION DETAIL (img08) → EVENT/PERSON/CAR REVEAL
+       (img07), one paired composition instead of two separate beats. */
+    '<section class="seq hi-intervention-pair">' + seqImg(img08) + seqImg(img07) + '</section>' +
+
+    /* STEP 6 — PEOPLE/ENERGY closing portrait. */
+    '<section class="seq hi-closing">' + seqImg(img06) + '</section>' +
+
+    buildEpilogue(story);
+}
+
+/* ======================================================================
+   EPILOGUE — after detail-06. Unlike INTERNAZIONALE's AVIREX situation,
+   HIGHEND's externalLinks[0] IS already a real, confirmed URL (the
+   Sheiler DJ set) — no per-entry-route problem to solve and no
+   fallback needed, so it's surfaced directly. Rendered verbatim
+   (Spanish canonical label kept exactly as stored). Nothing was
+   invented: if this link didn't exist, it would simply be omitted.
+   ====================================================================== */
+function buildEpilogue(story) {
+  var djLink = story.externalLinks && story.externalLinks[0];
+
+  return '<section class="seq hi-epilogue">' +
+    (djLink ?
+      '<div>' +
+        '<p class="hi-epilogue-kicker">Relacionado</p>' +
+        '<a href="' + djLink.url + '" target="_blank" rel="noopener noreferrer" class="hi-epilogue-link">' + esc(djLink.label) + EXT_ICON_SVG + '</a>' +
+      '</div>'
+      : '') +
+    /* Real navigation back to the main ART DIRECTION page — this is
+       the end-of-project exit, distinct from the persistent #of-exit
+       control used mid-sequence (which still closes/resets in place). */
+    '<a href="/art-direction/" class="hi-epilogue-return" id="of-exit-end">&larr; RETURN TO ART DIRECTION</a>' +
+  '</section>';
+}
+
+document.getElementById('of-sequence').innerHTML = buildHighendSequence(byId['highend-night-car-meet']);
+openHighend(byId['highend-night-car-meet']);
+
+/* ======================================================================
+   OPENING FRAME — HIGHEND only. Same FLIP-continuity technique and
+   two-movement timing already approved for INTERNAZIONALE (items 2–4
+   in the brief: reused unchanged). IMMERSIVE_CROP is a TEMPORARY
+   placeholder object-position for the momentary full-viewport beat —
+   cover.jpeg is landscape (2048×1365, 3:2), Charles working low-center-
+   right of frame — flagged here for real art direction review, exactly
+   like INTERNAZIONALE's own placeholder crop was. */
+var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var IMMERSIVE_CROP = '50% 55%'; // TEMPORARY — placeholder for art direction review
+
+var BEAT_MS = 130;    // full-frame pause between the two movements
+var SETTLE_MS = 600;  // Movement 2 duration — matches .of-hero.is-settling
+var TEXT_LEAD_MS = Math.round(SETTLE_MS * 2 / 3);
+var PAPER_ENTER_MS = 1000; // matches #of-sequence.is-settling's transition-duration below
+
+/* Paper entrance slide — approved system, same as VIDABANDIDA TRACKS.
+   Runs once, right as the paper fades in: starts 120px below the
+   approved resting position, animates up into it, then both classes
+   are cleared so .of-sequence is left with no transform at all — no
+   residual effect on scroll/inertia. Skipped entirely below the 900px
+   desktop breakpoint used for the raised resting position itself. */
+function animatePaperEntrance() {
+  if (window.innerWidth < 900) return;
+  var paperEl = document.getElementById('of-sequence');
+  paperEl.classList.add('is-entering');
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      paperEl.classList.add('is-settling');
+      paperEl.classList.remove('is-entering');
+    });
+  });
+  setTimeout(function () {
+    paperEl.classList.remove('is-settling');
+    showContinueCue();
+  }, PAPER_ENTER_MS);
+}
+
+/* Opening-only "continues below" cue — approved system, same as
+   VIDABANDIDA TRACKS. Fades in once the paper entrance settles, then
+   breathes a few px down and back. Belongs only to the opening state:
+   as soon as real scroll input arrives it is faded out and disabled
+   for the rest of that open session. */
+function showContinueCue() {
+  if (window.innerWidth < 900) return;
+  var cueEl = document.getElementById('of-continue-cue');
+  cueEl.classList.add('is-visible');
+  cueEl.classList.add('is-breathing');
+}
+
+function hideContinueCue() {
+  var cueEl = document.getElementById('of-continue-cue');
+  cueEl.classList.remove('is-visible', 'is-breathing');
+}
+
+function openHighend(story) {
+  document.documentElement.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
+  document.getElementById('of-scroll').scrollTop = 0;
+
+  var hero = document.createElement('img');
+  hero.className = 'of-hero';
+  hero.src = story.cover.src;
+  hero.alt = '';
+  hero.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(hero);
+
+  var frameEl = document.getElementById('of-frame');
+  var anchorEl = document.getElementById('of-anchor');
+  var scrollEl = document.getElementById('of-scroll');
+  var exitEl = document.getElementById('of-exit');
+
+  document.getElementById('of-frame-title').textContent = story.title || '';
+  document.getElementById('of-frame-year').textContent = story.year ? String(story.year) : '';
+  document.getElementById('of-frame-role').textContent = Array.isArray(story.role) ? story.role.join(', ') : '';
+
+  function settleImmersive() {
+    hero.style.top = '0px';
+    hero.style.left = '0px';
+    hero.style.width = window.innerWidth + 'px';
+    hero.style.height = window.innerHeight + 'px';
+    hero.style.objectPosition = IMMERSIVE_CROP;
+  }
+
+  function settleToArtwork() {
+    var r = anchorEl.getBoundingClientRect();
+    hero.style.top = r.top + 'px';
+    hero.style.left = r.left + 'px';
+    hero.style.width = r.width + 'px';
+    hero.style.height = r.height + 'px';
+    hero.style.objectPosition = '50% 50%';
+  }
+
+  if (reduceMotion) {
+    settleToArtwork();
+    scrollEl.classList.add('is-active');
+    frameEl.classList.add('is-visible');
+    exitEl.classList.add('is-visible');
+    showContinueCue();
+    return;
+  }
+
+  settleImmersive();
+
+  setTimeout(function () {
+    hero.classList.add('is-settling');
+    settleToArtwork();
+
+    setTimeout(function () {
+      scrollEl.classList.add('is-active');
+      frameEl.classList.add('is-visible');
+      exitEl.classList.add('is-visible');
+      animatePaperEntrance();
+    }, TEXT_LEAD_MS);
+  }, BEAT_MS);
+
+  /* Opening-only cue: the moment real scroll input arrives, fade it out
+     and stop it from ever reappearing for the rest of this open
+     session. */
+  if (scrollEl._cueHideHandler) {
+    scrollEl.removeEventListener('scroll', scrollEl._cueHideHandler);
+  }
+  var cueDismissed = false;
+  scrollEl._cueHideHandler = function () {
+    if (cueDismissed) return;
+    if (scrollEl.scrollTop > 4) {
+      cueDismissed = true;
+      hideContinueCue();
+      scrollEl.removeEventListener('scroll', scrollEl._cueHideHandler);
+    }
+  };
+  scrollEl.addEventListener('scroll', scrollEl._cueHideHandler);
+
+  if (scrollEl._exitContrastHandler) {
+    scrollEl.removeEventListener('scroll', scrollEl._exitContrastHandler);
+  }
+  scrollEl._exitContrastHandler = function () {
+    var spacer = document.querySelector('.of-spacer');
+    var pastSpacer = scrollEl.scrollTop >= spacer.offsetHeight - 8;
+    var exitRect = exitEl.getBoundingClientRect();
+    var paperRect = document.getElementById('of-sequence').getBoundingClientRect();
+    var overPaper = exitRect.left >= paperRect.left && exitRect.right <= paperRect.right;
+    exitEl.classList.toggle('is-on-surface', pastSpacer && overPaper);
+  };
+  scrollEl.addEventListener('scroll', scrollEl._exitContrastHandler);
+  scrollEl._exitContrastHandler();
+}
+
+
+/* ======================================================================
+   SCROLL INERTIA — identical mechanism/constants to INTERNAZIONALE's
+   (item 8: reused unchanged), retargeted at this file's own #of-scroll. */
+var reduceMotionForInertia = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+var INERTIA_GAIN = 1.9;
+var INERTIA_FRICTION = 0.92;
+var INERTIA_STOP = 0.5;
+var INERTIA_MAX = 140;
+
+var inertiaVelocity = 0;
+var inertiaRaf = null;
+
+function isDesktopWidth() { return window.innerWidth >= 900; }
+
+function stopInertia() {
+  inertiaVelocity = 0;
+  if (inertiaRaf !== null) { cancelAnimationFrame(inertiaRaf); inertiaRaf = null; }
+}
+
+function inertiaTick() {
+  var scrollEl = document.getElementById('of-scroll');
+  scrollEl.scrollTop += inertiaVelocity;
+  inertiaVelocity *= INERTIA_FRICTION;
+  if (Math.abs(inertiaVelocity) < INERTIA_STOP) {
+    inertiaVelocity = 0;
+    inertiaRaf = null;
+    return;
+  }
+  inertiaRaf = requestAnimationFrame(inertiaTick);
+}
+
+if (!reduceMotionForInertia) {
+  window.addEventListener('wheel', function (e) {
+    var scrollEl = document.getElementById('of-scroll');
+    if (!isDesktopWidth() || !scrollEl.classList.contains('is-active')) return;
+    e.preventDefault();
+    inertiaVelocity += e.deltaY * INERTIA_GAIN;
+    if (inertiaVelocity > INERTIA_MAX) inertiaVelocity = INERTIA_MAX;
+    if (inertiaVelocity < -INERTIA_MAX) inertiaVelocity = -INERTIA_MAX;
+    if (inertiaRaf === null) { inertiaRaf = requestAnimationFrame(inertiaTick); }
+  }, { passive: false });
+}
+</script>
+</body>
+</html>
