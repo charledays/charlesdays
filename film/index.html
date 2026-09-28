@@ -353,11 +353,14 @@ document.querySelectorAll('[data-series-viewall]').forEach(function (link) {
   });
 });
 
-var resizeTimer = null;
-window.addEventListener('resize', function () {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(render, 150);
-});
+/* render() only depends on mq.matches (width), but a plain 'resize'
+   listener also fires on mobile Safari when its URL bar collapses/expands
+   during scroll — a HEIGHT-only change. That was re-triggering render()'s
+   destructive innerHTML rebuild (new <img> elements, losing whatever was
+   already decoded/painted) mid-scroll, which is what produced the
+   black-flash/flicker. Listening to the media query's own 'change' event
+   instead only fires on an actual width crossing (e.g. rotation). */
+mq.addEventListener('change', render);
 
 render();
 

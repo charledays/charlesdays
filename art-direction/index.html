@@ -122,7 +122,14 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
 @media (max-width:767px){
   .intro{padding:3rem 1rem 0.5rem;}
   .strip{height:34vh;}
-  .strip:hover,.strip:focus-visible{height:inherit;}
+  /* Was `height:inherit` — that doesn't mean "keep 34vh", it resolves
+     against the parent's (auto) height, which collapsed the tapped strip
+     since its only in-flow content is the meta text. On touch devices the
+     tap-triggered :hover/:focus-visible match fired that collapse mid-tap,
+     shifting every strip below it before the click coordinates resolved —
+     root cause of a tap opening the wrong project. Explicit 34vh keeps
+     hover/focus a true no-op at this breakpoint. */
+  .strip:hover,.strip:focus-visible{height:34vh;}
   .strip-meta{padding:1.2rem 1.1rem;max-width:100%;}
   .strip-title{font-size:clamp(1.5rem,6vw,2.2rem);}
 }

@@ -27,7 +27,7 @@
   --font-body:'DM Sans', sans-serif;
 }
 html{background:var(--bg);}
-html,body{color:var(--ink);font-family:var(--font-body);overflow-x:hidden;}
+html,body{color:var(--ink);font-family:var(--font-body);overflow-x:hidden;touch-action:pan-y;}
 
 /* Hidden until the loop's initial scroll position is set (see script at the
    end of body) — prevents the load→middle-copy jump from ever being visible.
@@ -411,12 +411,20 @@ renderCopy('copyBottom', true);
 
   function measure() { H = copyMid.offsetTop - copyTop.offsetTop; }
 
-  function onScroll() {
-    if (!reduceMotion) {
-      root.classList.add('is-scrolling');
-      if (scrollEndTimer) clearTimeout(scrollEndTimer);
-      scrollEndTimer = setTimeout(function () { root.classList.remove('is-scrolling'); }, SCROLL_END_DELAY);
-    }
+  /* Loop teleport is deliberately deferred to scroll-END (see onScroll
+     below) rather than run on every 'scroll' tick. Root cause of the
+     mobile instability report: iOS Safari's native kinetic scrolling
+     fires continuous 'scroll' events throughout its momentum phase, and
+     calling window.scrollTo() WHILE that momentum is still running
+     interrupts/resets it — perceived as the scroll randomly slowing or
+     stopping mid-flick. All three copies are pixel-identical, so the
+     teleport is invisible whenever it fires; deferring it until momentum
+     has actually settled (same SCROLL_END_DELAY window already used for
+     the breathe effect) avoids ever fighting the OS's own physics.
+     Desktop's synthetic wheel-inertia (below) fires 'scroll' every rAF
+     frame too, so this settles at the same natural point there as well —
+     nothing about its own GAIN/FRICTION/velocity model changes. */
+  function reposition() {
     if (H <= 0) return;
     var y = window.scrollY;
     if (y < H * 0.5) {
@@ -424,6 +432,15 @@ renderCopy('copyBottom', true);
     } else if (y > H * 1.5) {
       window.scrollTo({ top: y - H, left: 0, behavior: 'auto' });
     }
+  }
+
+  function onScroll() {
+    if (!reduceMotion) { root.classList.add('is-scrolling'); }
+    if (scrollEndTimer) clearTimeout(scrollEndTimer);
+    scrollEndTimer = setTimeout(function () {
+      if (!reduceMotion) { root.classList.remove('is-scrolling'); }
+      reposition();
+    }, SCROLL_END_DELAY);
   }
 
   /* Viewport/layout can change the composition's height (breakpoint

@@ -150,13 +150,14 @@ main img{display:block;max-width:100%;height:auto;}
 @media (min-width:900px){.mf-aftermovie{padding:3.6rem 0 4.2rem;}}
 
 /* ===== closing image — the emotional close. Large enough to feel like
-   a real ending, generous but not excessive room around it, slightly
-   asymmetric rather than dead-centered in a black field. ===== */
+   a real ending, generous but not excessive room around it, centered
+   in its section at every width (desktop previously offset it via
+   justify-content:flex-start + margin-left, which read as off-center). ===== */
 .mf-closing{padding:3.2rem 0 5.5rem;display:flex;justify-content:center;}
 .mf-closing img{display:block;width:100%;max-width:26rem;height:auto;}
 @media (min-width:900px){
-  .mf-closing{padding:4.5rem 0 7rem;justify-content:flex-start;}
-  .mf-closing img{max-width:46vw;margin-left:8.3333%;}
+  .mf-closing{padding:4.5rem 0 7rem;}
+  .mf-closing img{max-width:46vw;}
 }
 </style>
 </head>
