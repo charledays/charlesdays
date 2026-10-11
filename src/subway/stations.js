@@ -1,8 +1,6 @@
 /**
- * Station data. Each entry feeds the station template (exterior/station.js) and the overlay.
- * Add a stop by adding an object; nothing else needs to change.
- *
- * getOff.href: null keeps the GET OFF button as a placeholder until the gallery exists.
+ * Line data: the line itself, the ad artwork, and the stations. Add a stop by adding an object
+ * to `stations`; the ride, the line map and GET OFF all follow.
  */
 export var LINE = { bullet: 'C', color: '#f26a1b', name: 'Charle$Days Line' };
 
@@ -24,24 +22,49 @@ export var adArt = [
   '/images/wall/avirex.png'
 ];
 
-/** Stops on the line map between the doors and the seats; each one links to a page. */
-export var mapStops = [
-  { name: 'Art Direction', note: 'Campaigns · Brands', href: '/art-direction/' },
-  { name: 'Film', note: 'Moving image', href: '/film/' },
-  { name: 'Tattoo', note: 'Lima studio', href: '/tattoo/' },
-  { name: 'Manifiesto', note: 'Exhibition', href: '/manifiesto/' },
-  { name: 'About', note: 'Charle$Days', href: '/about/' }
-];
-
+/**
+ * The circle line, in order; after the last stop the train comes back around to the first.
+ * Each station feeds the station template (billboard, tablets, signs), the line map (name, note,
+ * href) and GET OFF (href). billboard.focusY picks which part of a tall image fills the board
+ * (0 = top, 0.5 = centre).
+ */
 export var stations = [
+  {
+    id: 'art-direction',
+    name: 'Art Direction',
+    note: 'Campaigns · Brands',
+    href: '/art-direction/',
+    billboard: { src: '/images/stories/internazionale/cover.jpg', alt: 'Internazionale album artwork' }
+  },
+  {
+    id: 'film',
+    name: 'Film',
+    note: 'Moving image',
+    href: '/film/',
+    billboard: { src: '/images/wall/vidabandida-drop-caballo-ganador.jpg', alt: 'VIDABANDIDA drop: Caballo Ganador' }
+  },
+  {
+    id: 'tattoo',
+    name: 'Tattoo',
+    note: 'Lima studio',
+    href: '/tattoo/',
+    billboard: { src: '/images/tattoo/head-lettering-02.jpg', alt: 'Ornamental blackwork head tattoo' }
+  },
   {
     id: 'manifiesto',
     name: 'Manifiesto',
-    subtitle: '1 Av – Gallery Level',
-    billboard: {
-      src: '/images/manifiesto/canvas-wide.jpg',
-      alt: 'Placeholder artwork: Manifiesto canvas'
-    },
-    getOff: { label: 'GET OFF', href: null }
+    note: 'Exhibition',
+    href: '/manifiesto/',
+    billboard: { src: '/images/manifiesto/canvas-wide.jpg', alt: 'Manifiesto canvas' }
+  },
+  {
+    id: 'about',
+    name: 'About',
+    note: 'Charle$Days',
+    href: '/about/',
+    billboard: { src: '/images/manifiesto/closing-charles-mother.jpg', alt: 'Charles Days at the close of Manifiesto', focusY: 0.22 }
   }
 ];
+
+/** The line map's stops are the stations themselves, so the map and the ride always agree. */
+export var mapStops = stations;

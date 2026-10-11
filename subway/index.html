@@ -66,9 +66,6 @@ body{overflow-x:hidden;}
 .get-off:hover{background:#ffd73a;}
 .get-off[hidden]{display:none;}
 @keyframes rise{from{opacity:0;transform:translate(-50%,6px)}to{opacity:1;transform:translateX(-50%)}}
-.toast{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + var(--edge) + 4.6rem);transform:translateX(-50%);
-  white-space:nowrap;font-size:0.82rem;color:var(--ink);background:var(--panel);padding:0.45rem 0.8rem;}
-.toast[hidden]{display:none;}
 
 .scroll-hint{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + var(--edge));transform:translateX(-50%);
   display:flex;flex-direction:column;align-items:center;gap:0.55rem;font:600 0.66rem/1 var(--sign);
@@ -76,6 +73,37 @@ body{overflow-x:hidden;}
 .scroll-hint::after{content:'';width:1px;height:2.4rem;background:linear-gradient(var(--ink),transparent);animation:hint 1.8s ease-in-out infinite;transform-origin:top;}
 @keyframes hint{0%{transform:scaleY(0);opacity:1}60%{transform:scaleY(1);opacity:1}100%{transform:scaleY(1);opacity:0}}
 .scroll-hint.is-hidden{opacity:0;}
+
+/* Spray can: tools bottom-left, and a gloved hand with a Montana GOLD can that follows the mouse (aimed by its nozzle). */
+.spray-tools{position:absolute;left:var(--edge);bottom:calc(env(safe-area-inset-bottom,0px) + var(--edge));
+  display:flex;align-items:center;gap:0.6rem;}
+.spray-tools[hidden]{display:none;}
+.spray-tools.has-mouse .spray-toggle{display:none;}
+.spray-tools:not(.has-mouse):not(.is-armed) .swatches,
+.spray-tools:not(.has-mouse):not(.is-armed) [data-buff]{display:none;}
+.spray-toggle[aria-pressed="true"]{background:var(--line);border-color:var(--line);color:#111;}
+.swatches{display:flex;gap:0.45rem;padding:0.4rem 0.55rem;background:var(--panel);border:1px solid rgba(243,239,231,0.18);
+  border-radius:999px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);}
+.swatch{width:1.35rem;height:1.35rem;border-radius:50%;border:2px solid rgba(243,239,231,0.35);background:var(--swatch);cursor:pointer;
+  pointer-events:auto;transition:transform .15s ease;}
+.swatch:hover{transform:scale(1.12);}
+.swatch[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px rgba(0,0,0,0.6);transform:scale(1.12);}
+.swatch:focus-visible{outline:2px solid var(--line);outline-offset:3px;}
+
+.spray-cursor{position:fixed;left:0;top:0;z-index:30;pointer-events:none;opacity:0;color:var(--line);transition:opacity .15s ease;}
+.spray-cursor.is-on{opacity:1;}
+.spray-dot{position:absolute;left:-5px;top:-5px;width:10px;height:10px;border-radius:50%;
+  border:1.5px solid currentColor;box-shadow:0 0 0 1px rgba(0,0,0,0.55);transition:opacity .2s ease;}
+.spray-can{position:absolute;left:6px;top:-9px;width:64px;height:auto;transform-origin:6px 9px;
+  filter:drop-shadow(0 3px 4px rgba(0,0,0,0.5));transition:transform .24s cubic-bezier(.22,1,.36,1),opacity .2s ease;}
+.spray-mist{position:absolute;left:1px;top:-6px;width:12px;height:12px;opacity:0;
+  background:radial-gradient(ellipse at 100% 50%,currentColor,transparent 75%);
+  clip-path:polygon(100% 40%,100% 60%,0 100%,0 0);transition:opacity .08s linear;}
+.spray-cursor.is-spraying .spray-can{transform:translate(-1px,1px);}
+.spray-cursor.is-spraying .spray-mist{opacity:0.75;}
+/* Over the line map the can steps aside for the normal pointer. */
+.spray-cursor.is-away .spray-can{transform:translate(26px,18px) rotate(14deg) scale(0.6);opacity:0;}
+.spray-cursor.is-away .spray-dot{opacity:0;}
 
 .debug{position:fixed;left:50%;top:var(--edge);transform:translateX(-50%);z-index:20;font:12px/1 ui-monospace,monospace;
   background:#000;color:#0f0;padding:4px 8px;}
@@ -88,11 +116,14 @@ body{overflow-x:hidden;}
 
 @media (max-width:640px){
   .scroll-hint{bottom:auto;top:56%;}
+  .spray-tools{flex-direction:column-reverse;align-items:flex-start;}
+  .swatches{flex-direction:column;}
 }
 @media (prefers-reduced-motion:reduce){
   .grade::after,.scroll-hint::after{animation:none;}
   .get-off{animation:none;}
   .scroll-hint{transition:none;}
+  .spray-can,.swatch{transition:none;}
 }
 </style>
 </head>
@@ -116,8 +147,13 @@ body{overflow-x:hidden;}
     </section>
     <nav class="sr-only" aria-label="Line map"><ul data-line-links></ul></nav>
     <button type="button" class="get-off" data-get-off hidden>GET OFF</button>
-    <p class="toast" data-toast role="status" hidden></p>
     </section>
+
+    <div class="spray-tools" data-spray-tools hidden>
+      <button type="button" class="chip spray-toggle" data-spray-toggle aria-pressed="false">Spray</button>
+      <div class="swatches" role="group" aria-label="Paint color" data-swatches></div>
+      <button type="button" class="chip" data-buff aria-label="Buff: clear the paint">Buff</button>
+    </div>
 
     <p class="scroll-hint" data-scroll-hint>Scroll to ride</p>
   </div>

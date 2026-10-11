@@ -109,5 +109,6 @@ export function createDoors(mats, registry) {
     right.position.x = closedRight + r * CAR.doorTravel;
   }
 
-  return { group: group, leaves: [left, right], set: set };
+  /** leafFront: the leaf face (local z), for things painted onto it. */
+  return { group: group, leaves: [left, right], leafFront: depth + 0.012, set: set };
 }

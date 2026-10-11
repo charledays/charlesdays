@@ -6,7 +6,7 @@
  * No part talks to another; they all read the same state object.
  */
 import * as THREE from 'three';
-import { CAR, LEG, CRUISE_SPEED, TAIL_LEGS } from './config.js';
+import { CAR, LEG, CRUISE_SPEED, START } from './config.js';
 import { stations, mapStops, adArt } from './stations.js';
 import { createTimeline } from './timeline.js';
 import { createScroll } from './scroll.js';
@@ -17,12 +17,13 @@ import { createSeats } from './carriage/seats.js';
 import { createSignage } from './carriage/signage.js';
 import { createLighting } from './carriage/lighting.js';
 import { createLineMap } from './carriage/line-map.js';
-import { createAdStrip } from './carriage/ad-strip.js';
+import { createAdStrip, createPanelAd } from './carriage/ad-strip.js';
 import { createTunnel } from './exterior/tunnel.js';
 import { buildStation } from './exterior/station.js';
 import { createCameraRig } from './camera-rig.js';
 import { createAudio } from './audio.js';
 import { createUI } from './ui.js';
+import { createSpray } from './spray.js';
 
 var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
@@ -44,7 +45,7 @@ function start() {
   var camera = new THREE.PerspectiveCamera(56, 1, 0.05, 120);
 
   var mats = createMaterials(renderer, registry);
-  var timeline = createTimeline({ legs: LEG, stationCount: stations.length, cruiseSpeed: CRUISE_SPEED, tail: TAIL_LEGS });
+  var timeline = createTimeline({ legs: LEG, stationCount: stations.length, cruiseSpeed: CRUISE_SPEED });
 
   // Carriage.
   var shell = createShell(mats, registry);
@@ -56,13 +57,19 @@ function start() {
   var signage = createSignage(mats, registry, shell, stations);
   var lineMap = createLineMap(mats, registry, mapStops);
   var adStrip = createAdStrip(mats, registry, shell, adArt);
+  // The eye of Charles, as an ad card on the steel panel under the line map.
+  var eyeAd = createPanelAd(registry, {
+    src: '/images/wall/eye-tag.jpg', width: 0.5, height: 0.46, seed: 112,
+    position: [CAR.doorCenterX + CAR.doorWidth / 2 + (CAR.doorTravel + 0.05) / 2, 0.33, 0.018]
+  });
+  scene.add(eyeAd.group);
   scene.add(shell.group, doors.group, seats.group, signage.group, lineMap.group, adStrip.group);
   var lighting = createLighting(scene);
 
   // Outside.
   var loader = new THREE.TextureLoader();
   var tunnel = createTunnel(mats, registry);
-  var stationViews = stations.map(function (s) { return buildStation(s, mats, registry, loader); });
+  var stationViews = stations.map(function (s) { return buildStation(s, mats, registry, loader, timeline.gap); });
   scene.add(tunnel.group);
   stationViews.forEach(function (v) { scene.add(v.group); });
   function insideStation(a, margin) {
@@ -72,10 +79,43 @@ function start() {
 
   var rig = createCameraRig(camera, { reduceMotion: reduceMotion });
   var audio = createAudio();
-  var detachMap = lineMap.attach(camera, canvas, function (href) { window.location.href = href; });
+  // A stop on the line map sends the train there express; GET OFF then takes you to the page.
+  var detachMap = lineMap.attach(camera, canvas, function (href) {
+    var target = stations.findIndex(function (s) { return s.href === href; });
+    if (target >= 0) rideToStation(target);
+  });
+
+  /** The next time the train stands at station i with its doors open (now, if it already is). */
+  function rideToStation(i) {
+    var n = stations.length;
+    var from = scroll.progress();
+    var leg = Math.floor(from);
+    for (var k = leg; k <= leg + n; k++) {
+      if (((k % n) + n) % n !== i) continue;
+      var p = k + timeline.dwellPoint;
+      if (p > from - 0.25) { scroll.rideTo(p); return; }
+    }
+  }
+  var spray = createSpray({
+    root: root,
+    canvas: canvas,
+    camera: camera,
+    registry: registry,
+    leaves: doors.leaves,
+    leafFront: doors.leafFront,
+    // Everything in the car takes paint except the floor; the signs and ads just catch it.
+    surfaces: [shell.group, seats.group, doors.group],
+    unpaintable: [mats.floor],
+    noPaint: [lineMap.group, signage.group, adStrip.group],
+    selecting: lineMap.pointer,
+    finePointer: finePointer,
+    onHiss: audio.spray
+  });
+  scene.add(spray.group);
   var ui = createUI(root, stations, mapStops, { toggleSound: function () { return audio.setEnabled(!audio.isEnabled()); } });
   var scroll = createScroll({
-    total: timeline.total,
+    period: timeline.period,
+    start: START,
     spacer: document.querySelector('[data-scroll-spacer]'),
     reduceMotion: reduceMotion,
     resting: timeline.restingTarget
@@ -104,6 +144,22 @@ function start() {
     raf = requestAnimationFrame(tick);
     var dt = Math.min(clock.getDelta(), 0.05);
     var state = timeline.at(frozen != null ? frozen : scroll.sample(dt));
+    // Express run from the line map: one non-stop ride, doors shut, straight down the track.
+    // It runs until the train has pulled in; the doors then open on the normal timeline.
+    var express = scroll.express();
+    var stopAt = express && Math.floor(express.p1) + LEG.brake;
+    if (express && state.progress < stopAt) {
+      var f = (state.progress - express.p0) / (stopAt - express.p0);
+      var d0 = timeline.distanceAt(express.p0), d1 = timeline.distanceAt(stopAt);
+      state.distance = timeline.wrap(d0 + (d1 - d0) * f);
+      state.reducedDistance = state.distance;
+      state.speed = Math.sin(Math.PI * f);
+      state.accel = Math.cos(Math.PI * f) * 0.7;
+      state.phase = f < 0.7 ? 'cruise' : 'brake';
+      state.doors = { left: 0, right: 0 };
+      state.canGetOff = false;
+      state.stationIndex = timeline.at(express.p1).stationIndex;
+    }
     var distance = reduceMotion ? state.reducedDistance : state.distance;
 
     var presence = timeline.presenceAt(distance);
@@ -115,6 +171,7 @@ function start() {
     // In the tunnel the windows go dark and mirror-like; at a station you see straight through.
     mats.glass.opacity = 0.42 - 0.3 * presence;
     rig.update(state, distance, dt);
+    spray.update(dt);
     adStrip.update(camera.position.x);
     signage.update(state);
     ui.update(state);
@@ -139,6 +196,7 @@ function start() {
     document.removeEventListener('visibilitychange', onVisibility);
     scroll.dispose();
     detachMap();
+    spray.dispose();
     audio.dispose();
     registry.geometries.forEach(function (g) { g.dispose(); });
     registry.materials.forEach(function (m) { m.dispose(); });

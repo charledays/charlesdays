@@ -63,10 +63,10 @@ export var LEG = {
 
 /** Meters per unit of progress at full speed. A leg's cruise covers ~250 m of tunnel. */
 export var CRUISE_SPEED = 900;
-/** The ride past the last station before the "next stop" card (in legs). */
-export var TAIL_LEGS = 0.45;
+/** Where the ride starts on load, in legs: cruising through the tunnel toward the first stop. */
+export var START = 0.2;
 /** Scroll length of one leg, in viewport heights. */
-export var SCROLL_SCREENS_PER_LEG = 4.4;
+export var SCROLL_SCREENS_PER_LEG = 1.6;
 
 /** The Charle$Days tag (white on transparent), cropped to its lettering. Used on the doors and the line map. */
 export var WORDMARK = { src: '/images/brand/charlesdays-wordmark.png', crop: [86, 258, 2138, 1181], size: [2262, 1696] };

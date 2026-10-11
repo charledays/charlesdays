@@ -24,6 +24,8 @@ export function createLineMap(mats, registry, stops) {
   c.height = PX_H;
   var tex = canvasTexture(c, registry);
   var hovered = -1;
+  /** What the pointer is over, for the spray can (which steps aside over the map). */
+  var pointer = { onMap: false, stop: -1 };
   var logo = new Image();
   logo.onload = function () { draw(hovered); };
   logo.src = WORDMARK.src;
@@ -141,7 +143,9 @@ export function createLineMap(mats, registry, stops) {
       ndc.set(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
       ray.setFromCamera(ndc, camera);
       var hit = ray.intersectObject(map, false)[0];
-      return hit ? stopAt(hit.uv) : -1;
+      pointer.onMap = !!hit;
+      pointer.stop = hit ? stopAt(hit.uv) : -1;
+      return pointer.stop;
     }
     function onMove(e) {
       var i = pick(e);
@@ -151,17 +155,31 @@ export function createLineMap(mats, registry, stops) {
       draw(hover);
       canvas.style.cursor = i >= 0 ? 'pointer' : '';
     }
+    // Only a press that starts on the stop counts, so a spray stroke ending on the map doesn't navigate.
+    var pressed = -1;
+    function onDown(e) {
+      onMove(e);
+      pressed = hover;
+    }
     function onClick(e) {
       var i = pick(e);
-      if (i >= 0) navigate(stops[i].href);
+      if (i >= 0 && i === pressed) navigate(stops[i].href);
+    }
+    function onLeave() {
+      pointer.onMap = false;
+      pointer.stop = -1;
     }
     canvas.addEventListener('pointermove', onMove);
+    canvas.addEventListener('pointerdown', onDown);
+    canvas.addEventListener('pointerleave', onLeave);
     canvas.addEventListener('click', onClick);
     return function () {
       canvas.removeEventListener('pointermove', onMove);
+      canvas.removeEventListener('pointerdown', onDown);
+      canvas.removeEventListener('pointerleave', onLeave);
       canvas.removeEventListener('click', onClick);
     };
   }
 
-  return { group: group, attach: attach };
+  return { group: group, attach: attach, pointer: function () { return pointer; } };
 }

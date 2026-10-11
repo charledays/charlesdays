@@ -8,7 +8,7 @@ import { WORLD } from './config.js';
 export function createAudio() {
   var ctx = null;
   var enabled = false;
-  var master, rumbleGain, rumbleFilter, noiseBuffer;
+  var master, rumbleGain, rumbleFilter, noiseBuffer, hissGain;
   var lastJoint = null;
   var lastPhase = null;
 
@@ -39,6 +39,22 @@ export function createAudio() {
     rumbleGain.gain.value = 0.05;
     src.connect(rumbleFilter).connect(rumbleGain).connect(master);
     src.start();
+
+    // White noise, band-passed high: the spray can's hiss. Silent until spray(true).
+    var white = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+    var wd = white.getChannelData(0);
+    for (var k = 0; k < wd.length; k++) wd[k] = Math.random() * 2 - 1;
+    var hiss = ctx.createBufferSource();
+    hiss.buffer = white;
+    hiss.loop = true;
+    var hissFilter = ctx.createBiquadFilter();
+    hissFilter.type = 'bandpass';
+    hissFilter.frequency.value = 5200;
+    hissFilter.Q.value = 0.7;
+    hissGain = ctx.createGain();
+    hissGain.gain.value = 0;
+    hiss.connect(hissFilter).connect(hissGain).connect(master);
+    hiss.start();
     return true;
   }
 
@@ -109,5 +125,10 @@ export function createAudio() {
     ctx = null;
   }
 
-  return { setEnabled: setEnabled, isEnabled: function () { return enabled; }, update: update, dispose: dispose };
+  function spray(on) {
+    if (!ctx) return;
+    hissGain.gain.setTargetAtTime(on ? 0.14 : 0, ctx.currentTime, on ? 0.02 : 0.05);
+  }
+
+  return { setEnabled: setEnabled, spray: spray, isEnabled: function () { return enabled; }, update: update, dispose: dispose };
 }

@@ -1,7 +1,7 @@
 /**
  * Printed and lit signage inside the car: the destination display over the doors (redrawn only
- * when its text changes), the framed route map, and the lettering on the bench base. The ad
- * cards live in ad-strip.js.
+ * when its text changes), the framed route map, and the sprayed tags. The ad cards live in
+ * ad-strip.js.
  */
 import * as THREE from 'three';
 import { CAR } from '../config.js';
@@ -134,36 +134,32 @@ export function createSignage(mats, registry, shell, stations) {
   mapFrame.position.set(mapX, 1.42, 0.005);
   group.add(map, mapFrame);
 
-  // "HECHO / CON / CRITERIO" lettered small in the bottom-left corner of the bench base.
-  var baseH = 0.19;
-  var baseW = baseH * 1.5;
-  var credit = textCanvas(768, 512, function (ctx, w, h) {
-    ctx.fillStyle = 'rgba(28,26,24,0.9)';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'alphabetic';
-    var size = h * 0.27;
-    ctx.font = '700 ' + size + 'px ' + SIGN_FONT;
-    ['HECHO', 'CON', 'CRITERIO'].forEach(function (line, i) {
-      ctx.fillText(line, w * 0.04, size * (i + 1) * 1.08, w * 0.92);
+  /** A sprayed tag from a transparent PNG: a plane sized to `width` (m), placed by `place`. */
+  function loadTag(src, aspect, width, place) {
+    var mat = new THREE.MeshStandardMaterial({ transparent: true, alphaTest: 0.2, roughness: 0.6, opacity: 0 });
+    registry.materials.push(mat);
+    var height = width / aspect;
+    var mesh = new THREE.Mesh(keep(new THREE.PlaneGeometry(width, height)), mat);
+    place(mesh, width, height);
+    group.add(mesh);
+    new THREE.TextureLoader().load(src, function (tex) {
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.anisotropy = 8;
+      registry.textures.push(tex);
+      mat.map = tex;
+      mat.opacity = 0.95;
+      mat.needsUpdate = true;
     });
-    // Scuffed where shoes have kicked it.
-    var rand = rng(131);
-    ctx.globalCompositeOperation = 'destination-out';
-    for (var k = 0; k < 500; k++) {
-      ctx.fillStyle = 'rgba(0,0,0,' + (0.2 + rand() * 0.6).toFixed(2) + ')';
-      ctx.fillRect(rand() * w, h * (0.35 + rand() * 0.65), 1 + rand() * 5, 1 + rand() * 2);
-    }
+  }
+
+  // The 601 throwie, sprayed floor to seat across the front of the bench base.
+  var baseH = CAR.seat.height - 0.04;
+  loadTag('/images/brand/601-throwie.png', 1475 / 783, baseH * 1475 / 783, function (mesh, w, h) {
+    mesh.position.set(CAR.seat.x0 + 0.01 + w / 2, h / 2, CAR.seat.depth - 0.05 + 0.002);
   });
-  var creditMat = new THREE.MeshStandardMaterial({ map: canvasTexture(credit, registry), transparent: true, roughness: 0.7 });
-  registry.materials.push(creditMat);
-  var creditMesh = new THREE.Mesh(keep(new THREE.PlaneGeometry(baseW, baseH)), creditMat);
-  // Tucked into the bottom-left corner of the base.
-  creditMesh.position.set(CAR.seat.x0 + 0.035 + baseW / 2, 0.03 + baseH / 2, CAR.seat.depth - 0.05 + 0.002);
-  group.add(creditMesh);
 
   function update(state) {
-    var station = state.stationIndex >= 0 ? stations[state.stationIndex] : null;
-    if (!station) { drawDisplay('NEXT STOP', 'Coming soon'); return; }
+    var station = stations[state.stationIndex];
     var stopped = state.phase === 'settle' || state.phase === 'opening' || state.phase === 'dwell' ||
       state.phase === 'closing' || state.phase === 'hold';
     drawDisplay(stopped ? 'THIS IS' : 'NEXT STOP', station.name);

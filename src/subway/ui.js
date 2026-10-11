@@ -12,7 +12,6 @@ export function createUI(root, stations, links, handlers) {
     name: root.querySelector('[data-station-name]'),
     sub: root.querySelector('[data-station-sub]'),
     getOff: root.querySelector('[data-get-off]'),
-    toast: root.querySelector('[data-toast]'),
     hint: root.querySelector('[data-scroll-hint]'),
     dip: root.querySelector('[data-dip]'),
     sound: root.querySelector('[data-sound]')
@@ -38,15 +37,9 @@ export function createUI(root, stations, links, handlers) {
     apply(value);
   }
 
-  var toastTimer = null;
   el.getOff.addEventListener('click', function () {
     var station = stations[last.station];
-    if (!station) return;
-    if (station.getOff.href) { window.location.href = station.getOff.href; return; }
-    el.toast.textContent = station.name + ' — gallery coming soon.';
-    el.toast.hidden = false;
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { el.toast.hidden = true; }, 2600);
+    if (station) window.location.href = station.href;
   });
 
   el.sound.addEventListener('click', function () {
@@ -55,24 +48,25 @@ export function createUI(root, stations, links, handlers) {
     el.sound.textContent = on ? 'Sound on' : 'Sound off';
   });
 
+  var startProgress = null;
+
   function update(state) {
     var i = state.stationIndex;
-    var station = i >= 0 ? stations[i] : null;
+    var station = stations[i];
     var stopped = /settle|opening|dwell|closing|hold/.test(state.phase);
     var arriving = state.phase === 'brake';
+    if (startProgress == null) startProgress = state.progress;
 
     set('station', i, function () {
-      el.name.textContent = station ? station.name : 'Next stop';
-      el.sub.textContent = station ? station.subtitle : 'More stations coming soon';
+      el.name.textContent = station.name;
+      el.sub.textContent = station.note;
     });
-    set('kicker', station ? (stopped ? 'This is' : arriving ? 'Now arriving' : 'Next stop') : 'Next stop', function (v) {
+    set('kicker', stopped ? 'This is' : arriving ? 'Now arriving' : 'Next stop', function (v) {
       el.kicker.textContent = v;
     });
-    set('getOff', state.canGetOff, function (on) {
-      el.getOff.hidden = !on;
-      if (station) el.getOff.textContent = station.getOff.label;
-    });
-    set('hint', state.progress < 0.015, function (on) { el.hint.classList.toggle('is-hidden', !on); });
+    set('getOff', state.canGetOff, function (on) { el.getOff.hidden = !on; });
+    // The hint goes once the ride has started.
+    set('hint', Math.abs(state.progress - startProgress) < 0.015, function (on) { el.hint.classList.toggle('is-hidden', !on); });
   }
 
   function setDip(v) {

@@ -81,7 +81,8 @@ function bandTexture(registry) {
   return tex;
 }
 
-export function buildStation(data, mats, registry, loader) {
+/** gap(a, b): signed shortest distance from b to a around the circle line. */
+export function buildStation(data, mats, registry, loader, gap) {
   var keep = tracker(registry);
   var S = WORLD.station;
   var len = S.halfLength * 2;
@@ -240,7 +241,8 @@ export function buildStation(data, mats, registry, loader) {
         tex.offset.set((1 - tex.repeat.x) / 2, 0);
       } else {
         tex.repeat.set(1, imgAspect / boardAspect);
-        tex.offset.set(0, (1 - tex.repeat.y) / 2);
+        var focusY = data.billboard.focusY == null ? 0.5 : data.billboard.focusY;
+        tex.offset.set(0, (1 - tex.repeat.y) * (1 - focusY));
       }
       registry.textures.push(tex);
       artMat.map = tex;
@@ -262,7 +264,7 @@ export function buildStation(data, mats, registry, loader) {
 
   function place(stopDistance, distance, presence) {
     trackOrigin = stopDistance + CAR.doorCenterX;
-    var x = trackOrigin - distance;
+    var x = gap(trackOrigin, distance);
     group.position.x = x;
     group.visible = Math.abs(x) < S.halfLength + 40;
     lights.forEach(function (l) { l.intensity = 26 * presence; });
@@ -273,6 +275,6 @@ export function buildStation(data, mats, registry, loader) {
     place: place,
     setViewpoint: setViewpoint,
     /** True when track position a (± margin) falls inside this station. */
-    contains: function (a, margin) { return Math.abs(a - trackOrigin) < S.halfLength + (margin || 0); }
+    contains: function (a, margin) { return Math.abs(gap(a, trackOrigin)) < S.halfLength + (margin || 0); }
   };
 }
