@@ -175,6 +175,7 @@ export function createSignage(mats, registry, shell, stations) {
   group.add(mottoSign, mottoFrame);
 
   /** A sprayed tag from a transparent PNG: a plane sized to `width` (m), placed by `place`. */
+  var tags = [];
   function loadTag(src, aspect, width, place) {
     var mat = new THREE.MeshStandardMaterial({ transparent: true, alphaTest: 0.2, roughness: 0.6, opacity: 0 });
     registry.materials.push(mat);
@@ -182,6 +183,7 @@ export function createSignage(mats, registry, shell, stations) {
     var mesh = new THREE.Mesh(keep(new THREE.PlaneGeometry(width, height)), mat);
     place(mesh, width, height);
     group.add(mesh);
+    tags.push(mesh);
     new THREE.TextureLoader().load(src, function (tex) {
       tex.colorSpace = THREE.SRGBColorSpace;
       tex.anisotropy = 8;
@@ -208,6 +210,8 @@ export function createSignage(mats, registry, shell, stations) {
   return {
     group: group,
     update: update,
+    /** The sprayed tags (the 601 throwie): they take more paint (spray.js). */
+    tags: tags,
     /** The motto sign, and whether a ray hit's uv lands on the word "Criterio". */
     motto: { mesh: mottoSign, onCriterio: function (uv) { return uv.x >= criterioU0 - 0.01 && uv.x <= criterioU1 + 0.01; } }
   };

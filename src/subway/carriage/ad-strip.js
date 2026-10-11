@@ -9,6 +9,7 @@ import * as THREE from 'three';
 import { CAR } from '../config.js';
 import { tracker, textCanvas, canvasTexture } from '../geo.js';
 import { rng } from '../materials.js';
+import { web } from '../web.js';
 
 var PX_PER_M = 520;
 var CARD_W = 0.52;
@@ -224,7 +225,7 @@ function stripTexture(registry, widthM, heightM, art) {
       }
       tex.needsUpdate = true;
     };
-    img.src = src;
+    img.src = web(src);
   });
   return tex;
 }
@@ -316,7 +317,7 @@ export function createPanelAd(registry, opts) {
     });
     tex.needsUpdate = true;
   };
-  img.src = opts.src;
+  img.src = web(opts.src);
 
   var geo = keep(new THREE.PlaneGeometry(opts.width, opts.height));
   var printMat = new THREE.MeshBasicMaterial({ map: tex, toneMapped: false });

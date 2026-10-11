@@ -2,11 +2,14 @@
  * Step input: one gesture, one station. A wheel gesture (mouse notch or trackpad flick), a
  * swipe, or a key press asks for the next stop (down / swipe up / ArrowDown, PageDown, Space,
  * ArrowRight) or the previous one (up / swipe down / ArrowUp, PageUp, ArrowLeft) through
- * onStep(+1 | -1). The page itself never scrolls.
+ * onStep(+1 | -1). The page itself never scrolls. With options.onSwipe, a touch swipe is
+ * handed over as its direction ('up' | 'down' | 'left' | 'right') instead, and the caller
+ * decides what it means where the visitor is (the phone's gestures, main.js).
  *
  * A trackpad keeps sending wheel events long after the finger lifts (momentum), so a gesture
  * only counts once the wheel has been quiet for a moment since the last one. Input while
- * locked (a ride, GET OFF, the gallery) is dropped, not queued.
+ * locked (a ride) is dropped, not queued. Pinch zoom is off: the frame is the composition (iOS
+ * Safari ignores the viewport's user-scalable, so its gesture events are cancelled here too).
  *
  * The scene's resting progress lives here too: progress() is where the train stands between
  * rides, park(p) moves it there when a ride ends.
@@ -22,15 +25,13 @@ var PREV_KEYS = { ArrowUp: 1, PageUp: 1, ArrowLeft: 1 };
 
 export function createScroll(options) {
   var onStep = options.onStep;
+  var onSwipe = options.onSwipe;
   /** True when a touch on the scene should paint, not ride (spray armed on touch). */
   var touchPaints = options.touchPaints || function () { return false; };
   var current = options.start;
   var locked = false;
 
   document.documentElement.classList.add('is-stepped');
-
-  // Anything inside [data-own-scroll] (the gallery) scrolls itself and never steps the train.
-  function ownScroll(e) { return e.target && e.target.closest && e.target.closest('[data-own-scroll]'); }
 
   function step(dir) {
     if (!locked) onStep(dir);
@@ -41,7 +42,6 @@ export function createScroll(options) {
   var wheelFired = false;
   var wheelTimer = null;
   function onWheel(e) {
-    if (ownScroll(e)) return;
     e.preventDefault();
     clearTimeout(wheelTimer);
     wheelTimer = setTimeout(function () { wheelSum = 0; wheelFired = false; }, WHEEL_QUIET);
@@ -56,21 +56,25 @@ export function createScroll(options) {
 
   var touch = null;
   function onTouchStart(e) {
-    touch = e.touches.length === 1 && !ownScroll(e) && !touchPaints() ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null;
+    touch = e.touches.length === 1 && !touchPaints() ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null;
   }
   function onTouchMove(e) {
-    if (!ownScroll(e)) e.preventDefault();
+    e.preventDefault();
   }
   function onTouchEnd(e) {
     if (!touch) return;
     var t = e.changedTouches[0];
     var dx = t.clientX - touch.x, dy = t.clientY - touch.y;
     touch = null;
-    if (Math.abs(dy) >= SWIPE && Math.abs(dy) > Math.abs(dx) * 1.2) step(dy < 0 ? 1 : -1);
+    var vertical = Math.abs(dy) >= SWIPE && Math.abs(dy) > Math.abs(dx) * 1.2;
+    var horizontal = Math.abs(dx) >= SWIPE && Math.abs(dx) > Math.abs(dy) * 1.2;
+    if (onSwipe) {
+      if (!locked && (vertical || horizontal)) onSwipe(vertical ? (dy < 0 ? 'up' : 'down') : (dx < 0 ? 'left' : 'right'));
+    } else if (vertical) step(dy < 0 ? 1 : -1);
   }
 
   function onKey(e) {
-    if (ownScroll(e) || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
     var tag = e.target && e.target.tagName;
     // Space and arrows on a control belong to the control.
     if (tag === 'BUTTON' || tag === 'A' || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
@@ -85,6 +89,9 @@ export function createScroll(options) {
   window.addEventListener('touchmove', onTouchMove, { passive: false });
   window.addEventListener('touchend', onTouchEnd);
   window.addEventListener('keydown', onKey);
+  function noZoom(e) { e.preventDefault(); }
+  document.addEventListener('gesturestart', noZoom);
+  document.addEventListener('gesturechange', noZoom);
 
   function lock(on) {
     locked = on;
@@ -98,6 +105,8 @@ export function createScroll(options) {
     window.removeEventListener('touchmove', onTouchMove);
     window.removeEventListener('touchend', onTouchEnd);
     window.removeEventListener('keydown', onKey);
+    document.removeEventListener('gesturestart', noZoom);
+    document.removeEventListener('gesturechange', noZoom);
     document.documentElement.classList.remove('is-stepped', 'is-locked');
   }
 

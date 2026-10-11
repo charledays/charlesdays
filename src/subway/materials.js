@@ -164,6 +164,86 @@ function radialGlow(registry) {
   return toTexture(c, registry);
 }
 
+/**
+ * What makes a car window read as glass even with the platform lit up behind it: the car's
+ * own lights streaking across it, hand grease at door height, scratches and etched tags, and
+ * dirt packed into the gasket edges. Painted with transparency, laid over the tinted pane.
+ */
+function glassSurfaceTexture(registry) {
+  var w = 512, h = 512;
+  var c = canvas(w, h), ctx = c.getContext('2d');
+  var rand = rng(733);
+  // Reflections: a broad and a narrow streak of the ceiling lights, on the diagonal.
+  [[0.28, 0.22, 0.2], [0.6, 0.06, 0.3], [0.76, 0.025, 0.18]].forEach(function (b) {
+    ctx.save();
+    ctx.translate(w * b[0], h / 2);
+    ctx.rotate(-0.42);
+    var bw = w * b[1];
+    var g = ctx.createLinearGradient(-bw, 0, bw, 0);
+    g.addColorStop(0, 'rgba(235,242,245,0)');
+    g.addColorStop(0.5, 'rgba(235,242,245,' + b[2] + ')');
+    g.addColorStop(1, 'rgba(235,242,245,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(-bw, -h, bw * 2, h * 2);
+    ctx.restore();
+  });
+  // Grease and fingerprints, mostly in the lower half where hands and foreheads land.
+  for (var i = 0; i < 26; i++) {
+    var x = rand() * w, y = h * (0.35 + Math.pow(rand(), 0.7) * 0.6), r = w * (0.03 + rand() * 0.09);
+    var g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, 'rgba(225,228,226,' + (0.06 + rand() * 0.1).toFixed(3) + ')');
+    g.addColorStop(1, 'rgba(225,228,226,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+  // Wiped arcs: someone's sleeve.
+  ctx.lineCap = 'round';
+  for (var a = 0; a < 3; a++) {
+    ctx.strokeStyle = 'rgba(230,232,230,' + (0.06 + rand() * 0.05).toFixed(3) + ')';
+    ctx.lineWidth = w * (0.04 + rand() * 0.05);
+    ctx.beginPath();
+    ctx.arc(w * (0.2 + rand() * 0.6), h * (0.9 + rand() * 0.3), w * (0.25 + rand() * 0.2), Math.PI * 1.15, Math.PI * 1.75);
+    ctx.stroke();
+  }
+  // Scratches: fine and straight, a few long ones, and a little etched tag.
+  for (var k = 0; k < 40; k++) {
+    var sx = rand() * w, sy = rand() * h, len = w * (0.02 + Math.pow(rand(), 3) * 0.4), ang = (rand() - 0.5) * 1.2;
+    ctx.strokeStyle = 'rgba(240,244,244,' + (0.14 + rand() * 0.24).toFixed(3) + ')';
+    ctx.lineWidth = 0.6 + rand() * 0.8;
+    ctx.beginPath();
+    ctx.moveTo(sx, sy);
+    ctx.lineTo(sx + Math.cos(ang) * len, sy + Math.sin(ang) * len);
+    ctx.stroke();
+  }
+  ctx.strokeStyle = 'rgba(240,244,244,0.35)';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  var tx = w * 0.6, ty = h * 0.72;
+  ctx.moveTo(tx, ty);
+  for (var q = 0; q < 14; q++) ctx.lineTo(tx + q * w * 0.012 + (rand() - 0.5) * 6, ty + (q % 2 ? -1 : 1) * h * (0.02 + rand() * 0.03));
+  ctx.stroke();
+  // Dust specks.
+  for (var d = 0; d < 500; d++) {
+    ctx.fillStyle = 'rgba(220,220,214,' + (0.05 + rand() * 0.15).toFixed(3) + ')';
+    ctx.fillRect(rand() * w, rand() * h, 1 + rand(), 1 + rand());
+  }
+  // Dirt packed into the edges by the gasket, heaviest along the bottom.
+  [['top', 0.06, 0.45], ['bottom', 0.12, 0.65], ['left', 0.05, 0.45], ['right', 0.05, 0.45]].forEach(function (e) {
+    var horiz = e[0] === 'top' || e[0] === 'bottom';
+    var size = (horiz ? h : w) * e[1];
+    var x0 = e[0] === 'right' ? w : 0, y0 = e[0] === 'bottom' ? h : 0;
+    var g = horiz ? ctx.createLinearGradient(0, y0, 0, y0 + (y0 ? -size : size))
+      : ctx.createLinearGradient(x0, 0, x0 + (x0 ? -size : size), 0);
+    g.addColorStop(0, 'rgba(30,26,20,' + e[2] + ')');
+    g.addColorStop(1, 'rgba(30,26,20,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+  });
+  var tex = toTexture(c, registry);
+  tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+  return tex;
+}
+
 export function createMaterials(renderer, registry) {
   var pmrem = new THREE.PMREMGenerator(renderer);
   // A dim fluorescent box: enough for steel to read as steel without a real-time probe.
@@ -227,8 +307,12 @@ export function createMaterials(renderer, registry) {
       color: PALETTE.seatFrame, roughness: 0.4, metalness: 0.2, envMap: env, envMapIntensity: 0.6
     })),
     glass: track(new THREE.MeshStandardMaterial({
-      color: 0x0d1012, roughness: 0.06, metalness: 0.1, envMap: env, envMapIntensity: 1.6,
+      color: 0x16201f, roughness: 0.06, metalness: 0.1, envMap: env, envMapIntensity: 1.6,
       transparent: true, opacity: 0.3, depthWrite: false
+    })),
+    /** Laid just inside every pane (glassSurfaceTexture); stays put while the tint fades. */
+    glassSurface: track(new THREE.MeshBasicMaterial({
+      map: glassSurfaceTexture(registry), transparent: true, depthWrite: false
     })),
     fluorescent: track(new THREE.MeshBasicMaterial({ color: PALETTE.fluorescent })),
     blackout: track(new THREE.MeshBasicMaterial({ color: 0x050505 })),

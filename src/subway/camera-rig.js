@@ -4,13 +4,20 @@
  * layered on top: a slow ride float on the clock, scaled by speed (rides are short and fast, so
  * anything keyed to track distance would flicker frame to frame), a lurch that eases after the
  * timeline's acceleration, and a faint idle hum.
- * GET OFF: aimAt(hero, w, h) sets the hero piece the push ends on, setPush(f) moves along it:
- * 0 = seated, 1 = square in front of the hero, close enough that it fills the frame. The path
- * curves through the middle of the doorway (a quadratic through a point on the seat's sight
- * line past the doors), and the gaze swings from straight ahead onto the hero early on.
+ * The doorway: setDoor(f) walks from the seat out through the open doors onto the platform
+ * (0 = seated, 1 = standing on the platform facing the wall); out there,
+ * setLook(yaw) turns the head left or right along the platform (radians, 0 = facing the wall).
+ * On a phone the platform is explored instead: setSpot(x) glides you sideways along it (metres
+ * from the doors), and setInspect(point, f) walks you up to a spot on the art (f 0..1).
+ *
+ * Portrait screens get their own composition, not a shrunk desktop one: seated, the frame is
+ * cut tight to the doors from a step further back (a longer, flatter lens), so there's little
+ * ceiling or floor, and setSeatLook(yaw) turns the head along the car to see the rest (the
+ * window, the line map, the seats; radians, + = left); on the platform you stand back behind
+ * the column line, so the wall fills the frame.
  */
 import * as THREE from 'three';
-import { CAR } from './config.js';
+import { CAR, WORLD } from './config.js';
 
 function smooth(x) { x = x < 0 ? 0 : x > 1 ? 1 : x; return x * x * (3 - 2 * x); }
 
@@ -22,7 +29,6 @@ function noise(x) {
   return h(i) * (1 - u) + h(i + 1) * u;
 }
 
-
 export function createCameraRig(camera, options) {
   var reduceMotion = options.reduceMotion;
 
@@ -32,46 +38,50 @@ export function createCameraRig(camera, options) {
   /** Eased lurch and speed, so the car settles into motion instead of snapping. */
   var lurch = 0;
   var ride = 0;
-  var push = 0;
-  var hero = new THREE.Vector3();
-  var heroSize = { w: 3.4, h: 2.3 };
-  var via = new THREE.Vector3();
-  var pushTo = new THREE.Vector3();
+  var door = 0;
+  /** Standing on the platform, past the doors; the threshold the walk passes through; the wall. */
+  var doorPos = new THREE.Vector3(CAR.doorCenterX, 1.6, -1.6);
+  var doorVia = new THREE.Vector3(CAR.doorCenterX, 1.58, 0.55);
+  var doorLook = new THREE.Vector3(CAR.doorCenterX, 1.6, WORLD.station.wallZ);
+  var from = new THREE.Vector3();
+  var fromLook = new THREE.Vector3();
+  var spot = 0;
+  var inspectNear = new THREE.Vector3();
+  var inspect = 0;
+  var inspectAt = new THREE.Vector3();
+  function setSpot(x) { spot = x; }
+  function setInspect(point, f) { if (point) inspectAt.copy(point); inspect = f; }
 
-  function setPush(f) { push = f; }
-
-  /** The hero (world centre, size in metres): fixes the path's bend and its end. */
-  function aimAt(center, w, h) {
-    hero.copy(center);
-    heroSize.w = w;
-    heroSize.h = h;
-    // Through the doors: on the line from the seat to the door centre, 1.5 m past the threshold.
-    var t = (base.z + 1.5) / base.z;
-    via.set(base.x + (CAR.doorCenterX - base.x) * t, 1.25, -1.5);
-    // The end: distance at which the hero covers the frame both ways.
-    var vf = THREE.MathUtils.degToRad(camera.fov) / 2;
-    var hf = Math.atan(Math.tan(vf) * camera.aspect);
-    var d = Math.min((h / 2) / Math.tan(vf), (w / 2) / Math.tan(hf)) * 0.97;
-    pushTo.set(center.x, center.y, center.z + d);
-  }
+  function setDoor(f) { door = f; }
+  var yaw = 0;
+  var turned = new THREE.Vector3();
+  function setLook(y) { yaw = y; }
+  var seatYaw = 0;
+  var seatLook = new THREE.Vector3();
+  function setSeatLook(y) { seatYaw = y; }
 
   /** Framing for the current aspect: wide = composition A, tall = doors fill the frame. */
   function frame(aspect) {
     var tall = 1 - smooth((aspect - 0.62) / (1.25 - 0.62));
-    // On tall screens, frame the doors plus the line map beside them (out to the pocket panel's edge).
-    var tallX0 = CAR.doorCenterX - CAR.doorWidth / 2 - 0.08;
-    var tallX1 = CAR.doorCenterX + CAR.doorWidth / 2 + CAR.doorTravel + 0.07;
+    // On tall screens, frame just the doors: every metre of width costs two of ceiling and floor
+    // in portrait. The rest of the car is a turn of the head away (setSeatLook).
+    var tallX0 = CAR.doorCenterX - CAR.doorWidth / 2 - 0.04;
+    var tallX1 = CAR.doorCenterX + CAR.doorWidth / 2 + 0.04;
     // Look straight ahead (no yaw, no pitch); framing comes from where the seat is, not the angle.
-    base.set(THREE.MathUtils.lerp(0, (tallX0 + tallX1) / 2, tall), 1.04, 2.72);
+    // In portrait the seat sits further back (a flatter lens) and the eye a little higher.
+    base.set(THREE.MathUtils.lerp(0, (tallX0 + tallX1) / 2, tall), THREE.MathUtils.lerp(1.04, 1.12, tall), THREE.MathUtils.lerp(2.72, 3.3, tall));
     target.set(base.x, base.y, 0);
+    // Out on the platform: in portrait, back behind the column line so the wall fills the frame.
+    doorPos.set(CAR.doorCenterX, THREE.MathUtils.lerp(1.6, 1.7, tall), THREE.MathUtils.lerp(-1.6, -3.0, tall));
+    doorLook.set(CAR.doorCenterX, THREE.MathUtils.lerp(1.6, 1.85, tall), WORLD.station.wallZ);
     // Tight lens: the frame tops out at the ad cards, no ceiling.
     var fov = 52;
     if (aspect < 1.25) {
-      // Fit about 2 m of wall (doors plus frames) across the width.
+      // Fit the doors (and in portrait the map's names) across the width.
       var dist = base.z - target.z;
-      var halfW = THREE.MathUtils.lerp(1.6, (tallX1 - tallX0) / 2 + 0.04, tall);
+      var halfW = THREE.MathUtils.lerp(1.6, (tallX1 - tallX0) / 2, tall);
       var hfov = 2 * Math.atan(halfW / dist);
-      fov = THREE.MathUtils.clamp(THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(hfov / 2) / aspect)), 52, 76);
+      fov = THREE.MathUtils.clamp(THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(hfov / 2) / aspect)), THREE.MathUtils.lerp(52, 38, tall), 80);
     }
     camera.fov = fov;
     camera.aspect = aspect;
@@ -83,19 +93,36 @@ export function createCameraRig(camera, options) {
 
   function update(state, distance, dt) {
     time += dt;
-    var pos = camera.position.copy(base);
-    look.copy(target);
-    if (push > 0) {
-      // Ease in and out along the curve; the gaze settles on the hero in the first half.
-      var e = push * push * (3 - 2 * push);
-      var a = (1 - e) * (1 - e), b = 2 * (1 - e) * e, c = e * e;
-      pos.set(
-        a * base.x + b * via.x + c * pushTo.x,
-        a * base.y + b * via.y + c * pushTo.y,
-        a * base.z + b * via.z + c * pushTo.z
-      );
-      look.lerp(hero, smooth(push / 0.5));
+    // Seated, or on the walk out: up out of the seat early, then a curve that lines up with the
+    // doors and carries straight through them onto the platform.
+    var d = smooth(door);
+    var a0 = (1 - d) * (1 - d), a1 = 2 * (1 - d) * d, a2 = d * d;
+    from.set(
+      a0 * base.x + a1 * doorVia.x + a2 * doorPos.x,
+      0,
+      a0 * base.z + a1 * doorVia.z + a2 * doorPos.z
+    );
+    from.y = base.y + (doorPos.y - base.y) * smooth(door / 0.45);
+    // Seated, the head turns about the eye: the look point swings round, level, on the same distance.
+    var seatDist = base.z - target.z;
+    seatLook.set(base.x - Math.sin(seatYaw) * seatDist, target.y, base.z - Math.cos(seatYaw) * seatDist);
+    fromLook.copy(seatLook).lerp(doorLook, smooth(door / 0.7));
+    if (door > 0 && yaw) {
+      // Turn the head about the eye: the look point swings round, level, on the same distance.
+      var dist = doorPos.z - doorLook.z;
+      turned.set(-Math.sin(yaw) * dist, doorLook.y - doorPos.y, -Math.cos(yaw) * dist).add(doorPos);
+      fromLook.lerp(turned, d);
     }
+    // Along the platform (phone viewpoints), then up close to the art.
+    from.x += spot * d;
+    fromLook.x += spot * d;
+    if (inspect > 0) {
+      var e = smooth(inspect);
+      from.lerp(inspectNear.set(inspectAt.x, THREE.MathUtils.clamp(inspectAt.y, 1.2, 2.6), WORLD.station.wallZ + 1.35), e);
+      fromLook.lerp(inspectAt, e);
+    }
+    var pos = camera.position.copy(from);
+    look.copy(fromLook);
 
     if (!reduceMotion) {
       ride += (state.speed - ride) * (1 - Math.exp(-dt * 3));
@@ -120,5 +147,5 @@ export function createCameraRig(camera, options) {
     camera.lookAt(look);
   }
 
-  return { frame: frame, update: update, setPush: setPush, aimAt: aimAt };
+  return { frame: frame, update: update, setDoor: setDoor, setLook: setLook, setSeatLook: setSeatLook, setSpot: setSpot, setInspect: setInspect };
 }

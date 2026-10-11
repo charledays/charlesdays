@@ -74,6 +74,10 @@ export function createShell(mats, registry) {
     glass.renderOrder = 2;
     group.add(glass);
     glassMeshes.push(glass);
+    var surface = new THREE.Mesh(glass.geometry, mats.glassSurface);
+    surface.position.set(glass.position.x, glass.position.y, -0.058);
+    surface.renderOrder = 3;
+    group.add(surface);
   });
 
   // Cove: the angled strip between wall and ceiling that carries the ad cards.

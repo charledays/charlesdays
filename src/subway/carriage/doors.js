@@ -72,6 +72,10 @@ export function createDoors(mats, registry) {
     glass.renderOrder = 2;
     leaf.add(glass);
     leaf.userData.glass = glass;
+    var surface = new THREE.Mesh(glass.geometry, mats.glassSurface);
+    surface.position.set(cx, glass.position.y, depth * 0.5 + 0.002);
+    surface.renderOrder = 3;
+    leaf.add(surface);
 
     // Rubber nosing on the meeting edge.
     var edge = new THREE.Mesh(keep(new THREE.BoxGeometry(0.03, h, depth + 0.02)), mats.rubber);

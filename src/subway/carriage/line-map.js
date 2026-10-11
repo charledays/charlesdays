@@ -8,6 +8,7 @@ import { CAR, WORDMARK } from '../config.js';
 import { LINE } from '../stations.js';
 import { tracker, canvasTexture, frameGeometry } from '../geo.js';
 import { rng } from '../materials.js';
+import { web } from '../web.js';
 
 var FONT = '"Helvetica Neue", Helvetica, Arial, sans-serif';
 var W = 0.5, H = 1.18;
@@ -28,7 +29,7 @@ export function createLineMap(mats, registry, stops) {
   var pointer = { onMap: false, stop: -1 };
   var logo = new Image();
   logo.onload = function () { draw(hovered); };
-  logo.src = WORDMARK.src;
+  logo.src = web(WORDMARK.src);
 
   function rowY(i) {
     var n = stops.length;
@@ -45,11 +46,13 @@ export function createLineMap(mats, registry, stops) {
     ctx.fillStyle = '#0c0c0c';
     ctx.fillRect(0, 0, w, h * HEADER);
     if (logo.complete && logo.naturalWidth) {
+      // The crop is in the original's pixels; the web copy is smaller.
+      var k = logo.naturalWidth / WORDMARK.size[0];
       var cw = WORDMARK.crop[2] - WORDMARK.crop[0], ch = WORDMARK.crop[3] - WORDMARK.crop[1];
       var lh = h * HEADER * 0.78;
       var lw = Math.min(w * 0.86, lh * cw / ch);
       lh = lw * ch / cw;
-      ctx.drawImage(logo, WORDMARK.crop[0], WORDMARK.crop[1], cw, ch, (w - lw) / 2, (h * HEADER - lh) / 2, lw, lh);
+      ctx.drawImage(logo, WORDMARK.crop[0] * k, WORDMARK.crop[1] * k, cw * k, ch * k, (w - lw) / 2, (h * HEADER - lh) / 2, lw, lh);
     }
 
     // The line.

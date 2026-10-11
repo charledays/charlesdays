@@ -63,8 +63,10 @@ export var LEG = {
 
 /** Meters per unit of progress at full speed: about 200 m of track from stop to stop. */
 export var CRUISE_SPEED = 450;
-/** Where the ride starts on load, in legs: standing at the first stop, doors open. */
+/** Standing at a stop with the doors open, in legs (where opening the doors on load ends up). */
 export var START = (LEG.open + LEG.dwell) / 2;
+/** Where the ride actually starts: at the first stop with the doors still shut; the first scroll or swipe opens them (main.js openDoors). */
+export var START_CLOSED = (LEG.brake + LEG.settle) / 2;
 
 /**
  * Station to station from the line map, in seconds on the wall clock. The ride closes the doors
@@ -83,8 +85,8 @@ export var TRAVEL = {
   reduced: { close: 0.3, travel: 0.8, chime: 0.1, open: 0.3 }
 };
 
-/** GET OFF: the push through the doors until the hero fills the frame, then the gallery fades up. Seconds. */
-export var GET_OFF = { push: 1.8, fade: 0.45 };
+/** Stepping out: the walk from the seat through the doors onto the platform (and back), seconds. */
+export var DOOR_WALK = 1.6;
 
 /** The Charle$Days tag (white on transparent), cropped to its lettering. Used on the doors and the line map. */
 export var WORDMARK = { src: '/images/brand/charlesdays-wordmark.png', crop: [86, 258, 2138, 1181], size: [2262, 1696] };

@@ -4,7 +4,9 @@
  *
  *   wall      the back wall covered edge to edge in full-height panels, with only thin tile
  *             seams between them: full-bleed wraps, branded campaign ads, editorial spreads,
- *             wheatpaste walls and pairs of backlit lightboxes, in a seeded, varied order
+ *             wheatpaste walls and pairs of backlit lightboxes, in a seeded, varied order;
+ *             or (content.wall 'wallpaper') one continuous run of floor-to-ceiling sheets,
+ *             butted edge to edge, the tile wall reading through (grout, relief, torn spots)
  *   backdrop  a darkened wrap behind the hero lightbox, so the hero stays the brightest thing
  *   columns   the platform columns wrapped continuously round all four faces (seam at the back)
  *   floor     contact shadows, light pooling under the lit panels, a few spray stencils
@@ -22,6 +24,7 @@ import * as THREE from 'three';
 import { WORLD, WORDMARK } from '../config.js';
 import { tracker, textCanvas, canvasTexture, frameGeometry } from '../geo.js';
 import { rng } from '../materials.js';
+import { web } from '../web.js';
 
 var FONT = '"Helvetica Neue", Helvetica, Arial, sans-serif';
 var S = WORLD.station;
@@ -35,6 +38,8 @@ export var TAKEOVER = {
   widths: { wrap: 5.6, campaign: 4.4, editorial: 2.9, paste: 3.3, lights: 3.1 },
   seam: [0.14, 0.3],
   lightbox: { width: 1.24, height: 1.86, bottom: 0.78 },
+  /** Wallpaper sheet width (floor to ceiling, butted); how strongly the tiles read through. */
+  sheet: { width: 2.6, tiles: 0.62 },
   column: 0.34,
   /** Tunnel-wall campaign either side: panel offsets past the platform's end. */
   approach: [5, 13, 22, 31, 40, 48]
@@ -43,16 +48,41 @@ export var TAKEOVER = {
 /** The order panels run in from the hero outward, per side. */
 var SEQUENCE = ['editorial', 'wrap', 'lights', 'campaign', 'paste', 'wrap', 'editorial', 'campaign', 'lights', 'paste'];
 
+/**
+ * Paint queue, shared by every station: painting a platform is dozens of full-size canvas draws
+ * plus a GPU upload each, which done at once (as a station wakes) stalls the ride for a beat
+ * on a phone. Jobs run a few per frame inside a small time budget, lowest priority number
+ * first: the sheets nearest where you stand get painted before the far ends of the wall.
+ */
+var PAINT = { budgetMs: 6, perFrame: 3 };
+var paintQueue = [];
+var pumping = false;
+function schedulePaint(job, priority) {
+  paintQueue.push({ job: job, p: priority });
+  paintQueue.sort(function (a, b) { return a.p - b.p; });
+  if (!pumping) { pumping = true; requestAnimationFrame(pumpPaint); }
+}
+function pumpPaint() {
+  var t0 = performance.now();
+  for (var n = 0; paintQueue.length && n < PAINT.perFrame && (n === 0 || performance.now() - t0 < PAINT.budgetMs); n++) {
+    paintQueue.shift().job();
+  }
+  if (paintQueue.length) requestAnimationFrame(pumpPaint);
+  else pumping = false;
+}
+
 var images = {};
 /** One decode per image path, shared by every painter. Resolves null if it fails to load. */
 function loadImage(src) {
+  if (!src) return Promise.resolve(null);
   if (!images[src]) {
     images[src] = new Promise(function (resolve) {
       var img = new Image();
       img.decoding = 'async';
       img.onload = function () { resolve(img); };
       img.onerror = function () { resolve(null); };
-      img.src = src;
+      // The light web copy (web.js): the wall is painted at a few hundred px per metre.
+      img.src = web(src);
     });
   }
   return images[src];
@@ -78,13 +108,15 @@ function contain(ctx, img, x, y, w, h) {
 
 /** The Charle$Days tag at (x, y), width w. */
 function drawWordmark(ctx, img, x, y, w, rot, alpha) {
+  // The crop is in the original's pixels; the web copy is smaller.
+  var s = img.naturalWidth / WORDMARK.size[0];
   var cw = WORDMARK.crop[2] - WORDMARK.crop[0], ch = WORDMARK.crop[3] - WORDMARK.crop[1];
   var h = w * ch / cw;
   ctx.save();
   ctx.globalAlpha = alpha == null ? 1 : alpha;
   ctx.translate(x, y);
   ctx.rotate(rot || 0);
-  ctx.drawImage(img, WORDMARK.crop[0], WORDMARK.crop[1], cw, ch, -w / 2, -h / 2, w, h);
+  ctx.drawImage(img, WORDMARK.crop[0] * s, WORDMARK.crop[1] * s, cw * s, ch * s, -w / 2, -h / 2, w, h);
   ctx.restore();
 }
 
@@ -136,19 +168,20 @@ function tornEdges(ctx, w, h, rand, count) {
 
 /**
  * Treatments: how a station's panels are finished, so each stop reads as its own show on the
- * same platform. They tune the paint, not the layout.
+ * same platform. They tune the paint, not the layout. glow is how much the work lights itself:
+ * kept low so the station's light (its rig and baked pools) shapes it, high enough to stay legible.
  *   campaign  crisp, bright, branded (Art Direction)
  *   cinema    graded down and letterboxed (Film)
  */
 var TREATMENTS = {
-  campaign: { grade: null, letterbox: false, glow: 0.32 },
-  cinema: { grade: 'rgba(6,8,14,0.28)', letterbox: true, glow: 0.24 }
+  campaign: { grade: null, letterbox: false, glow: 0.2 },
+  cinema: { grade: 'rgba(6,8,14,0.28)', letterbox: true, glow: 0.15 }
 };
 
 export function createTakeover(station, content, mats, registry, options) {
   var keep = tracker(registry);
   var T = TREATMENTS[content.treatment] || TREATMENTS.campaign;
-  var ads = content.ads.length ? content.ads : [station.billboard.src];
+  var ads = content.ads.length ? content.ads : station.billboard ? [station.billboard.src] : [];
   var titles = content.adTitles || [];
   var ppm = options && options.coarse ? 80 : 115;
   var group = new THREE.Group();
@@ -183,14 +216,19 @@ export function createTakeover(station, content, mats, registry, options) {
     });
   }
 
-  /** A canvas texture painted (on wake) once its images arrive. paint(ctx, w, h, imgs, stickers) */
-  function painted(w, h, srcs, paint, base) {
+  /**
+   * A canvas texture painted (on wake) once its images arrive, through the paint queue.
+   * paint(ctx, w, h, imgs, stickers); priority: lower paints sooner (default: after the wall).
+   */
+  function painted(w, h, srcs, paint, base, priority) {
     var c = textCanvas(w, h, function (ctx) { ctx.fillStyle = base || '#111'; ctx.fillRect(0, 0, w, h); });
     var tex = canvasTexture(c, registry);
     later(function () {
       Promise.all([Promise.all(srcs.map(loadImage)), withStickers()]).then(function (r) {
-        paint(c.getContext('2d'), w, h, r[0], r[1]);
-        tex.needsUpdate = true;
+        schedulePaint(function () {
+          paint(c.getContext('2d'), w, h, r[0], r[1]);
+          tex.needsUpdate = true;
+        }, priority == null ? 60 : priority);
       });
     });
     return tex;
@@ -204,7 +242,7 @@ export function createTakeover(station, content, mats, registry, options) {
     var key = w.toFixed(3) + 'x' + h.toFixed(3);
     return geos[key] || (geos[key] = keep(new THREE.PlaneGeometry(w, h)));
   }
-  function art(k) { return ads[((k % ads.length) + ads.length) % ads.length]; }
+  function art(k) { return ads.length ? ads[((k % ads.length) + ads.length) % ads.length] : null; }
 
   var W = TAKEOVER.wall;
   var panelH = W.top - W.bottom;
@@ -343,6 +381,268 @@ export function createTakeover(station, content, mats, registry, options) {
     var srcs = kind === 'paste' ? [art(k), art(k + 3), art(k + 5)] : kind === 'halo' ? [station.billboard.src] : [art(k)];
     var tex = painted(w, h, srcs, painters[kind](k, 101 + k * 37), kind === 'editorial' ? '#e9e4d8' : '#111');
     return (materialCache[key] = paper(tex));
+  }
+
+  // ---- Wallpaper ----------------------------------------------------------------------------
+
+  // The tile wall's texture: 1.22 m per repeat, laid from the platform's left end (x = -halfLength)
+  // and from the floor up, so a sheet can line its grout and relief up with the tiles behind it.
+  var TILE_M = 1.22;
+  var tileImage = mats.tileTexture.image;
+
+  /**
+   * The tiles behind, through the paper: the wall's own texture multiplied over (w, h) at `pxm`
+   * canvas px per metre, `tx`/`ty` the pattern's offset in px. Returns the pattern (bare tile).
+   */
+  function tilesThrough(ctx, w, h, pxm, tx, ty) {
+    var s = (TILE_M * pxm) / tileImage.width;
+    var pattern = ctx.createPattern(tileImage, 'repeat');
+    pattern.setTransform(new DOMMatrix([s, 0, 0, s, tx || 0, ty || 0]));
+    ctx.save();
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.globalAlpha = TAKEOVER.sheet.tiles;
+    ctx.fillStyle = pattern;
+    ctx.fillRect(0, 0, w, h);
+    ctx.restore();
+    return pattern;
+  }
+  /** The tile relief as a bump map: `w` x `h` metres of wall per 0..1 of uv, from (u0, 0) in tiles. */
+  function tileBump(w, h, u0) {
+    var bump = mats.tileTexture.clone();
+    bump.wrapS = bump.wrapT = THREE.RepeatWrapping;
+    bump.colorSpace = THREE.NoColorSpace;
+    bump.repeat.set(w / TILE_M, h / TILE_M);
+    bump.offset.set(u0 || 0, 0);
+    bump.needsUpdate = true;
+    registry.textures.push(bump);
+    return bump;
+  }
+
+  var sheetCache = {};
+  /**
+   * Sheet k of the wallpaper: left edge at station x `x0`, `width` wide, floor to ceiling. The
+   * deal sheet carries the station's offer instead of the artwork.
+   */
+  function sheetMaterial(k, x0, width, deal) {
+    if (content.poem && !deal) return poemSheet(k, x0, width);
+    var key = k + ':' + x0.toFixed(2) + ':' + width.toFixed(2) + (deal ? ':deal' : '');
+    return sheetCache[key] || (sheetCache[key] = paintSheet(k, x0, width, deal));
+  }
+  /** fine: the close-look copy of an art sheet (sharpen), printed at SHARP px per metre. */
+  function paintSheet(k, x0, width, deal, fine) {
+    // The offer is type, read up close through the doors: printed at a finer grain than the art.
+    var pxm = deal ? ppm * 3 : fine ? SHARP : ppm;
+    var w = Math.round(width * pxm), h = Math.round(S.ceilingY * pxm);
+    var seed = 401 + k * 29;
+    // Queued nearest the doors (station x = 0) first; a close look's sharp print jumps the queue.
+    var tex = painted(w, h, [art(k)], function (ctx, w, h, im, st) {
+      var rand = rng(seed);
+      if (deal) paintDeal(ctx, w, h, st);
+      else {
+        if (im[0]) cover(ctx, im[0], 0, 0, w, h, 0.5, 0.2 + rand() * 0.3);
+        grade(ctx, w, h);
+        if (st.wordmark && !content.pattern && k % 4 === 1) drawWordmark(ctx, st.wordmark, w * 0.5, h * 0.12, w * 0.3, 0, 0.85);
+      }
+      // The tiles behind, lined up with the wall's own (laid from x = -halfLength, floor up).
+      var pattern = tilesThrough(ctx, w, h, pxm, -(x0 + S.halfLength) * pxm, S.ceilingY * pxm);
+      // Now and then a small rip low down, where bags catch: bare tile.
+      for (var t = 0; t < (!deal && k % 3 === 2 ? 1 : 0); t++) {
+        var cx = w * (0.2 + rand() * 0.6), cy = h * (0.78 + rand() * 0.14), r = w * (0.015 + rand() * 0.02);
+        ctx.beginPath();
+        for (var q = 0; q < 9; q++) {
+          var a = q / 9 * Math.PI * 2, rr = r * (0.5 + rand() * 0.7);
+          ctx[q ? 'lineTo' : 'moveTo'](cx + Math.cos(a) * rr * 1.3, cy + Math.sin(a) * rr);
+        }
+        ctx.closePath();
+        ctx.fillStyle = pattern;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(232,226,212,0.55)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+      // Butt joint: a hairline of shadow where this sheet meets the next, a lifted corner or two.
+      ctx.fillStyle = 'rgba(0,0,0,0.35)';
+      ctx.fillRect(w - 2, 0, 2, h);
+      ctx.fillStyle = 'rgba(255,255,255,0.08)';
+      ctx.fillRect(0, 0, 1, h);
+      tornEdges(ctx, w, h, rand, 4);
+      // Grime settling toward the floor.
+      var g = ctx.createLinearGradient(0, 0, 0, h);
+      g.addColorStop(0.7, 'rgba(28,20,10,0)');
+      g.addColorStop(1, 'rgba(28,20,10,0.35)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+    }, null, fine ? -1 : Math.abs(x0 + width / 2));
+    // Relief: the same tiles as a bump map, so the grout catches the station light.
+    return track(new THREE.MeshStandardMaterial({
+      map: tex, emissiveMap: tex, emissive: 0xffffff, emissiveIntensity: T.glow,
+      roughness: 0.78, bumpMap: tileBump(width, S.ceilingY, (x0 + S.halfLength) / TILE_M), bumpScale: 1.6
+    }));
+  }
+
+  /**
+   * The offer, pasted up as its own sheet: black stock, the line's orange, set like a poster.
+   * content.deal: { kicker, title: [lines], offer, terms: [lines], proof: [lines] }.
+   */
+  function paintDeal(ctx, w, h, st) {
+    var d = content.deal;
+    var orange = '#f26a1b', ink = '#f3efe7';
+    var m = w * 0.1;
+    ctx.fillStyle = '#0c0c0c';
+    ctx.fillRect(0, 0, w, h);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+    function line(text, y, size, weight, color, track) {
+      ctx.font = weight + ' ' + Math.round(size) + 'px ' + FONT;
+      ctx.fillStyle = color;
+      if ('letterSpacing' in ctx) ctx.letterSpacing = Math.round(size * (track || 0)) + 'px';
+      ctx.fillText(track ? text.toUpperCase() : text, w / 2, y, w - m * 2);
+      if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+    }
+    // The line's bullet and the kicker.
+    var by = h * 0.12, br = w * 0.045;
+    ctx.fillStyle = orange;
+    ctx.beginPath();
+    ctx.arc(w / 2, by, br, 0, Math.PI * 2);
+    ctx.fill();
+    line('C', by + br * 0.38, br * 1.1, 800, '#111');
+    line(d.kicker, h * 0.2, w * 0.035, 700, orange, 0.22);
+    // The headline.
+    d.title.forEach(function (t, i) { line(t, h * 0.28 + i * w * 0.115, w * 0.105, 800, ink); });
+    // The offer, in a dashed box like a coupon.
+    var top = h * 0.43, boxH = h * 0.27;
+    ctx.save();
+    ctx.strokeStyle = orange;
+    ctx.lineWidth = w * 0.009;
+    ctx.setLineDash([w * 0.03, w * 0.02]);
+    ctx.strokeRect(m, top, w - m * 2, boxH);
+    ctx.restore();
+    line(d.offer, top + boxH * 0.52, w * 0.16, 800, orange);
+    d.terms.forEach(function (t, i) { line(t, top + boxH * 0.72 + i * w * 0.05, w * 0.038, 700, ink, 0.14); });
+    // How to claim it.
+    d.proof.forEach(function (t, i) { line(t, h * 0.79 + i * w * 0.06, w * 0.045, 500, 'rgba(243,239,231,0.72)'); });
+    if (st.wordmark) drawWordmark(ctx, st.wordmark, w / 2, h * 0.9, w * 0.42, -0.04, 0.9);
+  }
+
+  /**
+   * The poem wallpaper, on black stock, sheets alternating: "De Aragua al mundo" big in white,
+   * then the poem in white caps, set flush left on one margin round eye height. The two prints
+   * are shared by every sheet (one fine-grained texture each); the tiles behind come through as
+   * relief only (each sheet's own bump map, lined up with the wall).
+   */
+  var POEM_FONT = '"Space Grotesk", ' + FONT;
+  var poemPrints = null;
+  function poemPrint(paint) {
+    var pxm = ppm * 3;
+    var c = textCanvas(Math.round(TAKEOVER.sheet.width * pxm), Math.round(S.ceilingY * pxm), function (ctx, w, h) {
+      ctx.fillStyle = '#0a0a0a';
+      ctx.fillRect(0, 0, w, h);
+    });
+    var tex = canvasTexture(c, registry);
+    later(function () {
+      // The page loads Space Grotesk; wait for it so the canvas doesn't set the poem in a fallback.
+      var font = document.fonts ? document.fonts.load('700 64px "Space Grotesk"').catch(function () {}) : null;
+      Promise.all([loadImage(stickerSrc.aragua), font]).then(function (r) {
+        var ctx = c.getContext('2d');
+        paint(ctx, c.width, c.height, r[0]);
+        // Grime settling toward the floor.
+        var g = ctx.createLinearGradient(0, 0, 0, c.height);
+        g.addColorStop(0.75, 'rgba(28,20,10,0)');
+        g.addColorStop(1, 'rgba(28,20,10,0.3)');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, c.width, c.height);
+        tex.needsUpdate = true;
+      });
+    });
+    return tex;
+  }
+  /** Canvas y for a height above the floor (m). */
+  function atHeight(h, m) { return h * (1 - m / S.ceilingY); }
+  function poemSheet(k, x0, width) {
+    var key = 'poem:' + k + ':' + x0.toFixed(2) + ':' + width.toFixed(2);
+    if (sheetCache[key]) return sheetCache[key];
+    if (!poemPrints) {
+      poemPrints = [
+        // The tag, big, centred at eye height.
+        poemPrint(function (ctx, w, h, tag) {
+          if (!tag) return;
+          var tw = w * 0.78, th = tw * tag.naturalHeight / tag.naturalWidth;
+          ctx.drawImage(tag, (w - tw) / 2, atHeight(h, 1.75) - th / 2, tw, th);
+        }),
+        // The poem: caps, flush left, an orange rule over it.
+        poemPrint(function (ctx, w, h) {
+          var lines = content.poem.map(function (l) { return l.toUpperCase(); });
+          var m = w * 0.12, size = w * 0.036, lead = size * 1.5;
+          var y0 = atHeight(h, 1.6) - (lines.length - 1) * lead / 2;
+          ctx.fillStyle = '#f26a1b';
+          ctx.fillRect(m, y0 - lead * 1.4, w * 0.12, size * 0.16);
+          ctx.fillStyle = '#f3efe7';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          ctx.font = '700 ' + Math.round(size) + 'px ' + POEM_FONT;
+          if ('letterSpacing' in ctx) ctx.letterSpacing = Math.round(size * 0.04) + 'px';
+          lines.forEach(function (line, i) { ctx.fillText(line, m, y0 + i * lead, w - m * 2); });
+        })
+      ];
+    }
+    var map = poemPrints[((k % 2) + 2) % 2];
+    if (width < TAKEOVER.sheet.width - 0.01) {
+      // A cut sheet at the wall's end: the same print, trimmed.
+      map = map.clone();
+      map.repeat.set(width / TAKEOVER.sheet.width, 1);
+      map.needsUpdate = true;
+      registry.textures.push(map);
+    }
+    return (sheetCache[key] = track(new THREE.MeshStandardMaterial({
+      map: map, emissiveMap: map, emissive: 0xffffff, emissiveIntensity: T.glow,
+      roughness: 0.85, bumpMap: tileBump(width, S.ceilingY, (x0 + S.halfLength) / TILE_M), bumpScale: 1.6
+    })));
+  }
+
+  /**
+   * Lay the wallpaper along the whole wall, one sheet centred in the doorway's view. With a deal,
+   * a seam sits there instead: the first repeat on the left, the offer beside it on the right.
+   */
+  function layWallpaper(bx) {
+    sharpen(null);
+    sheets = [];
+    var sw = TAKEOVER.sheet.width;
+    var edge = S.halfLength;
+    var start = content.deal ? bx : bx - sw / 2;
+    var first = start - Math.ceil((start + edge) / sw) * sw;
+    var z = S.wallZ + 0.012;
+    for (var x0 = first, k = 0; x0 < edge; x0 += sw, k++) {
+      var a = Math.max(x0, -edge), b = Math.min(x0 + sw, edge);
+      if (b - a < 0.05) continue;
+      var deal = !!content.deal && Math.abs(x0 - start) < 0.01;
+      var m = new THREE.Mesh(plane(b - a, S.ceilingY), sheetMaterial(k, a, b - a, deal));
+      m.position.set((a + b) / 2, S.ceilingY / 2, z);
+      wall.add(m);
+      sheets.push({ mesh: m, k: k, x0: a, width: b - a, deal: deal });
+    }
+  }
+
+  /**
+   * A close look (the phone's tap on the art): the sheet under station-local x is swapped for a
+   * copy printed at SHARP px per metre, so it holds up at arm's length; null puts the everyday
+   * print back. One sharp copy at a time; poem and offer sheets are already fine-grained.
+   */
+  var SHARP = 560;
+  var sheets = [];
+  var sharp = null;
+  function sharpen(x) {
+    if (sharp) {
+      sharp.rec.mesh.material = sharp.base;
+      [sharp.mat.map, sharp.mat.bumpMap].forEach(function (t) { if (t) t.dispose(); });
+      sharp.mat.dispose();
+      sharp = null;
+    }
+    if (x == null || content.poem) return;
+    var rec = sheets.filter(function (r) { return x >= r.x0 && x < r.x0 + r.width; })[0];
+    if (!rec || rec.deal) return;
+    var mat = paintSheet(rec.k, rec.x0, rec.width, false, true);
+    sharp = { rec: rec, base: rec.mesh.material, mat: mat };
+    rec.mesh.material = mat;
   }
 
   // ---- Lit panels ----------------------------------------------------------------------------
@@ -530,8 +830,19 @@ export function createTakeover(station, content, mats, registry, options) {
         gl.addColorStop(1, 'rgba(25,18,10,0.4)');
         ctx.fillStyle = gl;
         ctx.fillRect(0, top, w, bottom - top);
+        // Contact shade where the column meets the ceiling beam: the fixtures can't reach in there.
+        var ct = ctx.createLinearGradient(0, 0, 0, h * 0.12);
+        ct.addColorStop(0, 'rgba(8,7,6,0.6)');
+        ct.addColorStop(1, 'rgba(8,7,6,0)');
+        ctx.fillStyle = ct;
+        ctx.fillRect(0, 0, w, h * 0.12);
+        // Tiled columns under the vinyl: grout reading through, floor to ceiling.
+        tilesThrough(ctx, w, h, h / S.ceilingY, 0, 0);
       }, '#1a1c1b');
-      wrapMats.push(track(new THREE.MeshStandardMaterial({ map: tex, emissiveMap: tex, emissive: 0xffffff, emissiveIntensity: T.glow * 0.8, roughness: 0.55 })));
+      wrapMats.push(track(new THREE.MeshStandardMaterial({
+        map: tex, emissiveMap: tex, emissive: 0xffffff, emissiveIntensity: T.glow * 0.8, roughness: 0.6,
+        bumpMap: tileBump(C * 4, S.ceilingY), bumpScale: 1.4
+      })));
     })(wi);
   }
   var colMeshes = wrapMats.map(function (mat) {
@@ -573,6 +884,13 @@ export function createTakeover(station, content, mats, registry, options) {
     var z = S.wallZ + 0.014;
     var edge = S.halfLength - 0.6;
 
+    if (content.wall === 'wallpaper') layWallpaper(bx);
+    else layPanels(bx, y, z, edge);
+    layDressing(v, bx);
+  }
+
+  /** The panel wall: the hero's dark halo, then panels outward both ways with tile seams. */
+  function layPanels(bx, y, z, edge) {
     // Behind the hero: its own campaign, pasted dark, so the lit hero leads.
     var back = new THREE.Mesh(plane(backdropW, panelH), panelMaterial('halo', -1, backdropW));
     back.position.set(bx, y, z);
@@ -609,7 +927,10 @@ export function createTakeover(station, content, mats, registry, options) {
         cursor = near + dir * width;
       }
     });
+  }
 
+  /** Floor stencils, wrapped columns and their shadows. */
+  function layDressing(v, bx) {
     // Stencils: one in view of the open doors, a few more spaced down the platform.
     stencil(0, v.doorSight + 0.3, -1.9, 1.5, 0.08);
     [-30, -17, 12, 27].forEach(function (dx, i) { stencil((i + 1) % 3, bx + dx, -1.6 - (i % 2) * 1.6, 1.4 + (i % 2) * 0.4, (i - 1.5) * 0.2); });
@@ -633,6 +954,7 @@ export function createTakeover(station, content, mats, registry, options) {
     group: group,
     layout: layout,
     wake: wake,
+    sharpen: sharpen,
     /** How far past the platform's ends the takeover reaches (for visibility). */
     reach: TAKEOVER.approach[TAKEOVER.approach.length - 1] + 6
   };

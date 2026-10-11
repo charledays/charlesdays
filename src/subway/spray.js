@@ -1,7 +1,10 @@
 /**
  * Spray can. With a mouse the cursor is a gloved hand on a Montana GOLD can: hold the button to paint anything
  * in the car except the floor (wall, door frame, seats and their base, poles, windows, the door
- * leaves). Over the line map the can steps aside for the normal pointer so a stop can be picked.
+ * leaves), and the few signs and ads that are fair game (options.paintable: the 601 tag, the
+ * motto sign, the eye of Charles). Over the line map the can steps aside for the normal pointer
+ * so a stop can be picked. See-through overlays (acrylic glare, the glass's sheen) don't stop
+ * the paint: it lands on what's behind them.
  * On touch, the Spray toggle turns drags from scrolling into painting.
  *
  * Fixed surfaces pick up paint through three projections of the car (onto the x-y, x-z and z-y
@@ -70,7 +73,11 @@ function gauss() {
 var VERTEX_HEAD = 'varying vec3 vPaintPos;\nvarying vec3 vPaintNormal;\n';
 var VERTEX_BODY = [
   'vec4 paintP = vec4(transformed, 1.0);',
+  '#ifdef SPRAY_UNLIT',
+  'vec3 paintN = normal;',
+  '#else',
   'vec3 paintN = objectNormal;',
+  '#endif',
   '#ifdef USE_INSTANCING',
   '  paintP = instanceMatrix * paintP;',
   '  paintN = mat3(instanceMatrix) * paintN;',
@@ -111,6 +118,8 @@ export function createSpray(options) {
   var surfaces = options.surfaces;
   var unpaintable = options.unpaintable;
   var noPaint = options.noPaint;
+  /** Meshes (or groups) that take paint even inside a noPaint group; lit or unlit materials. */
+  var paintable = options.paintable || [];
   var selecting = options.selecting;
   var onHiss = options.onHiss || function () {};
   var fine = options.finePointer;
@@ -182,6 +191,8 @@ export function createSpray(options) {
         .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = mix(roughnessFactor, 0.75, paintMask);')
         .replace('#include <metalnessmap_fragment>', '#include <metalnessmap_fragment>\nmetalnessFactor *= 1.0 - paintMask;');
     };
+    // Unlit (MeshBasic) materials have no objectNormal in their vertex shader: use the attribute.
+    if (mat.isMeshBasicMaterial) mat.defines = Object.assign({}, mat.defines, { SPRAY_UNLIT: '' });
     mat.customProgramCacheKey = function () { return 'spray'; };
     mat.needsUpdate = true;
   }
@@ -192,6 +203,20 @@ export function createSpray(options) {
       inject(o.material);
     });
   });
+  paintable.forEach(function (g) {
+    g.traverse(function (o) {
+      if (!o.isMesh || !o.material || overlay(o.material)) return;
+      if (o.material.isMeshStandardMaterial || o.material.isMeshBasicMaterial) inject(o.material);
+    });
+  });
+  /**
+   * A see-through layer laid over a surface (acrylic glare, the glass's sheen): not a target
+   * itself. Only unlit or additive ones: the glass pane is lit and takes paint, and the door
+   * leaves' paint layers are found through their leaf.
+   */
+  function overlay(mat) {
+    return !!mat && (mat.blending === THREE.AdditiveBlending || (mat.isMeshBasicMaterial && mat.transparent && mat.depthWrite === false));
+  }
 
   // The leaves: a layer just proud of the face (over the tag), riding with each leaf.
   var doorLayers = leaves.map(function (leaf) {
@@ -317,7 +342,7 @@ export function createSpray(options) {
   var normal = new THREE.Vector3();
   var local = new THREE.Vector3();
   var instance = new THREE.Matrix4();
-  var pickables = surfaces.concat(noPaint);
+  var pickables = surfaces.concat(noPaint, paintable);
 
   function leafOf(o) {
     for (; o; o = o.parent) {
@@ -333,8 +358,9 @@ export function createSpray(options) {
   /** What the nozzle points at, as { target, a, b, depth }, or null if it won't take paint. */
   function aim(at) {
     ray.setFromCamera(at, camera);
-    var hit = ray.intersectObjects(pickables, true)[0];
-    if (!hit || within(hit.object, noPaint)) return null;
+    // Through any overlay to the first real surface.
+    var hit = ray.intersectObjects(pickables, true).filter(function (h) { return !overlay(h.object.material); })[0];
+    if (!hit || (within(hit.object, noPaint) && !within(hit.object, paintable))) return null;
     var o = hit.object;
     var door = leafOf(o);
     if (door) {
@@ -391,7 +417,7 @@ export function createSpray(options) {
     cursor.classList.toggle('is-on', fine && hovering);
     cursor.classList.toggle('is-away', away);
     cursor.classList.toggle('is-spraying', hissing);
-    if (fine) canvas.style.cursor = away ? (selecting().stop >= 0 ? 'pointer' : '') : 'none';
+    if (fine) canvas.style.cursor = away ? selecting().cursor || (selecting().stop >= 0 ? 'pointer' : '') : 'none';
   }
 
   function setNdc(e) {
