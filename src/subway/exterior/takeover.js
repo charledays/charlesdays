@@ -79,8 +79,11 @@ function loadImage(src) {
     images[src] = new Promise(function (resolve) {
       var img = new Image();
       img.decoding = 'async';
-      img.onload = function () { resolve(img); };
-      img.onerror = function () { resolve(null); };
+      // Counted by three's loading manager, so the loader waits for the wall art too (main.js).
+      var manager = THREE.DefaultLoadingManager;
+      manager.itemStart(src);
+      img.onload = function () { manager.itemEnd(src); resolve(img); };
+      img.onerror = function () { manager.itemError(src); resolve(null); };
       // The light web copy (web.js): the wall is painted at a few hundred px per metre.
       img.src = web(src);
     });

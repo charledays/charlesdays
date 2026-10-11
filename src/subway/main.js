@@ -44,25 +44,46 @@ var root = document.querySelector('.subway');
 var canvas = document.getElementById('subwayCanvas');
 
 /**
- * The loader (the tag flashing in a ring) stays up until the scene has drawn, the textures
- * three.js is fetching have arrived and the page has loaded: never shorter than LOADER.min,
- * never longer than LOADER.max (ms).
+ * The loader: the tag flashing in a ring that fills with real progress, the percentage under
+ * it. Progress is the scripts running, the images and textures being fetched (everything that
+ * goes through three's loading manager, the wall art included: takeover.js), the shaders
+ * compiling, and the page finishing. It stays up until all of that is done, reads 100%, then
+ * fades: never shorter than LOADER.min, never longer than LOADER.max (ms).
  */
-var LOADER = { min: 1400, max: 8000 };
+var LOADER = { min: 900, max: 12000, hold: 250 };
 // Every texture three.js loads comes from its light web copy (web.js).
 THREE.DefaultLoadingManager.setURLModifier(web);
 var loaderFrom = performance.now();
-var pendingAssets = 0;
+var assets = { started: 0, done: 0 };
 (function countAssets(manager) {
   var start = manager.itemStart, end = manager.itemEnd, error = manager.itemError;
-  manager.itemStart = function (url) { pendingAssets++; start.call(manager, url); };
-  manager.itemEnd = function (url) { pendingAssets = Math.max(0, pendingAssets - 1); end.call(manager, url); };
-  manager.itemError = function (url) { pendingAssets = Math.max(0, pendingAssets - 1); error.call(manager, url); };
+  manager.itemStart = function (url) { assets.started++; start.call(manager, url); };
+  manager.itemEnd = function (url) { assets.done++; end.call(manager, url); };
+  manager.itemError = function (url) { assets.done++; error.call(manager, url); };
 })(THREE.DefaultLoadingManager);
+var shadersWarm = false;
+var loaderShown = 0;
+var loaderFull = null;
+var loaderRun = document.querySelector('[data-loader-run]');
+var loaderPct = document.querySelector('[data-loader-pct]');
 function revealWhenLoaded() {
   var t = performance.now() - loaderFrom;
-  var ready = root.classList.contains('is-ready') && !pendingAssets && document.readyState === 'complete';
-  if ((ready && t >= LOADER.min) || t >= LOADER.max) root.classList.add('is-loaded');
+  var pending = assets.started - assets.done;
+  var built = root.classList.contains('is-ready');
+  var complete = document.readyState === 'complete';
+  // Weighted: scripts 10, assets 60, shaders 20, page 10.
+  var target = 10 + 60 * (assets.started ? assets.done / assets.started : 0) + (shadersWarm ? 20 : 0) + (complete ? 10 : 0);
+  var ready = built && shadersWarm && !pending && complete;
+  if (!ready) target = Math.min(target, 99);
+  if (t >= LOADER.max) target = 100;
+  // Never runs backwards (more images can start loading as it goes), eases toward the target.
+  loaderShown = Math.max(loaderShown, loaderShown + (target - loaderShown) * 0.18);
+  if (target >= 100 && loaderShown > 99.5) loaderShown = 100;
+  var pct = Math.floor(loaderShown);
+  if (loaderRun) loaderRun.style.strokeDasharray = (loaderShown * 3.6).toFixed(1) + ' 360';
+  if (loaderPct) loaderPct.textContent = pct + '%';
+  if (pct >= 100 && loaderFull == null) loaderFull = performance.now();
+  if (loaderFull != null && performance.now() - loaderFull >= LOADER.hold && t >= LOADER.min) root.classList.add('is-loaded');
   else requestAnimationFrame(revealWhenLoaded);
 }
 
@@ -241,23 +262,42 @@ function start() {
     var halfH = Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * camera.aspect);
     return Math.max(0, Math.PI / 2 - halfH - LOOK.margin);
   }
-  var look = { yaw: 0, toYaw: 0, drag: null, touch: false };
+  var look = { yaw: 0, toYaw: 0, vel: 0, drag: null, touch: false };
   var detachLook = (function () {
     function out() { return atDoor.to && atDoor.f === 1 && !busy; }
     function onDown(e) {
-      // On a phone the platform is walked by swipes between set viewpoints, not dragged.
-      if (!out() || e.button > 0 || e.pointerType === 'touch') return;
-      look.drag = { x: e.clientX, yaw: look.toYaw };
+      // A finger looks round the same way, except while painting or up close to the art.
+      if (!out() || e.button > 0) return;
+      if (e.pointerType === 'touch' && (walk.inspectTo || spray.touchArmed())) return;
+      look.drag = { x: e.clientX, yaw: look.toYaw, touch: e.pointerType === 'touch', lastX: e.clientX, lastT: e.timeStamp, lastMove: 0 };
+      look.vel = 0;
       try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* pointer already gone */ }
     }
     function onMove(e) {
       if (!look.drag) return;
       var k = LOOK.perPx * 900 / Math.max(500, window.innerHeight);
+      // A finger: the view sticks to it (a screen's width turns the head one frame's width).
+      if (look.drag.touch) {
+        k = 2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * camera.aspect) / window.innerWidth;
+        if (Math.abs(e.clientX - look.drag.x) > 40) ui.usedHint('platform');
+        // As seated: stuck to the finger, stretching past the ends, its speed kept for the flick.
+        var d = look.drag, dts = (e.timeStamp - d.lastT) / 1000;
+        look.toYaw = rubber(d.yaw + (e.clientX - d.x) * k, -maxYaw(), maxYaw());
+        if (dts > 0) look.vel = look.vel * 0.6 + (e.clientX - d.lastX) * k / dts * 0.4;
+        d.lastX = e.clientX;
+        d.lastT = e.timeStamp;
+        d.lastMove = e.timeStamp;
+        return;
+      }
       // Grab the view: drag right and the station slides right (you turn left).
       var m = maxYaw();
       look.toYaw = Math.max(-m, Math.min(m, look.drag.yaw + (e.clientX - look.drag.x) * k));
     }
-    function onUp() { look.drag = null; }
+    function onUp(e) {
+      // Held still before lifting: no flick. A mouse never flicks.
+      if (look.drag && (!look.drag.touch || e.timeStamp - look.drag.lastMove > 80)) look.vel = 0;
+      look.drag = null;
+    }
     canvas.addEventListener('pointerdown', onDown);
     canvas.addEventListener('pointermove', onMove);
     canvas.addEventListener('pointerup', onUp);
@@ -294,11 +334,28 @@ function start() {
   /** Has the visitor looked around yet? The first hint teaches it, before opening the doors. */
   var looked = false;
   /** Past an end, the finger's travel counts less and less (rubber band). */
-  function stretched(raw) {
-    var L = SEAT_LOOK.left, R = SEAT_LOOK.right, S = SEAT_LOOK.stretch;
-    if (raw > L) return L + S * (1 - 1 / ((raw - L) * SEAT_LOOK.resist / S + 1));
-    if (raw < R) return R - S * (1 - 1 / ((R - raw) * SEAT_LOOK.resist / S + 1));
+  function stretched(raw) { return rubber(raw, SEAT_LOOK.right, SEAT_LOOK.left); }
+  /** raw, but past lo or hi the travel counts less and less (at most SEAT_LOOK.stretch past). */
+  function rubber(raw, lo, hi) {
+    var S = SEAT_LOOK.stretch;
+    if (raw > hi) return hi + S * (1 - 1 / ((raw - hi) * SEAT_LOOK.resist / S + 1));
+    if (raw < lo) return lo - S * (1 - 1 / ((lo - raw) * SEAT_LOOK.resist / S + 1));
     return raw;
+  }
+  /**
+   * After a finger lets go of a look: glide on, slowing (friction), and spring back inside
+   * [lo, hi] if past an end. o: { to, vel }. The same feel as the seated pan.
+   */
+  function glide(o, lo, hi, dt) {
+    o.vel = reduceMotion ? 0 : o.vel * Math.exp(-dt * SEAT_LOOK.friction);
+    o.to += o.vel * dt;
+    if (o.to > hi || o.to < lo) {
+      var edge = o.to > hi ? hi : lo;
+      o.vel *= Math.exp(-dt * SEAT_LOOK.spring * 1.5);
+      o.to += (edge - o.to) * (1 - Math.exp(-dt * SEAT_LOOK.spring));
+      o.to = Math.max(lo - SEAT_LOOK.stretch, Math.min(hi + SEAT_LOOK.stretch, o.to));
+    }
+    if (Math.abs(o.vel) < 0.005) o.vel = 0;
   }
   function seatedHere() { return phone && !atDoor.to && !atDoor.f && !busy; }
   var detachSeatLook = (function () {
@@ -380,7 +437,12 @@ function start() {
     };
   })();
 
-  function toDoor(on) { atDoor.to = on ? 1 : 0; }
+  /** Back on the train from the platform at least once: only then does the phone teach the ride. */
+  var beenOut = false;
+  function toDoor(on) {
+    if (!on && atDoor.to) beenOut = true;
+    atDoor.to = on ? 1 : 0;
+  }
   var doorway = (function () {
     var mat = new THREE.MeshBasicMaterial({ visible: false });
     registry.materials.push(mat);
@@ -520,7 +582,7 @@ function start() {
     phone: phone,
     toggleSound: function () { return audio.setEnabled(!audio.isEnabled()); },
     ride: rideToStation,
-    stepOut: function () { if (doorway.ready()) { toDoor(true); ui.usedHint('seat'); } },
+    stepOut: function () { if (doorway.ready()) toDoor(true); },
     stepIn: function () { if (!busy) toDoor(false); }
   });
 
@@ -599,8 +661,9 @@ function start() {
   /**
    * The phone's gestures, by where you are. Seated: up opens the doors (first load) or rides on
    * to the next stop, down rides back to the previous one, a sideways drag looks round the car
-   * (seatLook), and a tap on the open doors steps out. On the platform: left and right walk
-   * between the viewpoints, down steps back (out of a close look first, then onto the train).
+   * (seatLook), and a tap on the open doors steps out. On the platform: a drag looks left and
+   * right (detachLook, as on a desktop), down steps back (out of a close look first, then onto
+   * the train).
    */
   function onSwipe(dir) {
     if (busy) return;
@@ -610,7 +673,7 @@ function start() {
       // up opens shut doors or rides on, down rides back. A tap on the open doors steps out.
       if (dir !== 'up' && dir !== 'down') return;
       if (openDoors()) return;
-      ui.usedHint('seat');
+      if (beenOut) ui.usedHint('seat');
       rideStep(dir === 'up' ? 1 : -1);
       return;
     }
@@ -619,12 +682,8 @@ function start() {
       if (walk.inspectTo) walk.inspectTo = 0;
       else toDoor(false);
       ui.usedHint('inspect');
-    } else if (dir === 'left' || dir === 'right') {
-      walk.inspectTo = 0;
-      // Swipe left and the platform slides left: you walk on to the right.
-      walk.spot = Math.max(0, Math.min(SPOTS.length - 1, walk.spot + (dir === 'left' ? 1 : -1)));
-      ui.usedHint('platform');
     }
+    // Left and right: the drag itself turns the head (detachLook), as on a desktop.
   }
 
   var scroll = createScroll({
@@ -709,15 +768,26 @@ function start() {
     atDoor.f = reduceMotion ? atDoor.to : Math.max(0, Math.min(1, atDoor.f + (atDoor.to ? 1 : -1) * dt / DOOR_WALK));
     rig.setDoor(atDoor.f);
     // Looking round out there; straight again on the way back in.
-    if (!atDoor.to) { look.toYaw = 0; look.drag = null; }
-    else { var lim = maxYaw(); look.toYaw = Math.max(-lim, Math.min(lim, look.toYaw)); }
+    if (!atDoor.to) { look.toYaw = 0; look.drag = null; look.vel = 0; }
+    else {
+      var lim = maxYaw();
+      // A finger's flick glides on and springs back from the ends; a mouse stays within them.
+      if (!look.drag) {
+        var g = { to: look.toYaw, vel: look.vel };
+        glide(g, -lim, lim, dt);
+        look.toYaw = g.to;
+        look.vel = g.vel;
+      } else if (!look.drag.touch) look.toYaw = Math.max(-lim, Math.min(lim, look.toYaw));
+    }
     // A finger drag out there turns the head, not the page.
     if (!!atDoor.to !== look.touch) {
       look.touch = !!atDoor.to;
       canvas.style.touchAction = look.touch || spray.touchArmed() ? 'none' : '';
     }
     var ease = reduceMotion ? 1 : 1 - Math.exp(-dt * 8);
-    look.yaw += (look.toYaw - look.yaw) * ease;
+    // A finger (and its glide) moves the view directly, already smooth; a mouse eases after.
+    if ((look.drag && look.drag.touch) || look.vel) look.yaw = look.toYaw;
+    else look.yaw += (look.toYaw - look.yaw) * ease;
     rig.setLook(look.yaw);
     // Seated on a phone: the drag with its glide and rubber band, plus the softened phone turn.
     var seated = seatedHere();
@@ -766,7 +836,7 @@ function start() {
       ui.setHint(busy ? null
         : atDoor.to ? (atDoor.f === 1 ? (walk.inspectTo ? 'inspect' : 'platform') : null)
         : closed ? (looked ? 'closed' : 'look')
-        : atDoor.f === 0 && doorway.ready() ? 'seat' : null);
+        : atDoor.f === 0 && beenOut && doorway.ready() ? 'seat' : null);
       // Frames running long (under ~40 fps over two seconds): one notch down in resolution.
       quality.time += dt;
       quality.frames++;
@@ -810,15 +880,20 @@ function start() {
     else if (raf == null) { clock.getDelta(); tick(); }
   }
   document.addEventListener('visibilitychange', onVisibility);
-  tick();
-  // Compile every station's shaders now, behind the loader, rather than the first time each one
-  // comes into view (a hitch mid-ride). compile() collects what's visible when it's called, so the
-  // hidden stations are shown for that call only; the next tick places them again.
+  // Compile every station's shaders first, behind the loader (in parallel where the GPU allows),
+  // and only then draw the first frame: drawing first would compile everything in view at once,
+  // synchronously, and stations further on would still hitch the first time they came by.
+  // compile() collects what's visible when it's called, so the hidden stations are shown for
+  // that call only; the first tick places them again.
   var shown = [];
   scene.traverse(function (o) { if (o.isGroup && !o.visible) { o.visible = true; shown.push(o); } });
   var warm = renderer.compileAsync ? renderer.compileAsync(scene, camera) : Promise.resolve(renderer.compile(scene, camera));
   shown.forEach(function (o) { o.visible = false; });
-  warm.catch(function () {}).then(function () { root.classList.add('is-ready'); });
+  warm.catch(function () {}).then(function () {
+    shadersWarm = true;
+    if (raf == null && !document.hidden) tick();
+    root.classList.add('is-ready');
+  });
 
   return function dispose() {
     cancelAnimationFrame(raf);

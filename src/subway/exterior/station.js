@@ -756,8 +756,9 @@ export function buildStation(data, mats, registry, loader, gap, content, options
     var x = gap(trackOrigin, distance);
     group.position.x = x;
     group.visible = Math.abs(x) < S.halfLength + Math.max(40, takeover ? takeover.reach + 30 : 0);
-    // Paint the takeover a leg ahead: while the train stands at the previous stop.
-    if (takeover && Math.abs(x) < 420) takeover.wake();
+    // Paint the takeover a stop ahead: this station and its neighbours (stops are ~190 m apart),
+    // so a first load only fetches the art around where it starts.
+    if (takeover && Math.abs(x) < 260) takeover.wake();
   }
 
   return {

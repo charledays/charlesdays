@@ -14,6 +14,7 @@ export function createUI(root, stations, links, handlers) {
     sub: root.querySelector('[data-station-sub]'),
     visit: root.querySelector('[data-visit]'),
     hint: root.querySelector('[data-scroll-hint]'),
+    hintText: root.querySelector('[data-scroll-text]'),
     dip: root.querySelector('[data-dip]'),
     sound: root.querySelector('[data-sound]'),
     stepOut: root.querySelector('[data-step-out]'),
@@ -86,7 +87,7 @@ export function createUI(root, stations, links, handlers) {
     // At the first stop: "open the doors" while they're shut, then "ride" until the train moves.
     // It goes during any ride and for good once the train has left that first leg.
     var shut = state.phase === 'settle' && state.doors.left === 0;
-    set('hintText', shut ? 'Scroll to open the doors' : 'Scroll to ride', function (t) { el.hint.textContent = t; });
+    set('hintText', shut ? 'Scroll to open the doors' : 'Scroll to ride', function (t) { el.hintText.textContent = t; });
     set('hint', !busy && Math.floor(state.progress) === Math.floor(startProgress), function (on) { el.hint.classList.toggle('is-hidden', !on); });
   }
 
@@ -109,15 +110,17 @@ export function createUI(root, stations, links, handlers) {
   /**
    * Phone gestures, one hint per place: shown there until that place's gesture has been used
    * once (used(key)), then gone for the visit. key: 'look' | 'closed' | 'seat' | 'platform' | 'inspect' | null.
+   * Each is [words, sub-line, gesture]: the gesture ('x' sideways, 'up', 'down') animates a hand
+   * in the pill (index.html), so the hint reads without the words.
    */
   var HINTS = {
     // No "turn your phone" here: iOS only grants motion after the first touch.
-    look: ['Drag left or right to look around', ''],
-    closed: ['Swipe up to open the doors', ''],
+    look: ['Drag left or right to look around', '', 'x'],
+    closed: ['Swipe up to open the doors', '', 'up'],
     // Stepping out has its own arrow in the doorway; the hint only teaches the ride.
-    seat: ['Swipe up for the next stop', ''],
-    platform: ['Swipe left or right to walk', 'Tap the art to look closer \u00b7 swipe down for the train'],
-    inspect: ['Tap or swipe down to step back', '']
+    seat: ['Swipe up for the next stop', '', 'up'],
+    platform: ['Drag left or right to look around', 'Tap the art to look closer \u00b7 swipe down for the train', 'x'],
+    inspect: ['Tap or swipe down to step back', '', 'down']
   };
   var usedHints = {};
   // On a phone the pill is the hint; the desktop's scroll hint stays away.
@@ -130,6 +133,7 @@ export function createUI(root, stations, links, handlers) {
       el.swipeMain.textContent = HINTS[k][0];
       el.swipeSub.textContent = HINTS[k][1];
       el.swipeSub.hidden = !HINTS[k][1];
+      el.swipe.dataset.gesture = HINTS[k][2];
       el.hint.hidden = true;
     });
   }

@@ -65,8 +65,9 @@ export function createCameraRig(camera, options) {
     var tall = 1 - smooth((aspect - 0.62) / (1.25 - 0.62));
     // On tall screens, frame just the doors: every metre of width costs two of ceiling and floor
     // in portrait. The rest of the car is a turn of the head away (setSeatLook).
-    var tallX0 = CAR.doorCenterX - CAR.doorWidth / 2 - 0.04;
-    var tallX1 = CAR.doorCenterX + CAR.doorWidth / 2 + 0.04;
+    // A little room either side of the frames, so the car reads around the doors.
+    var tallX0 = CAR.doorCenterX - CAR.doorWidth / 2 - 0.14;
+    var tallX1 = CAR.doorCenterX + CAR.doorWidth / 2 + 0.14;
     // Look straight ahead (no yaw, no pitch); framing comes from where the seat is, not the angle.
     // In portrait the seat sits further back (a flatter lens) and the eye a little higher.
     base.set(THREE.MathUtils.lerp(0, (tallX0 + tallX1) / 2, tall), THREE.MathUtils.lerp(1.04, 1.12, tall), THREE.MathUtils.lerp(2.72, 3.3, tall));
@@ -83,11 +84,28 @@ export function createCameraRig(camera, options) {
       var hfov = 2 * Math.atan(halfW / dist);
       fov = THREE.MathUtils.clamp(THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(hfov / 2) / aspect)), THREE.MathUtils.lerp(52, 38, tall), 80);
     }
-    camera.fov = fov;
+    seatFov = fov;
+    // Out on the platform the lens opens up again: in portrait about 2.8 m of wall across the
+    // width, so the art has room round it instead of filling the frame.
+    outFov = fov;
+    if (aspect < 1.25) {
+      var wallDist = doorPos.z - WORLD.station.wallZ;
+      var outH = 2 * Math.atan(1.4 / wallDist);
+      var wide = THREE.MathUtils.clamp(THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(outH / 2) / aspect)), 52, 78);
+      outFov = THREE.MathUtils.lerp(fov, Math.max(fov, wide), tall);
+    }
     camera.aspect = aspect;
-    camera.updateProjectionMatrix();
+    setFov(THREE.MathUtils.lerp(seatFov, outFov, smooth(door)));
     return base;
   }
+  var seatFov = 52, outFov = 52;
+  function setFov(f) {
+    if (Math.abs(camera.fov - f) < 0.01 && camera.aspect === lastAspect) return;
+    camera.fov = f;
+    lastAspect = camera.aspect;
+    camera.updateProjectionMatrix();
+  }
+  var lastAspect = 0;
 
   var look = new THREE.Vector3();
 
@@ -96,6 +114,8 @@ export function createCameraRig(camera, options) {
     // Seated, or on the walk out: up out of the seat early, then a curve that lines up with the
     // doors and carries straight through them onto the platform.
     var d = smooth(door);
+    // The lens widens as you walk out onto the platform, and closes again on the way back in.
+    setFov(THREE.MathUtils.lerp(seatFov, outFov, d));
     var a0 = (1 - d) * (1 - d), a1 = 2 * (1 - d) * d, a2 = d * d;
     from.set(
       a0 * base.x + a1 * doorVia.x + a2 * doorPos.x,
