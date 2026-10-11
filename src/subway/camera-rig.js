@@ -139,7 +139,7 @@ export function createCameraRig(camera, options) {
     fromLook.x += spot * d;
     if (inspect > 0) {
       var e = smooth(inspect);
-      from.lerp(inspectNear.set(inspectAt.x, THREE.MathUtils.clamp(inspectAt.y, 1.2, 2.6), WORLD.station.wallZ + 1.35), e);
+      from.lerp(inspectNear.set(inspectAt.x, THREE.MathUtils.clamp(inspectAt.y, 1.2, 2.6), WORLD.station.wallZ + 3), e);
       fromLook.lerp(inspectAt, e);
     }
     var pos = camera.position.copy(from);
