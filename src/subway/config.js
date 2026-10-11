@@ -61,12 +61,10 @@ export var LEG = {
   hold: 1
 };
 
-/** Meters per unit of progress at full speed. A leg's cruise covers ~250 m of tunnel. */
-export var CRUISE_SPEED = 900;
-/** Where the ride starts on load, in legs: cruising through the tunnel toward the first stop. */
-export var START = 0.2;
-/** Scroll length of one leg, in viewport heights. */
-export var SCROLL_SCREENS_PER_LEG = 1.6;
+/** Meters per unit of progress at full speed: about 200 m of track from stop to stop. */
+export var CRUISE_SPEED = 450;
+/** Where the ride starts on load, in legs: standing at the first stop, doors open. */
+export var START = (LEG.open + LEG.dwell) / 2;
 
 /**
  * Station to station from the line map, in seconds on the wall clock. The ride closes the doors
@@ -76,13 +74,13 @@ export var SCROLL_SCREENS_PER_LEG = 1.6;
  * dip to black under prefers-reduced-motion.
  */
 export var TRAVEL = {
-  close: 1.7,
-  travel: 7,
-  perExtraStop: 1.2,
-  maxTravel: 10,
-  chime: 1.0,
-  open: 1.2,
-  reduced: { close: 0.6, travel: 1.4, chime: 0.4, open: 0.5 }
+  close: 0.35,
+  travel: 1.2,
+  perExtraStop: 0.35,
+  maxTravel: 2.8,
+  chime: 0.1,
+  open: 0.4,
+  reduced: { close: 0.3, travel: 0.8, chime: 0.1, open: 0.3 }
 };
 
 /** GET OFF: the push through the doors until the hero fills the frame, then the gallery fades up. Seconds. */

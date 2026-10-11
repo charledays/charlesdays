@@ -1,11 +1,12 @@
 /**
- * Station-to-station ride from the line map: one timed run on the wall clock, built entirely
+ * Station-to-station ride (a scroll step, the line map, a secret door): one timed run on the wall clock, built entirely
  * from the timeline so doors, speed, lurch, lights, signs and audio behave exactly as they do
  * when scrolling. A run is a list of segments, each mapping its own 0..1 onto timeline state:
  *
  *   close   the doors shut (departure chime) and the train holds
  *   travel  pull away, past the platform, through the tunnel, brake along the next platform —
- *           one non-stop run, however many stations it passes
+ *           one non-stop run, however many stations it passes; backward (dir -1) the same run
+ *           plays along the track in reverse, to the stop behind
  *   chime   standing still at the stop: the arrival chime
  *   open    the doors open, ending on the dwell point where GET OFF shows
  *
@@ -43,13 +44,14 @@ export function createJourney(timeline, options) {
 
   /**
    * A run from progress `from` to station `target`, or null when the train is already standing
-   * there with its doors open.
+   * there with its doors open. dir -1 rides backward to the target (only from a standstill).
    */
-  function plan(from, target) {
+  function plan(from, target, dir) {
     var k = Math.floor(from);
     var u = from - k;
     var stopped = u >= LEG.brake;
     var segments = [];
+    var back = dir < 0 && stopped && mod(k, n) !== target;
 
     if (mod(k, n) === target && stopped) {
       if (u >= LEG.open && u <= LEG.dwell) return null;
@@ -60,7 +62,12 @@ export function createJourney(timeline, options) {
 
     var kT;
     var d0;
-    if (stopped) {
+    if (back) {
+      segments.push({ dur: T.close * clamp01((k + 1 - from) / (1 - dwell)) + 0.15, at: stepper(from, k + 1) });
+      d0 = timeline.distanceAt(k + 1);
+      kT = k - 1;
+      while (mod(kT, n) !== target) kT--;
+    } else if (stopped) {
       segments.push({ dur: T.close * clamp01((k + 1 - from) / (1 - dwell)) + 0.15, at: stepper(from, k + 1) });
       d0 = timeline.distanceAt(k + 1);
       kT = k + 1;
@@ -70,14 +77,14 @@ export function createJourney(timeline, options) {
     }
     while (mod(kT, n) !== target) kT++;
     var d1 = timeline.distanceAt(kT + LEG.brake);
-    var legs = (d1 - d0) / timeline.lapLength * n;
+    var legs = Math.abs(d1 - d0) / timeline.lapLength * n;
     var travel = Math.min(T.maxTravel, T.travel + Math.max(0, Math.round(legs) - 1) * T.perExtraStop);
     // Starting part-way along a leg: a shorter ride, but never a lurch.
     if (legs < 1) travel *= Math.max(0.45, legs);
     segments.push({ dur: travel, at: traveller(kT, d0, d1) });
     segments.push({ dur: T.chime, at: stepper(kT + LEG.brake, kT + LEG.settle) });
     segments.push({ dur: T.open, at: stepper(kT + LEG.settle, kT + LEG.open) });
-    segments.push({ dur: 0.3, at: stepper(kT + LEG.open, kT + dwell) });
+    segments.push({ dur: 0.1, at: stepper(kT + LEG.open, kT + dwell) });
     return run(segments, kT + dwell);
   }
 

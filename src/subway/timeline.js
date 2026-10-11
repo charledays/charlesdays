@@ -137,23 +137,6 @@ export function createTimeline(options) {
     return best;
   }
 
-  /**
-   * When scrolling rests mid door-motion, the progress worth settling on (fully open or
-   * fully closed). Null when the resting point is already a stable state.
-   */
-  function restingTarget(progress) {
-    var k = Math.floor(progress);
-    var u = progress - k;
-    var dwellMid = (legs.open + legs.dwell) / 2;
-    if (u > legs.settle && u < legs.open) {
-      return k + (span(u, legs.settle, legs.open) > 0.35 ? dwellMid : legs.settle);
-    }
-    if (u > legs.dwell && u < legs.close) {
-      return k + (span(u, legs.dwell, legs.close) > 0.35 ? legs.close + 0.01 : dwellMid);
-    }
-    return null;
-  }
-
   return {
     /** Legs per lap: the scroll can jump by this much with no visible change. */
     period: stationCount,
@@ -166,7 +149,6 @@ export function createTimeline(options) {
     /** Progress within a leg where the doors stand fully open. */
     dwellPoint: (legs.open + legs.dwell) / 2,
     presenceAt: presenceAt,
-    at: at,
-    restingTarget: restingTarget
+    at: at
   };
 }

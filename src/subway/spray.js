@@ -515,5 +515,12 @@ export function createSpray(options) {
     onHiss(false);
   }
 
-  return { group: group, update: update, buff: buff, dispose: dispose };
+  return {
+    group: group,
+    update: update,
+    buff: buff,
+    /** On touch, the Spray toggle is on: drags paint instead of riding. */
+    touchArmed: function () { return armedTouch; },
+    dispose: dispose
+  };
 }

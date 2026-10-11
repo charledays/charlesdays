@@ -1,138 +1,112 @@
 /**
- * Native document scroll → journey progress, on an endless loop. The spacer holds three laps
- * of the line; the page starts in the middle one, and whenever the scroll drifts into the
- * outer half-laps it jumps one lap back toward the middle. The timeline is identical a lap
- * apart, so the jump can't be seen, and the ride runs forever in both directions.
+ * Step input: one gesture, one station. A wheel gesture (mouse notch or trackpad flick), a
+ * swipe, or a key press asks for the next stop (down / swipe up / ArrowDown, PageDown, Space,
+ * ArrowRight) or the previous one (up / swipe down / ArrowUp, PageUp, ArrowLeft) through
+ * onStep(+1 | -1). The page itself never scrolls.
  *
- * The visual progress follows the scroll position on a damped spring, so it always settles
- * exactly on the progress the scroll position maps to. If scrolling stops while the doors are
- * half-way, it eases to the nearest stable state via resting(progress).
+ * A trackpad keeps sending wheel events long after the finger lifts (momentum), so a gesture
+ * only counts once the wheel has been quiet for a moment since the last one. Input while
+ * locked (a ride, GET OFF, the gallery) is dropped, not queued.
  *
- * While a timed ride (journey.js) or the gallery has the scene, lock(true) takes the page out
- * of the visitor's hands; park(p) then puts the scroll exactly where that ride ended.
+ * The scene's resting progress lives here too: progress() is where the train stands between
+ * rides, park(p) moves it there when a ride ends.
  */
-import { SCROLL_SCREENS_PER_LEG } from './config.js';
 
-var FOLLOW = 5.5;
-var REST_MS = 520;
-var LAPS = 3;
-/** Keys that scroll the page; swallowed while locked. */
-var SCROLL_KEYS = { ' ': 1, PageUp: 1, PageDown: 1, Home: 1, End: 1, ArrowUp: 1, ArrowDown: 1 };
+/** Wheel travel (px) that makes a gesture, and the quiet gap (ms) that ends one. */
+var WHEEL_STEP = 30;
+var WHEEL_QUIET = 220;
+/** Minimum swipe (px), and it must be mostly vertical. */
+var SWIPE = 40;
+var NEXT_KEYS = { ArrowDown: 1, PageDown: 1, ' ': 1, ArrowRight: 1 };
+var PREV_KEYS = { ArrowUp: 1, PageUp: 1, ArrowLeft: 1 };
 
 export function createScroll(options) {
-  var period = options.period;
-  var spacer = options.spacer;
-  var reduceMotion = options.reduceMotion;
-  var resting = options.resting;
-  var legs = period * LAPS;
-
-  spacer.style.height = 'calc(' + (legs * SCROLL_SCREENS_PER_LEG * 100).toFixed(1) + 'svh + 100svh)';
-  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-
-  function legPx() {
-    return Math.max(1, document.documentElement.scrollHeight - window.innerHeight) / legs;
-  }
-  function targetProgress() {
-    return window.scrollY / legPx();
-  }
-  function scrollToProgress(p, smooth) {
-    window.scrollTo({ top: p * legPx(), behavior: smooth && !reduceMotion ? 'smooth' : 'auto' });
-  }
-
-  var current = period + options.start;
-  scrollToProgress(current, false);
-
-  var restTimer = null;
-  var programmatic = false;
+  var onStep = options.onStep;
+  /** True when a touch on the scene should paint, not ride (spray armed on touch). */
+  var touchPaints = options.touchPaints || function () { return false; };
+  var current = options.start;
   var locked = false;
 
-  function jump(top) {
-    programmatic = true;
-    window.scrollTo({ top: top, behavior: 'auto' });
-    requestAnimationFrame(function () { programmatic = false; });
-  }
+  document.documentElement.classList.add('is-stepped');
 
-  /** Keep the scroll inside the middle lap, jumping a whole lap (invisible) when it strays. */
-  function recentre() {
-    var p = targetProgress();
-    var shift = p < period * 0.5 ? period : p > period * 2.5 ? -period : 0;
-    if (!shift) return;
-    jump(window.scrollY + shift * legPx());
-    current += shift;
-  }
-
-  function onScroll() {
-    recentre();
-    clearTimeout(restTimer);
-    if (programmatic || locked) return;
-    restTimer = setTimeout(function () {
-      var to = resting(targetProgress());
-      if (to == null) return;
-      programmatic = true;
-      scrollToProgress(to, true);
-      setTimeout(function () { programmatic = false; }, 900);
-    }, REST_MS);
-  }
-  window.addEventListener('scroll', onScroll, { passive: true });
-
-  /**
-   * The progress a ride starts from, folded into the first half of the middle lap so wherever
-   * the ride ends is still on the page.
-   */
-  function rideStart() {
-    clearTimeout(restTimer);
-    if (current > period * 1.5) current -= period;
-    return current;
-  }
-
-  /** Park the page on progress p (the end of a ride), without any visible motion. */
-  function park(p) {
-    current = p;
-    jump(p * legPx());
-  }
-
-  // Locked: wheel, touch and keys can't move the train (overflow alone doesn't hold on iOS).
-  // Anything inside [data-own-scroll] (the gallery) still scrolls itself.
+  // Anything inside [data-own-scroll] (the gallery) scrolls itself and never steps the train.
   function ownScroll(e) { return e.target && e.target.closest && e.target.closest('[data-own-scroll]'); }
-  function onBlock(e) {
-    if (locked && !ownScroll(e)) e.preventDefault();
+
+  function step(dir) {
+    if (!locked) onStep(dir);
   }
+
+  // Wheel: accumulate within a gesture, fire once, then wait for the wheel to go quiet.
+  var wheelSum = 0;
+  var wheelFired = false;
+  var wheelTimer = null;
+  function onWheel(e) {
+    if (ownScroll(e)) return;
+    e.preventDefault();
+    clearTimeout(wheelTimer);
+    wheelTimer = setTimeout(function () { wheelSum = 0; wheelFired = false; }, WHEEL_QUIET);
+    if (wheelFired) return;
+    // Lines / pages to pixels, roughly.
+    var dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1);
+    wheelSum += dy;
+    if (Math.abs(wheelSum) < WHEEL_STEP) return;
+    wheelFired = true;
+    step(wheelSum > 0 ? 1 : -1);
+  }
+
+  var touch = null;
+  function onTouchStart(e) {
+    touch = e.touches.length === 1 && !ownScroll(e) && !touchPaints() ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null;
+  }
+  function onTouchMove(e) {
+    if (!ownScroll(e)) e.preventDefault();
+  }
+  function onTouchEnd(e) {
+    if (!touch) return;
+    var t = e.changedTouches[0];
+    var dx = t.clientX - touch.x, dy = t.clientY - touch.y;
+    touch = null;
+    if (Math.abs(dy) >= SWIPE && Math.abs(dy) > Math.abs(dx) * 1.2) step(dy < 0 ? 1 : -1);
+  }
+
   function onKey(e) {
-    if (locked && SCROLL_KEYS[e.key] && !ownScroll(e)) e.preventDefault();
+    if (ownScroll(e) || e.altKey || e.ctrlKey || e.metaKey) return;
+    var tag = e.target && e.target.tagName;
+    // Space and arrows on a control belong to the control.
+    if (tag === 'BUTTON' || tag === 'A' || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    var dir = NEXT_KEYS[e.key] ? 1 : PREV_KEYS[e.key] ? -1 : 0;
+    if (!dir) return;
+    e.preventDefault();
+    if (!e.repeat) step(dir);
   }
-  window.addEventListener('wheel', onBlock, { passive: false });
-  window.addEventListener('touchmove', onBlock, { passive: false });
+
+  window.addEventListener('wheel', onWheel, { passive: false });
+  window.addEventListener('touchstart', onTouchStart, { passive: true });
+  window.addEventListener('touchmove', onTouchMove, { passive: false });
+  window.addEventListener('touchend', onTouchEnd);
   window.addEventListener('keydown', onKey);
 
   function lock(on) {
     locked = on;
-    clearTimeout(restTimer);
     document.documentElement.classList.toggle('is-locked', on);
   }
 
-  function sample(dt) {
-    var target = targetProgress();
-    if (reduceMotion) current = target;
-    else current += (target - current) * (1 - Math.exp(-dt * FOLLOW));
-    if (Math.abs(target - current) < 1e-5) current = target;
-    return current;
-  }
-
   function dispose() {
-    clearTimeout(restTimer);
-    window.removeEventListener('scroll', onScroll);
-    window.removeEventListener('wheel', onBlock);
-    window.removeEventListener('touchmove', onBlock);
+    clearTimeout(wheelTimer);
+    window.removeEventListener('wheel', onWheel);
+    window.removeEventListener('touchstart', onTouchStart);
+    window.removeEventListener('touchmove', onTouchMove);
+    window.removeEventListener('touchend', onTouchEnd);
     window.removeEventListener('keydown', onKey);
+    document.documentElement.classList.remove('is-stepped', 'is-locked');
   }
 
   return {
-    sample: sample,
-    rideStart: rideStart,
-    park: park,
-    lock: lock,
-    /** Where the visual progress currently is. */
+    /** Where the train stands between rides. */
     progress: function () { return current; },
+    /** A ride ended at progress p. */
+    park: function (p) { current = p; },
+    lock: lock,
     dispose: dispose
   };
 }

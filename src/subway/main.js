@@ -1,10 +1,12 @@
 /**
  * Subway V1 — wiring. Builds the independent parts and runs one render loop:
  *
- *   scroll → progress → timeline.at() → state → doors / exterior / lighting / rig / signage / ui / audio
+ *   ride (journey.js) or resting progress → timeline state → doors / exterior / lighting / rig / signage / ui / audio
  *
- * A ride from the line map (journey.js) takes the scroll's place as the source of state until
- * the doors are open at the new stop. GET OFF at a station with a takeover pushes the camera
+ * The train stands at a stop with its doors open until something asks for a ride: a scroll
+ * step (scroll.js: one gesture, one station, either way round the loop), a stop on the line
+ * map, or a secret door. The ride is the source of state until the doors are open at the new
+ * stop; then the train rests there. GET OFF at a station with a takeover pushes the camera
  * toward the hero piece and opens the gallery over the paused scene; RETURN TO TRAIN hands back.
  *
  * No part talks to another; they all read the same state object.
@@ -109,10 +111,10 @@ function start() {
     rideToStation(stations.findIndex(function (s) { return s.href === href; }));
   });
 
-  /** Ride to station i (doors shut, depart, tunnel, arrive, doors open). False if nothing ran. */
-  function rideToStation(i) {
+  /** Ride to station i (doors shut, depart, tunnel, arrive, doors open); dir -1 rides backward. False if nothing ran. */
+  function rideToStation(i, dir) {
     if (busy || frozen != null || i < 0) return false;
-    run = journey.plan(scroll.rideStart(), i);
+    run = journey.plan(scroll.progress(), i, dir || 1);
     if (!run) return false;
     setBusy('ride');
     return true;
@@ -294,12 +296,16 @@ function start() {
     }
   });
   var scroll = createScroll({
-    period: timeline.period,
     start: START,
-    spacer: document.querySelector('[data-scroll-spacer]'),
-    reduceMotion: reduceMotion,
-    resting: timeline.restingTarget
+    // One step, one station, round the loop either way.
+    onStep: function (dir) {
+      var n = stations.length;
+      var here = ((Math.floor(scroll.progress()) % n) + n) % n;
+      rideToStation((here + dir + n) % n, dir);
+    },
+    touchPaints: spray.touchArmed
   });
+  if (!finePointer) root.querySelector('[data-scroll-hint]').textContent = 'Swipe to ride';
   // ?p=0.76 freezes the journey at that progress (stills, design review).
   var frozen = params.has('p') ? parseFloat(params.get('p')) || 0 : null;
 
@@ -334,7 +340,7 @@ function start() {
         setBusy(null);
       }
     } else {
-      state = timeline.at(frozen != null ? frozen : scroll.sample(dt));
+      state = timeline.at(frozen != null ? frozen : scroll.progress());
     }
     var dip = reduceMotion ? state.dip : 0;
     if (leaving) {

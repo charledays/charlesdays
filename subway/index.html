@@ -34,7 +34,6 @@ body{overflow-x:hidden;}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
 
 #subwayCanvas{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;}
-.scroll-spacer{position:relative;z-index:-1;pointer-events:none;}
 
 /* Film grade: vignette + grain, no postprocessing pass. */
 .grade{position:fixed;inset:0;z-index:5;pointer-events:none;overflow:hidden;}
@@ -107,6 +106,8 @@ body{overflow-x:hidden;}
 
 /* While a ride or the gallery has the scene, the page itself doesn't scroll. */
 html.is-locked,html.is-locked body{overflow:hidden;}
+/* Stepped ride: the page never scrolls; gestures ask for the next or previous stop. */
+html.is-stepped,html.is-stepped body{overflow:hidden;overscroll-behavior:none;height:100%;}
 
 /* Station gallery (GET OFF): a full-screen viewer over the paused train. */
 .gallery{position:fixed;inset:0;z-index:40;background:#080807;color:var(--ink);opacity:0;transition:opacity .45s ease;--accent:var(--line);}
@@ -252,7 +253,6 @@ html.is-locked,html.is-locked body{overflow:hidden;}
   </div>
 
   <div class="debug" data-debug hidden></div>
-  <div class="scroll-spacer" data-scroll-spacer></div>
 </div>
 <script type="module" src="/src/subway/main.js"></script>
 </body>

@@ -37,7 +37,7 @@ export var TAKEOVER = {
   lightbox: { width: 1.24, height: 1.86, bottom: 0.78 },
   column: 0.34,
   /** Tunnel-wall campaign either side: panel offsets past the platform's end. */
-  approach: [6, 14, 25, 37, 52, 66]
+  approach: [5, 13, 22, 31, 40, 48]
 };
 
 /** The order panels run in from the hero outward, per side. */

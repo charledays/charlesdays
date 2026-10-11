@@ -1,15 +1,16 @@
 /**
  * Camera rig. The camera always faces the doors from a seat across the aisle; there is no
  * orbit. Framing adapts to the aspect ratio (on a phone the doors fill the frame). Motion is
- * layered on top: ride vibration and lurch derived from the timeline (distance, speed,
- * acceleration — so a given scroll position always shakes the same way) and a faint idle hum.
+ * layered on top: a slow ride float on the clock, scaled by speed (rides are short and fast, so
+ * anything keyed to track distance would flicker frame to frame), a lurch that eases after the
+ * timeline's acceleration, and a faint idle hum.
  * GET OFF: aimAt(hero, w, h) sets the hero piece the push ends on, setPush(f) moves along it:
  * 0 = seated, 1 = square in front of the hero, close enough that it fills the frame. The path
  * curves through the middle of the doorway (a quadratic through a point on the seat's sight
  * line past the doors), and the gaze swings from straight ahead onto the hero early on.
  */
 import * as THREE from 'three';
-import { CAR, WORLD } from './config.js';
+import { CAR } from './config.js';
 
 function smooth(x) { x = x < 0 ? 0 : x > 1 ? 1 : x; return x * x * (3 - 2 * x); }
 
@@ -21,11 +22,6 @@ function noise(x) {
   return h(i) * (1 - u) + h(i + 1) * u;
 }
 
-/** Double clack of a bogie's two axles crossing a rail joint. */
-function jointBump(distance) {
-  var j = ((distance % WORLD.railJoint) + WORLD.railJoint) % WORLD.railJoint;
-  return Math.exp(-j * 9) + 0.8 * Math.exp(-Math.abs(j - 2.2) * 9);
-}
 
 export function createCameraRig(camera, options) {
   var reduceMotion = options.reduceMotion;
@@ -33,6 +29,9 @@ export function createCameraRig(camera, options) {
   var base = new THREE.Vector3();
   var target = new THREE.Vector3();
   var time = 0;
+  /** Eased lurch and speed, so the car settles into motion instead of snapping. */
+  var lurch = 0;
+  var ride = 0;
   var push = 0;
   var hero = new THREE.Vector3();
   var heroSize = { w: 3.4, h: 2.3 };
@@ -99,14 +98,14 @@ export function createCameraRig(camera, options) {
     }
 
     if (!reduceMotion) {
-      var v = state.speed;
-      // Ride: low wobble, finer buzz, joint clacks; all scale with speed.
-      var bounce = v * (0.0055 * noise(distance * 0.55) + 0.0022 * noise(distance * 2.7 + 17)) +
-        v * 0.0042 * jointBump(distance);
-      var sway = v * 0.008 * noise(distance * 0.21 + 41);
-      var roll = v * 0.0035 * noise(distance * 0.3 + 5);
-      // Lurch: pulling away leaves you behind (-x), braking throws you forward (+x).
-      var lurch = -state.accel * 0.045;
+      ride += (state.speed - ride) * (1 - Math.exp(-dt * 3));
+      var v = ride;
+      // Ride: a slow float and a gentle sway, a few cycles a second at most.
+      var bounce = v * (0.0035 * noise(time * 1.6) + 0.0012 * noise(time * 3.4 + 17));
+      var sway = v * 0.006 * noise(time * 0.55 + 41);
+      var roll = v * 0.002 * noise(time * 0.7 + 5);
+      // Lurch: pulling away leaves you behind (-x), braking throws you forward (+x). Eased.
+      lurch += (-state.accel * 0.035 - lurch) * (1 - Math.exp(-dt * 4));
       // Idle hum from the motors when standing.
       var hum = (1 - v) * 0.0004 * Math.sin(time * 31);
       pos.x += lurch + sway * 0.4;
