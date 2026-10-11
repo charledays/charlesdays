@@ -1,36 +1,34 @@
 /**
- * DOM overlay: station card (kicker, name, GET OFF), route progress, scroll hint, end card,
- * and the reduced-motion dip. Reads timeline state; writes to the DOM only when values change.
+ * DOM overlay: GET OFF (only while the doors are open), a screen-reader station announcement,
+ * the line map's links (visually hidden; the map in the scene is the visible version), the
+ * scroll hint, and the reduced-motion dip. Reads timeline state; writes to the DOM only when
+ * values change.
  */
 import { LINE } from './stations.js';
 
-export function createUI(root, stations, handlers) {
+export function createUI(root, stations, links, handlers) {
   var el = {
-    card: root.querySelector('[data-station-card]'),
     kicker: root.querySelector('[data-station-kicker]'),
     name: root.querySelector('[data-station-name]'),
     sub: root.querySelector('[data-station-sub]'),
     getOff: root.querySelector('[data-get-off]'),
     toast: root.querySelector('[data-toast]'),
-    route: root.querySelector('[data-route]'),
-    train: root.querySelector('[data-route-train]'),
     hint: root.querySelector('[data-scroll-hint]'),
-    end: root.querySelector('[data-end-card]'),
     dip: root.querySelector('[data-dip]'),
     sound: root.querySelector('[data-sound]')
   };
 
   root.style.setProperty('--line', LINE.color);
-  root.querySelectorAll('[data-line-bullet]').forEach(function (b) { b.textContent = LINE.bullet; });
 
-  // Route: a stop dot per station, plus the "next" stub.
-  var dots = stations.map(function (s, i) {
-    var dot = document.createElement('li');
-    dot.className = 'route__stop';
-    dot.innerHTML = '<span class="route__dot"></span><span class="route__label"></span>';
-    dot.querySelector('.route__label').textContent = s.name;
-    el.route.insertBefore(dot, el.route.querySelector('.route__next'));
-    return dot;
+  // The line map's stops as real links, for keyboards and screen readers.
+  var list = root.querySelector('[data-line-links]');
+  links.forEach(function (stop) {
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.href = stop.href;
+    a.textContent = stop.name;
+    li.appendChild(a);
+    list.appendChild(li);
   });
 
   var last = {};
@@ -71,18 +69,10 @@ export function createUI(root, stations, handlers) {
       el.kicker.textContent = v;
     });
     set('getOff', state.canGetOff, function (on) {
-      el.card.classList.toggle('is-open', on);
       el.getOff.hidden = !on;
       if (station) el.getOff.textContent = station.getOff.label;
     });
     set('hint', state.progress < 0.015, function (on) { el.hint.classList.toggle('is-hidden', !on); });
-    set('end', state.atEnd, function (on) { el.end.classList.toggle('is-visible', on); });
-
-    // Route marker: the dots sit evenly at (k + 1) / (stops + 2); the train lands on a dot at its stop.
-    var stops = stations.length;
-    var pos = Math.min((state.progress + 0.3) / (stops + 2), 1);
-    el.train.style.setProperty('--t', pos.toFixed(4));
-    dots.forEach(function (d, k) { d.classList.toggle('is-current', k === i && stopped); d.classList.toggle('is-passed', state.progress > k + 1); });
   }
 
   function setDip(v) {

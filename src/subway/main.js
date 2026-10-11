@@ -7,7 +7,7 @@
  */
 import * as THREE from 'three';
 import { CAR, LEG, CRUISE_SPEED, TAIL_LEGS } from './config.js';
-import { stations } from './stations.js';
+import { stations, mapStops, adArt } from './stations.js';
 import { createTimeline } from './timeline.js';
 import { createScroll } from './scroll.js';
 import { createMaterials } from './materials.js';
@@ -16,6 +16,8 @@ import { createShell } from './carriage/shell.js';
 import { createSeats } from './carriage/seats.js';
 import { createSignage } from './carriage/signage.js';
 import { createLighting } from './carriage/lighting.js';
+import { createLineMap } from './carriage/line-map.js';
+import { createAdStrip } from './carriage/ad-strip.js';
 import { createTunnel } from './exterior/tunnel.js';
 import { buildStation } from './exterior/station.js';
 import { createCameraRig } from './camera-rig.js';
@@ -52,7 +54,9 @@ function start() {
     { x0: CAR.doorCenterX - CAR.doorWidth / 2 - CAR.doorTravel - 0.18, count: 6, dir: -1 }
   ]);
   var signage = createSignage(mats, registry, shell, stations);
-  scene.add(shell.group, doors.group, seats.group, signage.group);
+  var lineMap = createLineMap(mats, registry, mapStops);
+  var adStrip = createAdStrip(mats, registry, shell, adArt);
+  scene.add(shell.group, doors.group, seats.group, signage.group, lineMap.group, adStrip.group);
   var lighting = createLighting(scene);
 
   // Outside.
@@ -66,9 +70,10 @@ function start() {
     return false;
   }
 
-  var rig = createCameraRig(camera, { reduceMotion: reduceMotion, pointerParallax: finePointer });
+  var rig = createCameraRig(camera, { reduceMotion: reduceMotion });
   var audio = createAudio();
-  var ui = createUI(root, stations, { toggleSound: function () { return audio.setEnabled(!audio.isEnabled()); } });
+  var detachMap = lineMap.attach(camera, canvas, function (href) { window.location.href = href; });
+  var ui = createUI(root, stations, mapStops, { toggleSound: function () { return audio.setEnabled(!audio.isEnabled()); } });
   var scroll = createScroll({
     total: timeline.total,
     spacer: document.querySelector('[data-scroll-spacer]'),
@@ -110,6 +115,7 @@ function start() {
     // In the tunnel the windows go dark and mirror-like; at a station you see straight through.
     mats.glass.opacity = 0.42 - 0.3 * presence;
     rig.update(state, distance, dt);
+    adStrip.update(camera.position.x);
     signage.update(state);
     ui.update(state);
     ui.setDip(reduceMotion ? state.dip : 0);
@@ -132,7 +138,7 @@ function start() {
     window.removeEventListener('resize', resize);
     document.removeEventListener('visibilitychange', onVisibility);
     scroll.dispose();
-    rig.dispose();
+    detachMap();
     audio.dispose();
     registry.geometries.forEach(function (g) { g.dispose(); });
     registry.materials.forEach(function (m) { m.dispose(); });

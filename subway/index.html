@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>The Universe of Charle$Dahs — Subway</title>
+<title>The Universe of Charle$Days — Subway</title>
 <meta name="description" content="Ride the line through the work of Charles Days.">
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -39,7 +39,7 @@ body{overflow-x:hidden;}
 /* Film grade: vignette + grain, no postprocessing pass. */
 .grade{position:fixed;inset:0;z-index:5;pointer-events:none;overflow:hidden;}
 .grade::before{content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse 115% 95% at 50% 48%,transparent 52%,rgba(0,0,0,0.42) 82%,rgba(0,0,0,0.8) 100%);}
+  background:radial-gradient(ellipse 140% 130% at 50% 50%,transparent 62%,rgba(0,0,0,0.28) 88%,rgba(0,0,0,0.5) 100%);}
 .grade::after{content:'';position:absolute;inset:-50%;opacity:0.07;mix-blend-mode:screen;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.4 -0.35'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   animation:grain .9s steps(6) infinite;}
@@ -50,12 +50,7 @@ body{overflow-x:hidden;}
 .hud{position:fixed;inset:0;z-index:10;pointer-events:none;
   padding:calc(env(safe-area-inset-top,0px) + var(--edge)) var(--edge) calc(env(safe-area-inset-bottom,0px) + var(--edge));}
 .hud a,.hud button{pointer-events:auto;}
-.bullet{display:inline-grid;place-items:center;width:1.7em;height:1.7em;border-radius:50%;
-  background:var(--line);color:#fff;font:700 0.85em/1 var(--sign);flex:none;}
 
-.brand{position:absolute;top:calc(env(safe-area-inset-top,0px) + var(--edge));left:var(--edge);
-  display:flex;align-items:center;gap:0.6rem;font:700 0.72rem/1.1 var(--display);letter-spacing:0.14em;text-transform:uppercase;}
-.brand small{display:block;font-weight:500;color:var(--muted);letter-spacing:0.12em;}
 .top-right{position:absolute;top:calc(env(safe-area-inset-top,0px) + var(--edge));right:var(--edge);display:flex;gap:0.5rem;}
 .chip{font:600 0.68rem/1 var(--sign);letter-spacing:0.12em;text-transform:uppercase;color:var(--ink);
   background:var(--panel);border:1px solid rgba(243,239,231,0.18);padding:0.6rem 0.8rem;border-radius:999px;
@@ -63,36 +58,17 @@ body{overflow-x:hidden;}
 .chip:hover{border-color:rgba(243,239,231,0.5);}
 .chip:focus-visible,.get-off:focus-visible{outline:2px solid var(--line);outline-offset:3px;}
 
-.station-card{position:absolute;left:var(--edge);bottom:calc(env(safe-area-inset-bottom,0px) + var(--edge));
-  width:min(25rem,calc(100% - var(--edge) * 2));
-  background:var(--panel);border-top:3px solid var(--line);padding:0.95rem 1.1rem 1.05rem;
-  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);transition:transform .5s cubic-bezier(.22,1,.36,1);}
-.station-card__kicker{font:600 0.66rem/1 var(--sign);letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);
-  display:flex;align-items:center;gap:0.5rem;}
-.station-card__name{font:700 clamp(1.7rem,5vw,2.5rem)/1.02 var(--sign);letter-spacing:-0.01em;margin-top:0.45rem;}
-.station-card__sub{font-size:0.82rem;color:var(--muted);margin-top:0.3rem;}
-.get-off{margin-top:0.95rem;display:inline-flex;align-items:center;gap:0.6rem;
+.get-off{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + var(--edge) + 1rem);transform:translateX(-50%);
+  display:inline-flex;align-items:center;gap:0.6rem;
   font:700 0.9rem/1 var(--sign);letter-spacing:0.16em;color:#111;background:#f2c318;border:0;
   padding:0.85rem 1.2rem;cursor:pointer;animation:rise .45s cubic-bezier(.22,1,.36,1);}
 .get-off::after{content:'→';font-size:1.05rem;}
 .get-off:hover{background:#ffd73a;}
 .get-off[hidden]{display:none;}
-@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.toast{margin-top:0.7rem;font-size:0.8rem;color:var(--ink);}
+@keyframes rise{from{opacity:0;transform:translate(-50%,6px)}to{opacity:1;transform:translateX(-50%)}}
+.toast{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + var(--edge) + 4.6rem);transform:translateX(-50%);
+  white-space:nowrap;font-size:0.82rem;color:var(--ink);background:var(--panel);padding:0.45rem 0.8rem;}
 .toast[hidden]{display:none;}
-
-.route{position:absolute;right:var(--edge);top:50%;transform:translateY(-50%);list-style:none;
-  height:min(42vh,22rem);width:2px;background:rgba(243,239,231,0.22);display:flex;flex-direction:column;justify-content:space-evenly;}
-.route__stop{position:relative;}
-.route__dot{position:absolute;left:50%;top:0;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);
-  background:#030303;border:2px solid var(--ink);}
-.route__stop.is-passed .route__dot,.route__stop.is-current .route__dot{background:var(--line);border-color:var(--line);}
-.route__label{position:absolute;right:16px;top:0;transform:translateY(-50%);white-space:nowrap;
-  font:600 0.64rem/1 var(--sign);letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
-.route__stop.is-current .route__label{color:var(--ink);}
-.route__next .route__dot{border-style:dashed;opacity:0.6;}
-.route__train{position:absolute;left:50%;top:calc(var(--t,0) * 100%);width:6px;height:18px;border-radius:3px;
-  background:var(--ink);transform:translate(-50%,-50%);box-shadow:0 0 12px rgba(255,255,255,0.4);}
 
 .scroll-hint{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + var(--edge));transform:translateX(-50%);
   display:flex;flex-direction:column;align-items:center;gap:0.55rem;font:600 0.66rem/1 var(--sign);
@@ -100,11 +76,6 @@ body{overflow-x:hidden;}
 .scroll-hint::after{content:'';width:1px;height:2.4rem;background:linear-gradient(var(--ink),transparent);animation:hint 1.8s ease-in-out infinite;transform-origin:top;}
 @keyframes hint{0%{transform:scaleY(0);opacity:1}60%{transform:scaleY(1);opacity:1}100%{transform:scaleY(1);opacity:0}}
 .scroll-hint.is-hidden{opacity:0;}
-
-.end-card{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;opacity:0;transition:opacity .8s ease;}
-.end-card.is-visible{opacity:1;}
-.end-card p:first-child{font:600 0.7rem/1 var(--sign);letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);}
-.end-card p:last-child{font:700 clamp(1.6rem,5vw,2.6rem)/1.1 var(--sign);margin-top:0.6rem;}
 
 .debug{position:fixed;left:50%;top:var(--edge);transform:translateX(-50%);z-index:20;font:12px/1 ui-monospace,monospace;
   background:#000;color:#0f0;padding:4px 8px;}
@@ -116,16 +87,12 @@ body{overflow-x:hidden;}
 .no-webgl .fallback{display:grid;}
 
 @media (max-width:640px){
-  .route{right:12px;height:30vh;}
-  .route__label{display:none;}
-  .brand{font-size:0.64rem;}
-  .station-card{width:calc(100% - var(--edge) * 2 - 18px);}
   .scroll-hint{bottom:auto;top:56%;}
 }
 @media (prefers-reduced-motion:reduce){
   .grade::after,.scroll-hint::after{animation:none;}
   .get-off{animation:none;}
-  .station-card,.end-card,.scroll-hint{transition:none;}
+  .scroll-hint{transition:none;}
 }
 </style>
 </head>
@@ -137,30 +104,22 @@ body{overflow-x:hidden;}
   <div class="dip" data-dip aria-hidden="true"></div>
 
   <div class="hud">
-    <div class="brand">
-      <span class="bullet" data-line-bullet aria-hidden="true">C</span>
-      <span>The Universe of<small>Charle$Dahs</small></span>
-    </div>
     <div class="top-right">
       <button type="button" class="chip" data-sound aria-pressed="false">Sound off</button>
       <a class="chip" href="/">Exit</a>
     </div>
 
-    <ol class="route" data-route aria-label="Route">
-      <li class="route__stop route__next" aria-hidden="true"><span class="route__dot"></span><span class="route__label">Next stop</span></li>
-      <li class="route__train" data-route-train aria-hidden="true"></li>
-    </ol>
-
-    <section class="station-card" data-station-card aria-live="polite">
-      <p class="station-card__kicker"><span class="bullet" data-line-bullet aria-hidden="true">C</span><span data-station-kicker>Next stop</span></p>
-      <h1 class="station-card__name" data-station-name></h1>
-      <p class="station-card__sub" data-station-sub></p>
-      <button type="button" class="get-off" data-get-off hidden>GET OFF</button>
-      <p class="toast" data-toast role="status" hidden></p>
+    <section class="sr-only" aria-live="polite">
+      <p data-station-kicker>Next stop</p>
+      <h1 data-station-name></h1>
+      <p data-station-sub></p>
+    </section>
+    <nav class="sr-only" aria-label="Line map"><ul data-line-links></ul></nav>
+    <button type="button" class="get-off" data-get-off hidden>GET OFF</button>
+    <p class="toast" data-toast role="status" hidden></p>
     </section>
 
     <p class="scroll-hint" data-scroll-hint>Scroll to ride</p>
-    <div class="end-card" data-end-card aria-hidden="true"><p>Next stop</p><p>Coming soon</p></div>
   </div>
 
   <div class="debug" data-debug hidden></div>

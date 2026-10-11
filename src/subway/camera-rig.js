@@ -2,8 +2,7 @@
  * Camera rig. The camera always faces the doors from a seat across the aisle; there is no
  * orbit. Framing adapts to the aspect ratio (on a phone the doors fill the frame). Motion is
  * layered on top: ride vibration and lurch derived from the timeline (distance, speed,
- * acceleration — so a given scroll position always shakes the same way), a faint idle hum,
- * and optional pointer parallax on fine pointers.
+ * acceleration — so a given scroll position always shakes the same way) and a faint idle hum.
  */
 import * as THREE from 'three';
 import { CAR, WORLD } from './config.js';
@@ -26,38 +25,34 @@ function jointBump(distance) {
 
 export function createCameraRig(camera, options) {
   var reduceMotion = options.reduceMotion;
-  var pointerEnabled = options.pointerParallax && !reduceMotion;
 
   var base = new THREE.Vector3();
   var target = new THREE.Vector3();
-  var pointer = { x: 0, y: 0, sx: 0, sy: 0 };
   var time = 0;
 
   /** Framing for the current aspect: wide = composition A, tall = doors fill the frame. */
   function frame(aspect) {
     var tall = 1 - smooth((aspect - 0.62) / (1.25 - 0.62));
-    var doorX = CAR.doorCenterX;
-    base.set(THREE.MathUtils.lerp(0.3, doorX + 0.3, tall), 1.2, 2.72);
-    target.set(THREE.MathUtils.lerp(-0.1, doorX + 0.08, tall), 1.1, 0);
-    var fov = 58;
+    // On tall screens, frame the doors plus the line map beside them (out to the pocket panel's edge).
+    var tallX0 = CAR.doorCenterX - CAR.doorWidth / 2 - 0.08;
+    var tallX1 = CAR.doorCenterX + CAR.doorWidth / 2 + CAR.doorTravel + 0.07;
+    // Look straight ahead (no yaw, no pitch); framing comes from where the seat is, not the angle.
+    base.set(THREE.MathUtils.lerp(0, (tallX0 + tallX1) / 2, tall), 1.04, 2.72);
+    target.set(base.x, base.y, 0);
+    // Tight lens: the frame tops out at the ad cards, no ceiling.
+    var fov = 52;
     if (aspect < 1.25) {
       // Fit about 2 m of wall (doors plus frames) across the width.
       var dist = base.z - target.z;
-      var halfW = THREE.MathUtils.lerp(1.6, 1.02, tall);
+      var halfW = THREE.MathUtils.lerp(1.6, (tallX1 - tallX0) / 2 + 0.04, tall);
       var hfov = 2 * Math.atan(halfW / dist);
-      fov = THREE.MathUtils.clamp(THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(hfov / 2) / aspect)), 58, 76);
+      fov = THREE.MathUtils.clamp(THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(hfov / 2) / aspect)), 52, 76);
     }
     camera.fov = fov;
     camera.aspect = aspect;
     camera.updateProjectionMatrix();
     return base;
   }
-
-  function onPointer(e) {
-    pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
-    pointer.y = (e.clientY / window.innerHeight) * 2 - 1;
-  }
-  if (pointerEnabled) window.addEventListener('pointermove', onPointer, { passive: true });
 
   var look = new THREE.Vector3();
 
@@ -83,23 +78,11 @@ export function createCameraRig(camera, options) {
       look.x += lurch * 0.7;
       look.y += bounce * 0.6;
       camera.up.set(Math.sin(roll), Math.cos(roll), 0);
-
-      if (pointerEnabled) {
-        var k = 1 - Math.exp(-dt * 3);
-        pointer.sx += (pointer.x - pointer.sx) * k;
-        pointer.sy += (pointer.y - pointer.sy) * k;
-        pos.x += pointer.sx * 0.07;
-        pos.y -= pointer.sy * 0.035;
-      }
     } else {
       camera.up.set(0, 1, 0);
     }
     camera.lookAt(look);
   }
 
-  function dispose() {
-    if (pointerEnabled) window.removeEventListener('pointermove', onPointer);
-  }
-
-  return { frame: frame, update: update, dispose: dispose };
+  return { frame: frame, update: update };
 }

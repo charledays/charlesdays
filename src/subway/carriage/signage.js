@@ -1,6 +1,7 @@
 /**
- * Printed and lit signage inside the car: the ad cards in the cove, the destination display
- * over the doors (redrawn only when its text changes), and the framed route map.
+ * Printed and lit signage inside the car: the destination display over the doors (redrawn only
+ * when its text changes), the framed route map, and the lettering on the bench base. The ad
+ * cards live in ad-strip.js.
  */
 import * as THREE from 'three';
 import { CAR } from '../config.js';
@@ -9,53 +10,6 @@ import { textCanvas, canvasTexture, tracker, frameGeometry } from '../geo.js';
 import { rng } from '../materials.js';
 
 var SIGN_FONT = '"Helvetica Neue", Helvetica, Arial, sans-serif';
-
-var ADS = [
-  { bg: '#0d0d0d', fg: '#f26a1b', lines: ['THE UNIVERSE OF', 'CHARLE$DAHS'] },
-  { bg: '#1f3f8f', fg: '#ffffff', lines: ['IF YOU SEE SOMETHING,', 'PAINT SOMETHING.'] },
-  { bg: '#efe6d2', fg: '#b3201c', lines: ['TATTOO · FILM', 'ART DIRECTION'] },
-  { bg: '#f2c318', fg: '#111111', lines: ['STAND CLEAR OF', 'THE CLOSING DOORS'] },
-  { bg: '#181818', fg: '#efe6d2', lines: ['MANIFIESTO', 'NOW SHOWING'] },
-  { bg: '#b3201c', fg: '#ffffff', lines: ['DAYS OFF', 'ARE FOR PAINTING'] }
-];
-
-function adStripTexture(registry, widthM, heightM) {
-  var pxPerM = 520;
-  var w = Math.min(4096, Math.round(widthM * pxPerM));
-  var h = Math.round(heightM * pxPerM);
-  var scale = w / widthM;
-  var rand = rng(71);
-  var c = textCanvas(w, h, function (ctx) {
-    ctx.fillStyle = '#c9c2b4';
-    ctx.fillRect(0, 0, w, h);
-    var cardW = 0.71 * scale, gap = 0.05 * scale, margin = h * 0.12;
-    var x = gap, i = 0;
-    while (x + cardW < w) {
-      var ad = ADS[i % ADS.length];
-      ctx.fillStyle = '#8f8a80';
-      ctx.fillRect(x - 4, margin - 4, cardW + 8, h - margin * 2 + 8);
-      ctx.fillStyle = ad.bg;
-      ctx.fillRect(x, margin, cardW, h - margin * 2);
-      ctx.fillStyle = ad.fg;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      var fs = (h - margin * 2) * 0.22;
-      ctx.font = '700 ' + fs + 'px ' + SIGN_FONT;
-      ctx.fillText(ad.lines[0], x + cardW / 2, h / 2 - fs * 0.62, cardW * 0.9);
-      ctx.fillText(ad.lines[1], x + cardW / 2, h / 2 + fs * 0.62, cardW * 0.9);
-      // Sun-faded, scratched plastic over each card.
-      ctx.fillStyle = 'rgba(255,250,235,' + (0.05 + rand() * 0.1).toFixed(2) + ')';
-      ctx.fillRect(x, margin, cardW, h - margin * 2);
-      x += cardW + gap;
-      i++;
-    }
-    for (var k = 0; k < 900; k++) {
-      ctx.fillStyle = 'rgba(30,24,16,' + (rand() * 0.12).toFixed(3) + ')';
-      ctx.fillRect(rand() * w, rand() * h, 1 + rand() * 3, 1);
-    }
-  });
-  return canvasTexture(c, registry);
-}
 
 function drawBullet(ctx, x, y, r) {
   ctx.fillStyle = LINE.color;
@@ -113,7 +67,7 @@ function mapTexture(registry) {
     ctx.font = '700 30px ' + SIGN_FONT;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
-    ctx.fillText('Charle$Dahs Universe — Route Map', 80, 38);
+    ctx.fillText('Charle$Days Universe — Route Map', 80, 38);
     // Wear.
     for (var n = 0; n < 1400; n++) {
       ctx.fillStyle = 'rgba(40,30,20,' + (rand() * 0.08).toFixed(3) + ')';
@@ -127,17 +81,6 @@ export function createSignage(mats, registry, shell, stations) {
   var keep = tracker(registry);
   var group = new THREE.Group();
   group.name = 'signage';
-
-  // Ad cards laid onto the cove.
-  var stripW = CAR.wallX1 - CAR.wallX0;
-  var adMat = new THREE.MeshStandardMaterial({
-    map: adStripTexture(registry, stripW, shell.cove.length), roughness: 0.45, envMap: mats.envMap, envMapIntensity: 0.5
-  });
-  registry.materials.push(adMat);
-  var ads = new THREE.Mesh(keep(new THREE.PlaneGeometry(stripW, shell.cove.length)), adMat);
-  ads.position.set((CAR.wallX0 + CAR.wallX1) / 2, shell.cove.y, shell.cove.z + 0.004);
-  ads.rotation.x = shell.cove.tilt;
-  group.add(ads);
 
   // Destination display over the doors: amber-on-black, hung just under the cove.
   var dispW = 1.05, dispH = 0.17;
@@ -190,6 +133,33 @@ export function createSignage(mats, registry, shell, stations) {
   var mapFrame = new THREE.Mesh(keep(frameGeometry(mapW, mapH, 0.025, 0.02, 0.005)), mats.steel);
   mapFrame.position.set(mapX, 1.42, 0.005);
   group.add(map, mapFrame);
+
+  // "HECHO / CON / CRITERIO" lettered small in the bottom-left corner of the bench base.
+  var baseH = 0.19;
+  var baseW = baseH * 1.5;
+  var credit = textCanvas(768, 512, function (ctx, w, h) {
+    ctx.fillStyle = 'rgba(28,26,24,0.9)';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    var size = h * 0.27;
+    ctx.font = '700 ' + size + 'px ' + SIGN_FONT;
+    ['HECHO', 'CON', 'CRITERIO'].forEach(function (line, i) {
+      ctx.fillText(line, w * 0.04, size * (i + 1) * 1.08, w * 0.92);
+    });
+    // Scuffed where shoes have kicked it.
+    var rand = rng(131);
+    ctx.globalCompositeOperation = 'destination-out';
+    for (var k = 0; k < 500; k++) {
+      ctx.fillStyle = 'rgba(0,0,0,' + (0.2 + rand() * 0.6).toFixed(2) + ')';
+      ctx.fillRect(rand() * w, h * (0.35 + rand() * 0.65), 1 + rand() * 5, 1 + rand() * 2);
+    }
+  });
+  var creditMat = new THREE.MeshStandardMaterial({ map: canvasTexture(credit, registry), transparent: true, roughness: 0.7 });
+  registry.materials.push(creditMat);
+  var creditMesh = new THREE.Mesh(keep(new THREE.PlaneGeometry(baseW, baseH)), creditMat);
+  // Tucked into the bottom-left corner of the base.
+  creditMesh.position.set(CAR.seat.x0 + 0.035 + baseW / 2, 0.03 + baseH / 2, CAR.seat.depth - 0.05 + 0.002);
+  group.add(creditMesh);
 
   function update(state) {
     var station = state.stationIndex >= 0 ? stations[state.stationIndex] : null;

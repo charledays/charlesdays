@@ -78,7 +78,7 @@ export function createShell(mats, registry) {
 
   // Cove: the angled strip between wall and ceiling that carries the ad cards.
   var coveRise = CAR.ceilingY - top;
-  var coveRun = 0.42;
+  var coveRun = 0.1;
   var coveLen = Math.hypot(coveRise, coveRun);
   var cove = new THREE.Mesh(keep(new THREE.PlaneGeometry(CAR.wallX1 - CAR.wallX0, coveLen)), mats.panel);
   cove.position.set((CAR.wallX0 + CAR.wallX1) / 2, top + coveRise / 2, coveRun / 2);
@@ -117,7 +117,8 @@ export function createShell(mats, registry) {
 
   // Grab rail, drops to the ceiling, and stanchions at the seat ends.
   var railZ = 0.6;
-  var railY = 1.9;
+  // Just under the ad strip, so the rail frames the ads instead of slicing through them.
+  var railY = 1.74;
   var railR = 0.017;
   var rail = new THREE.Mesh(keep(new THREE.CylinderGeometry(railR, railR, CAR.wallX1 - CAR.wallX0, 12)), mats.chrome);
   rail.rotation.z = Math.PI / 2;

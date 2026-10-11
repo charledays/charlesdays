@@ -20,7 +20,7 @@ export var CAR = {
   wallX0: -5.2,
   wallX1: 5.4,
   wallTop: 1.94,
-  ceilingY: 2.18,
+  ceilingY: 2.3,
   aisleDepth: 2.9,
   seat: { x0: 0.5, count: 10, width: 0.47, height: 0.44, depth: 0.46 }
 };
@@ -67,6 +67,9 @@ export var CRUISE_SPEED = 900;
 export var TAIL_LEGS = 0.45;
 /** Scroll length of one leg, in viewport heights. */
 export var SCROLL_SCREENS_PER_LEG = 4.4;
+
+/** The Charle$Days tag (white on transparent), cropped to its lettering. Used on the doors and the line map. */
+export var WORDMARK = { src: '/images/brand/charlesdays-wordmark.png', crop: [86, 258, 2138, 1181], size: [2262, 1696] };
 
 export var PALETTE = {
   steel: 0xb9bcbf,

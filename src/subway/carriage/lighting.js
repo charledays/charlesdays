@@ -26,7 +26,7 @@ export function createLighting(scene) {
   scene.add(strip);
   tubes.push(strip);
   // Fill from the passenger side of the car (the fixture behind the camera).
-  var fill = new THREE.PointLight(0xf2f4ff, 1.4, 0, 1.6);
+  var fill = new THREE.PointLight(0xf2f4ff, 0.8, 0, 1.6);
   fill.position.set(0.2, CAR.ceilingY - 0.1, 2.7);
   scene.add(fill);
 

@@ -127,8 +127,7 @@ export function createTimeline(options) {
       doors: doorsAt(legIndex, u),
       /** Station the train is heading to or standing at; -1 past the last one. */
       stationIndex: inTail ? -1 : legIndex,
-      canGetOff: phase === 'dwell',
-      atEnd: inTail && u >= tail * 0.85
+      canGetOff: phase === 'dwell'
     };
   }
 

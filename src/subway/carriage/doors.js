@@ -3,7 +3,7 @@
  * pockets behind the wall lining. set(left, right) takes 0 (closed) .. 1 (open) per leaf.
  */
 import * as THREE from 'three';
-import { CAR } from '../config.js';
+import { CAR, WORDMARK } from '../config.js';
 import { roundedRect, tracker } from '../geo.js';
 
 export function createDoors(mats, registry) {
@@ -12,6 +12,34 @@ export function createDoors(mats, registry) {
   group.name = 'doors';
 
   var leafW = CAR.doorWidth / 2;
+
+  // One big Charle$Days tag painted across both leaves below the windows. Each leaf carries its
+  // half, so the tag splits down the seam as the doors open.
+  var TAG = WORDMARK;
+  var tagW = CAR.doorWidth * 0.86;
+  var tagH = tagW * (TAG.crop[3] - TAG.crop[1]) / (TAG.crop[2] - TAG.crop[0]);
+  function tagHalf(u0) {
+    var geo = keep(new THREE.PlaneGeometry(tagW / 2, tagH));
+    var uv = geo.attributes.uv;
+    for (var i = 0; i < uv.count; i++) uv.setX(i, u0 + uv.getX(i) * 0.5);
+    return geo;
+  }
+  var tagHalves = { '-1': tagHalf(0), '1': tagHalf(0.5) };
+  var tagMat = new THREE.MeshStandardMaterial({
+    color: 0xf4f1ea, emissive: 0x2a2826, transparent: true, alphaTest: 0.35, roughness: 0.55, opacity: 0
+  });
+  registry.materials.push(tagMat);
+  new THREE.TextureLoader().load(TAG.src, function (tex) {
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 8;
+    tex.repeat.set((TAG.crop[2] - TAG.crop[0]) / TAG.size[0], (TAG.crop[3] - TAG.crop[1]) / TAG.size[1]);
+    tex.offset.set(TAG.crop[0] / TAG.size[0], 1 - TAG.crop[3] / TAG.size[1]);
+    registry.textures.push(tex);
+    tagMat.map = tex;
+    tagMat.opacity = 0.92;
+    tagMat.needsUpdate = true;
+  });
+
   var h = CAR.doorHeight;
   var win = CAR.doorWindow;
   var depth = 0.035;
@@ -54,6 +82,11 @@ export function createDoors(mats, registry) {
     var kick = new THREE.Mesh(keep(new THREE.BoxGeometry(leafW - 0.04, 0.16, 0.006)), mats.steelDark);
     kick.position.set(side * 0.01, 0.1, depth + 0.004);
     leaf.add(kick);
+
+    // This leaf's half of the tag, butted against the meeting edge (painted over the rubber).
+    var tag = new THREE.Mesh(tagHalves[side], tagMat);
+    tag.position.set(-side * (leafW / 2 - tagW / 4), 0.74, depth + 0.012);
+    leaf.add(tag);
     return leaf;
   }
 
