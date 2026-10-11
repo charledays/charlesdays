@@ -331,5 +331,5 @@ export function createPanelAd(registry, opts) {
   acrylic.position.fromArray(opts.position);
   acrylic.position.z += 0.003;
   group.add(print, acrylic);
-  return { group: group };
+  return { group: group, print: print };
 }

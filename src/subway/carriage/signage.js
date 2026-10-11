@@ -134,6 +134,46 @@ export function createSignage(mats, registry, shell, stations) {
   mapFrame.position.set(mapX, 1.42, 0.005);
   group.add(map, mapFrame);
 
+  // MTA-style placard over the side window: black field, white rule along the top, white
+  // Helvetica centred, no line bullet (it's a motto, not a stop). Between window frame and grab rail,
+  // centred over the first three seats.
+  // The sign is cut to the lettering plus a little padding each side.
+  var MOTTO = 'Hecho Con Criterio';
+  var mottoH = 0.11, mottoPx = 176, mottoFont = '700 ' + mottoPx * 0.52 + 'px ' + SIGN_FONT;
+  var measure = document.createElement('canvas').getContext('2d');
+  measure.font = mottoFont;
+  var mottoPxW = Math.ceil(measure.measureText(MOTTO).width + mottoPx * 0.9);
+  var mottoW = mottoH * mottoPxW / mottoPx;
+  // "Criterio" is a secret door (main.js): its span across the sign, in uv.
+  var mottoFull = measure.measureText(MOTTO).width;
+  var criterioU0 = ((mottoPxW - mottoFull) / 2 + measure.measureText('Hecho Con ').width) / mottoPxW;
+  var criterioU1 = ((mottoPxW + mottoFull) / 2) / mottoPxW;
+  var motto = textCanvas(mottoPxW, mottoPx, function (ctx, w, h) {
+    var rand = rng(53);
+    ctx.fillStyle = '#121212';
+    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = '#f2f2f0';
+    ctx.fillRect(h * 0.16, h * 0.12, w - h * 0.32, h * 0.045);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = mottoFont;
+    ctx.fillText(MOTTO, w / 2, h * 0.62);
+    // Years behind the acrylic: dust and the odd scuff.
+    for (var n = 0; n < 300; n++) {
+      ctx.fillStyle = 'rgba(255,255,255,' + (rand() * 0.035).toFixed(3) + ')';
+      ctx.fillRect(rand() * w, rand() * h, 1 + rand() * 3, 1);
+    }
+  });
+  var mottoMat = new THREE.MeshStandardMaterial({ map: canvasTexture(motto, registry), roughness: 0.3, envMap: mats.envMap, envMapIntensity: 0.4 });
+  registry.materials.push(mottoMat);
+  var mottoSign = new THREE.Mesh(keep(new THREE.PlaneGeometry(mottoW, mottoH)), mottoMat);
+  var mottoX = CAR.seat.x0 + CAR.seat.width * 1.5;
+  var mottoY = CAR.window.y1 + 0.03 + mottoH / 2 + 0.012;
+  mottoSign.position.set(mottoX, mottoY, 0.012);
+  var mottoFrame = new THREE.Mesh(keep(frameGeometry(mottoW, mottoH, 0.012, 0.012, 0.003)), mats.steel);
+  mottoFrame.position.set(mottoX, mottoY, 0.004);
+  group.add(mottoSign, mottoFrame);
+
   /** A sprayed tag from a transparent PNG: a plane sized to `width` (m), placed by `place`. */
   function loadTag(src, aspect, width, place) {
     var mat = new THREE.MeshStandardMaterial({ transparent: true, alphaTest: 0.2, roughness: 0.6, opacity: 0 });
@@ -159,11 +199,16 @@ export function createSignage(mats, registry, shell, stations) {
   });
 
   function update(state) {
-    var station = stations[state.stationIndex];
+    var station = state.station || stations[state.stationIndex];
     var stopped = state.phase === 'settle' || state.phase === 'opening' || state.phase === 'dwell' ||
       state.phase === 'closing' || state.phase === 'hold';
     drawDisplay(stopped ? 'THIS IS' : 'NEXT STOP', station.name);
   }
 
-  return { group: group, update: update };
+  return {
+    group: group,
+    update: update,
+    /** The motto sign, and whether a ray hit's uv lands on the word "Criterio". */
+    motto: { mesh: mottoSign, onCriterio: function (uv) { return uv.x >= criterioU0 - 0.01 && uv.x <= criterioU1 + 0.01; } }
+  };
 }

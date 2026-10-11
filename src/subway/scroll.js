@@ -8,20 +8,16 @@
  * exactly on the progress the scroll position maps to. If scrolling stops while the doors are
  * half-way, it eases to the nearest stable state via resting(progress).
  *
- * rideTo(p) is the express run used by the line map: the page jumps straight to p and the
- * visual progress tweens there on its own clock; express() reports the run so the scene can
- * render it as one non-stop ride. Any scroll from the visitor cancels it.
+ * While a timed ride (journey.js) or the gallery has the scene, lock(true) takes the page out
+ * of the visitor's hands; park(p) then puts the scroll exactly where that ride ended.
  */
 import { SCROLL_SCREENS_PER_LEG } from './config.js';
 
 var FOLLOW = 5.5;
 var REST_MS = 520;
 var LAPS = 3;
-/** Express run length: a base plus a bit per leg covered, seconds. */
-var EXPRESS_BASE = 1.1;
-var EXPRESS_PER_LEG = 0.45;
-
-function easeInOut(x) { return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
+/** Keys that scroll the page; swallowed while locked. */
+var SCROLL_KEYS = { ' ': 1, PageUp: 1, PageDown: 1, Home: 1, End: 1, ArrowUp: 1, ArrowDown: 1 };
 
 export function createScroll(options) {
   var period = options.period;
@@ -48,7 +44,7 @@ export function createScroll(options) {
 
   var restTimer = null;
   var programmatic = false;
-  var express = null;
+  var locked = false;
 
   function jump(top) {
     programmatic = true;
@@ -63,14 +59,12 @@ export function createScroll(options) {
     if (!shift) return;
     jump(window.scrollY + shift * legPx());
     current += shift;
-    if (express) { express.p0 += shift; express.p1 += shift; }
   }
 
   function onScroll() {
     recentre();
     clearTimeout(restTimer);
-    if (programmatic) return;
-    express = null;
+    if (programmatic || locked) return;
     restTimer = setTimeout(function () {
       var to = resting(targetProgress());
       if (to == null) return;
@@ -81,25 +75,42 @@ export function createScroll(options) {
   }
   window.addEventListener('scroll', onScroll, { passive: true });
 
-  /** Express run to progress p (the visitor picked a stop on the line map). */
-  function rideTo(p) {
+  /**
+   * The progress a ride starts from, folded into the first half of the middle lap so wherever
+   * the ride ends is still on the page.
+   */
+  function rideStart() {
     clearTimeout(restTimer);
-    // Bring the start into the first half of the middle lap so the destination stays on the page.
-    if (current > period * 1.5) { current -= period; p -= period; }
-    var from = current;
-    jump(p * legPx());
+    if (current > period * 1.5) current -= period;
+    return current;
+  }
+
+  /** Park the page on progress p (the end of a ride), without any visible motion. */
+  function park(p) {
     current = p;
-    if (reduceMotion) return;
-    // On the wall clock, not frame time, so a slow device still arrives on time.
-    express = { p0: from, p1: p, start: performance.now(), dur: EXPRESS_BASE + EXPRESS_PER_LEG * Math.abs(p - from), f: 0 };
+    jump(p * legPx());
+  }
+
+  // Locked: wheel, touch and keys can't move the train (overflow alone doesn't hold on iOS).
+  // Anything inside [data-own-scroll] (the gallery) still scrolls itself.
+  function ownScroll(e) { return e.target && e.target.closest && e.target.closest('[data-own-scroll]'); }
+  function onBlock(e) {
+    if (locked && !ownScroll(e)) e.preventDefault();
+  }
+  function onKey(e) {
+    if (locked && SCROLL_KEYS[e.key] && !ownScroll(e)) e.preventDefault();
+  }
+  window.addEventListener('wheel', onBlock, { passive: false });
+  window.addEventListener('touchmove', onBlock, { passive: false });
+  window.addEventListener('keydown', onKey);
+
+  function lock(on) {
+    locked = on;
+    clearTimeout(restTimer);
+    document.documentElement.classList.toggle('is-locked', on);
   }
 
   function sample(dt) {
-    if (express) {
-      express.f = easeInOut(Math.min(1, (performance.now() - express.start) / 1000 / express.dur));
-      if (express.f >= 1) { express = null; return current; }
-      return express.p0 + (express.p1 - express.p0) * express.f;
-    }
     var target = targetProgress();
     if (reduceMotion) current = target;
     else current += (target - current) * (1 - Math.exp(-dt * FOLLOW));
@@ -110,13 +121,16 @@ export function createScroll(options) {
   function dispose() {
     clearTimeout(restTimer);
     window.removeEventListener('scroll', onScroll);
+    window.removeEventListener('wheel', onBlock);
+    window.removeEventListener('touchmove', onBlock);
+    window.removeEventListener('keydown', onKey);
   }
 
   return {
     sample: sample,
-    rideTo: rideTo,
-    /** The express run in progress ({ p0, p1, f }), or null. */
-    express: function () { return express; },
+    rideStart: rideStart,
+    park: park,
+    lock: lock,
     /** Where the visual progress currently is. */
     progress: function () { return current; },
     dispose: dispose

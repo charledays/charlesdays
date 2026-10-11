@@ -76,7 +76,8 @@ export function createLighting(scene) {
     wash.position.x = Math.max(CAR.window.x0, Math.min(CAR.window.x1, x));
     wash.intensity = 2.4 * lit * Math.exp(-across * across * 2);
 
-    hemi.intensity = 0.6 + 0.35 * presence;
+    // Darker between stops, so the streak lamps and the next platform carry the frame.
+    hemi.intensity = 0.42 + 0.53 * presence;
     return power;
   }
 

@@ -68,6 +68,26 @@ export var START = 0.2;
 /** Scroll length of one leg, in viewport heights. */
 export var SCROLL_SCREENS_PER_LEG = 1.6;
 
+/**
+ * Station to station from the line map, in seconds on the wall clock. The ride closes the doors
+ * (departure chime), pulls out past the platform, runs the tunnel, brakes along the next
+ * platform, then chimes and opens. `travel` covers pulling away to standing still; a ride that
+ * skips stops gets `perExtraStop` more, up to `maxTravel`. `reduced` replaces the travel with a
+ * dip to black under prefers-reduced-motion.
+ */
+export var TRAVEL = {
+  close: 1.7,
+  travel: 7,
+  perExtraStop: 1.2,
+  maxTravel: 10,
+  chime: 1.0,
+  open: 1.2,
+  reduced: { close: 0.6, travel: 1.4, chime: 0.4, open: 0.5 }
+};
+
+/** GET OFF: the push through the doors until the hero fills the frame, then the gallery fades up. Seconds. */
+export var GET_OFF = { push: 1.8, fade: 0.45 };
+
 /** The Charle$Days tag (white on transparent), cropped to its lettering. Used on the doors and the line map. */
 export var WORDMARK = { src: '/images/brand/charlesdays-wordmark.png', crop: [86, 258, 2138, 1181], size: [2262, 1696] };
 

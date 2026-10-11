@@ -3,6 +3,10 @@
  * orbit. Framing adapts to the aspect ratio (on a phone the doors fill the frame). Motion is
  * layered on top: ride vibration and lurch derived from the timeline (distance, speed,
  * acceleration — so a given scroll position always shakes the same way) and a faint idle hum.
+ * GET OFF: aimAt(hero, w, h) sets the hero piece the push ends on, setPush(f) moves along it:
+ * 0 = seated, 1 = square in front of the hero, close enough that it fills the frame. The path
+ * curves through the middle of the doorway (a quadratic through a point on the seat's sight
+ * line past the doors), and the gaze swings from straight ahead onto the hero early on.
  */
 import * as THREE from 'three';
 import { CAR, WORLD } from './config.js';
@@ -29,6 +33,28 @@ export function createCameraRig(camera, options) {
   var base = new THREE.Vector3();
   var target = new THREE.Vector3();
   var time = 0;
+  var push = 0;
+  var hero = new THREE.Vector3();
+  var heroSize = { w: 3.4, h: 2.3 };
+  var via = new THREE.Vector3();
+  var pushTo = new THREE.Vector3();
+
+  function setPush(f) { push = f; }
+
+  /** The hero (world centre, size in metres): fixes the path's bend and its end. */
+  function aimAt(center, w, h) {
+    hero.copy(center);
+    heroSize.w = w;
+    heroSize.h = h;
+    // Through the doors: on the line from the seat to the door centre, 1.5 m past the threshold.
+    var t = (base.z + 1.5) / base.z;
+    via.set(base.x + (CAR.doorCenterX - base.x) * t, 1.25, -1.5);
+    // The end: distance at which the hero covers the frame both ways.
+    var vf = THREE.MathUtils.degToRad(camera.fov) / 2;
+    var hf = Math.atan(Math.tan(vf) * camera.aspect);
+    var d = Math.min((h / 2) / Math.tan(vf), (w / 2) / Math.tan(hf)) * 0.97;
+    pushTo.set(center.x, center.y, center.z + d);
+  }
 
   /** Framing for the current aspect: wide = composition A, tall = doors fill the frame. */
   function frame(aspect) {
@@ -60,6 +86,17 @@ export function createCameraRig(camera, options) {
     time += dt;
     var pos = camera.position.copy(base);
     look.copy(target);
+    if (push > 0) {
+      // Ease in and out along the curve; the gaze settles on the hero in the first half.
+      var e = push * push * (3 - 2 * push);
+      var a = (1 - e) * (1 - e), b = 2 * (1 - e) * e, c = e * e;
+      pos.set(
+        a * base.x + b * via.x + c * pushTo.x,
+        a * base.y + b * via.y + c * pushTo.y,
+        a * base.z + b * via.z + c * pushTo.z
+      );
+      look.lerp(hero, smooth(push / 0.5));
+    }
 
     if (!reduceMotion) {
       var v = state.speed;
@@ -84,5 +121,5 @@ export function createCameraRig(camera, options) {
     camera.lookAt(look);
   }
 
-  return { frame: frame, update: update };
+  return { frame: frame, update: update, setPush: setPush, aimAt: aimAt };
 }

@@ -1,7 +1,8 @@
 /**
- * DOM overlay: GET OFF (only while the doors are open), a screen-reader station announcement,
- * the line map's links (visually hidden; the map in the scene is the visible version), the
- * scroll hint, and the reduced-motion dip. Reads timeline state; writes to the DOM only when
+ * DOM overlay: GET OFF (only while the doors are open and no ride or GET OFF is running), a
+ * screen-reader station announcement, the line map's links (visually hidden; the map in the
+ * scene is the visible version, and both ride the train there), the scroll hint, the dip, and the Easter Egg card (shown in place of GET OFF while
+ * the doors stand open at the secret stop). Reads timeline state; writes to the DOM only when
  * values change.
  */
 import { LINE } from './stations.js';
@@ -14,7 +15,8 @@ export function createUI(root, stations, links, handlers) {
     getOff: root.querySelector('[data-get-off]'),
     hint: root.querySelector('[data-scroll-hint]'),
     dip: root.querySelector('[data-dip]'),
-    sound: root.querySelector('[data-sound]')
+    sound: root.querySelector('[data-sound]'),
+    egg: root.querySelector('[data-egg]')
   };
 
   root.style.setProperty('--line', LINE.color);
@@ -26,6 +28,10 @@ export function createUI(root, stations, links, handlers) {
     var a = document.createElement('a');
     a.href = stop.href;
     a.textContent = stop.name;
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      handlers.ride(stations.indexOf(stop));
+    });
     li.appendChild(a);
     list.appendChild(li);
   });
@@ -37,9 +43,17 @@ export function createUI(root, stations, links, handlers) {
     apply(value);
   }
 
+  var current = null;
+  var busy = false;
   el.getOff.addEventListener('click', function () {
-    var station = stations[last.station];
-    if (station) window.location.href = station.href;
+    if (current && !busy) handlers.getOff(current);
+  });
+
+  // "Keep riding" puts the card away until the next visit to the stop.
+  var eggDismissed = false;
+  root.querySelector('[data-egg-close]').addEventListener('click', function () {
+    eggDismissed = true;
+    el.egg.hidden = true;
   });
 
   el.sound.addEventListener('click', function () {
@@ -51,20 +65,25 @@ export function createUI(root, stations, links, handlers) {
   var startProgress = null;
 
   function update(state) {
-    var i = state.stationIndex;
-    var station = stations[i];
+    var station = state.station || stations[state.stationIndex];
+    current = station;
     var stopped = /settle|opening|dwell|closing|hold/.test(state.phase);
     var arriving = state.phase === 'brake';
     if (startProgress == null) startProgress = state.progress;
 
-    set('station', i, function () {
+    set('station', station.id, function () {
       el.name.textContent = station.name;
       el.sub.textContent = station.note;
     });
     set('kicker', stopped ? 'This is' : arriving ? 'Now arriving' : 'Next stop', function (v) {
       el.kicker.textContent = v;
     });
-    set('getOff', state.canGetOff, function (on) { el.getOff.hidden = !on; });
+    set('getOff', state.canGetOff && !station.secret && !busy, function (on) { el.getOff.hidden = !on; });
+    var egg = state.canGetOff && !!station.reward;
+    set('egg', egg, function (on) {
+      if (!on) eggDismissed = false;
+      el.egg.hidden = !on || eggDismissed;
+    });
     // The hint goes once the ride has started.
     set('hint', Math.abs(state.progress - startProgress) < 0.015, function (on) { el.hint.classList.toggle('is-hidden', !on); });
   }
@@ -73,5 +92,13 @@ export function createUI(root, stations, links, handlers) {
     el.dip.style.opacity = v.toFixed(3);
   }
 
-  return { update: update, setDip: setDip };
+  return {
+    update: update,
+    setDip: setDip,
+    /** While a ride or GET OFF is running, GET OFF stays put away. */
+    setBusy: function (on) { busy = on; },
+    focusGetOff: function () { if (!el.getOff.hidden) el.getOff.focus({ preventScroll: true }); },
+    /** The pointer is over the open doorway: GET OFF answers, since a click there does the same. */
+    hintGetOff: function (on) { el.getOff.classList.toggle('is-hinted', on); }
+  };
 }

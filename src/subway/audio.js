@@ -1,7 +1,7 @@
 /**
  * Ride audio, synthesized with Web Audio (no files). Off until the visitor turns it on.
  * It only listens to timeline state: rumble follows speed, wheels clack at rail joints,
- * doors hiss open and chime before closing.
+ * the arrival chime rings once the train stands, doors hiss open and chime before closing.
  */
 import { WORLD } from './config.js';
 
@@ -112,6 +112,8 @@ export function createAudio() {
       burst({ freq: 760, q: 2, gain: 0.2 * v, decay: 0.07, delay: 0.09 });
     }
     if (lastPhase !== phase) {
+      // Arrival: rising two-tone as the train comes to a stand, before the doors open.
+      if (phase === 'settle' && lastPhase === 'brake') { tone(523, 0.05, 0.6, 0.11); tone(784, 0.4, 1.0, 0.11); }
       if (phase === 'opening' && lastPhase === 'settle') burst({ type: 'highpass', freq: 2500, gain: 0.18, attack: 0.03, decay: 0.7 });
       // Two-tone chime, then the leaves close.
       if (phase === 'closing' && lastPhase === 'dwell') { tone(659, 0, 0.6, 0.12); tone(523, 0.32, 0.9, 0.12); }

@@ -8,6 +8,8 @@ import * as THREE from 'three';
 import { WORLD, CAR } from '../config.js';
 import { LINE } from '../stations.js';
 import { tracker, textCanvas, canvasTexture, frameGeometry } from '../geo.js';
+import { createTakeover, TAKEOVER } from './takeover.js';
+import { rng } from '../materials.js';
 
 var SIGN_FONT = '"Helvetica Neue", Helvetica, Arial, sans-serif';
 var TABLET_FONT = 'Georgia, "Times New Roman", serif';
@@ -64,6 +66,111 @@ function hangingSignTexture(registry, name) {
   return canvasTexture(c, registry);
 }
 
+/**
+ * Platform floor: poured concrete in slabs, speckled aggregate, scuffs and old stains. One tile
+ * covers FLOOR_TILE metres; shared by every station.
+ */
+var FLOOR_TILE = 3.6;
+var floorCache = null;
+function platformFloorTexture(registry) {
+  if (floorCache) return floorCache;
+  var rand = rng(907);
+  var c = textCanvas(1024, 1024, function (ctx, w, h) {
+    ctx.fillStyle = '#4a4744';
+    ctx.fillRect(0, 0, w, h);
+    // Broad mottling, then aggregate.
+    for (var k = 0; k < 90; k++) {
+      var r = w * (0.04 + rand() * 0.12);
+      var x = rand() * w, y = rand() * h;
+      var g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      var dark = rand() < 0.55;
+      g.addColorStop(0, dark ? 'rgba(30,26,22,0.16)' : 'rgba(150,145,135,0.1)');
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(x - r, y - r, r * 2, r * 2);
+    }
+    for (var a = 0; a < 26000; a++) {
+      var v = rand();
+      ctx.fillStyle = v < 0.5 ? 'rgba(30,28,25,0.35)' : 'rgba(170,165,155,0.3)';
+      ctx.fillRect(rand() * w, rand() * h, 1 + rand() * 1.6, 1 + rand() * 1.6);
+    }
+    // Scuffs from foot traffic, a few dark stains (gum, spills).
+    for (var s = 0; s < 260; s++) {
+      ctx.strokeStyle = 'rgba(20,18,16,' + (0.05 + rand() * 0.12).toFixed(3) + ')';
+      ctx.lineWidth = 1 + rand() * 3;
+      var sx = rand() * w, sy = rand() * h, len = 8 + rand() * 40, ang = rand() * Math.PI;
+      ctx.beginPath();
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(sx + Math.cos(ang) * len, sy + Math.sin(ang) * len);
+      ctx.stroke();
+    }
+    for (var d = 0; d < 40; d++) {
+      ctx.fillStyle = 'rgba(18,16,14,' + (0.25 + rand() * 0.35).toFixed(2) + ')';
+      ctx.beginPath();
+      ctx.ellipse(rand() * w, rand() * h, 2 + rand() * 6, 2 + rand() * 5, rand() * 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // Slab joints: every half tile, darker with a lighter worn lip.
+    [0, 0.5].forEach(function (f) {
+      ctx.fillStyle = 'rgba(20,18,16,0.6)';
+      ctx.fillRect(f * w, 0, 3, h);
+      ctx.fillRect(0, f * h, w, 3);
+      ctx.fillStyle = 'rgba(160,155,145,0.25)';
+      ctx.fillRect(f * w + 3, 0, 1, h);
+      ctx.fillRect(0, f * h + 3, w, 1);
+    });
+  });
+  floorCache = canvasTexture(c, registry);
+  floorCache.wrapS = floorCache.wrapT = THREE.RepeatWrapping;
+  return floorCache;
+}
+
+/** Platform-edge tactile strip: safety yellow, truncated domes in rows, worn in the middle. */
+var stripCache = null;
+function tactileTexture(registry) {
+  if (stripCache) return stripCache;
+  var rand = rng(41);
+  var c = textCanvas(512, 256, function (ctx, w, h) {
+    ctx.fillStyle = '#c9a21a';
+    ctx.fillRect(0, 0, w, h);
+    var step = w / 12;
+    for (var y = step / 2; y < h; y += step) {
+      for (var x = step / 2 + ((y / step | 0) % 2) * step / 2; x < w; x += step) {
+        var g = ctx.createRadialGradient(x - 3, y - 3, 1, x, y, step * 0.32);
+        g.addColorStop(0, 'rgba(255,236,140,0.9)');
+        g.addColorStop(0.7, 'rgba(190,150,20,1)');
+        g.addColorStop(1, 'rgba(90,70,10,0.8)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(x, y, step * 0.32, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    for (var k = 0; k < 500; k++) {
+      ctx.fillStyle = 'rgba(30,25,15,' + (rand() * 0.25).toFixed(3) + ')';
+      ctx.fillRect(rand() * w, rand() * h, 1 + rand() * 12, 1 + rand() * 4);
+    }
+  });
+  stripCache = canvasTexture(c, registry);
+  stripCache.wrapS = stripCache.wrapT = THREE.RepeatWrapping;
+  return stripCache;
+}
+
+/** Soft dark band where the floor meets the wall (and the wall's foot catches less light). */
+var aoCache = null;
+function wallFootTexture(registry) {
+  if (aoCache) return aoCache;
+  aoCache = canvasTexture(textCanvas(8, 128, function (ctx, w, h) {
+    var g = ctx.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, 'rgba(0,0,0,0.75)');
+    g.addColorStop(0.35, 'rgba(0,0,0,0.3)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+  }), registry);
+  return aoCache;
+}
+
 function bandTexture(registry) {
   var c = textCanvas(256, 64, function (ctx, w, h) {
     ctx.fillStyle = '#6b2420';
@@ -81,8 +188,11 @@ function bandTexture(registry) {
   return tex;
 }
 
-/** gap(a, b): signed shortest distance from b to a around the circle line. */
-export function buildStation(data, mats, registry, loader, gap) {
+/**
+ * gap(a, b): signed shortest distance from b to a around the circle line. content: the
+ * station's resolved takeover (content.js), or null for a plain station.
+ */
+export function buildStation(data, mats, registry, loader, gap, content, options) {
   var keep = tracker(registry);
   var S = WORLD.station;
   var len = S.halfLength * 2;
@@ -91,16 +201,39 @@ export function buildStation(data, mats, registry, loader, gap) {
 
   function track(mat) { registry.materials.push(mat); return mat; }
 
-  // Platform slab, flush with the car floor, with the yellow edge strip.
-  var platformMat = track(new THREE.MeshStandardMaterial({ color: 0x67635c, roughness: 0.88 }));
+  // Platform slab, flush with the car floor: worn concrete on top (with a little sheen, so the
+  // lights pool in it), the tactile edge strip, and shade where the floor meets the wall.
+  var platformMat = track(new THREE.MeshStandardMaterial({ color: 0x4a4743, roughness: 0.9 }));
   var platform = new THREE.Mesh(keep(new THREE.BoxGeometry(len, 1.3, S.platformDepth)), platformMat);
   platform.position.set(0, -0.65, -0.13 - S.platformDepth / 2);
   group.add(platform);
-  var stripMat = track(new THREE.MeshStandardMaterial({ color: 0xc9a218, roughness: 0.7 }));
+  var floorTex = platformFloorTexture(registry);
+  var floorMat = track(new THREE.MeshStandardMaterial({
+    map: floorTex, roughness: 0.5, metalness: 0.08, envMap: mats.envMap, envMapIntensity: 0.45
+  }));
+  floorMat.map = floorTex.clone();
+  floorMat.map.repeat.set(len / FLOOR_TILE, S.platformDepth / FLOOR_TILE);
+  floorMat.map.needsUpdate = true;
+  registry.textures.push(floorMat.map);
+  var floor = new THREE.Mesh(keep(new THREE.PlaneGeometry(len, S.platformDepth)), floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.set(0, 0.001, -0.13 - S.platformDepth / 2);
+  group.add(floor);
+  var stripTex = tactileTexture(registry).clone();
+  stripTex.repeat.set(len / 1.2, 1);
+  stripTex.needsUpdate = true;
+  registry.textures.push(stripTex);
+  var stripMat = track(new THREE.MeshStandardMaterial({ map: stripTex, roughness: 0.6 }));
   var strip = new THREE.Mesh(keep(new THREE.PlaneGeometry(len, 0.6)), stripMat);
   strip.rotation.x = -Math.PI / 2;
   strip.position.set(0, 0.003, -0.13 - 0.06 - 0.3);
   group.add(strip);
+  var footMat = track(new THREE.MeshBasicMaterial({ map: wallFootTexture(registry), transparent: true, depthWrite: false }));
+  var foot = new THREE.Mesh(keep(new THREE.PlaneGeometry(len, 0.9)), footMat);
+  foot.rotation.x = -Math.PI / 2;
+  foot.position.set(0, 0.004, S.wallZ + 0.45);
+  foot.renderOrder = 1;
+  group.add(foot);
 
   // Tiled back wall.
   var tileTex = mats.tileTexture;
@@ -110,18 +243,24 @@ export function buildStation(data, mats, registry, loader, gap) {
   wall.position.set(0, S.ceilingY / 2, S.wallZ);
   group.add(wall);
 
-  var bandTex = bandTexture(registry);
-  bandTex.repeat.set(len / 1.4, 1);
-  var bandMat = track(new THREE.MeshStandardMaterial({ map: bandTex, roughness: 0.5 }));
-  var band = new THREE.Mesh(keep(new THREE.PlaneGeometry(len, 0.3)), bandMat);
-  band.position.set(0, 3.05, S.wallZ + 0.01);
-  group.add(band);
+  // Station identity (frieze, name tablets, hanging signs) only where there's no takeover: a
+  // taken-over stop gives that wall to the work, and its name stays on the map and the display.
+  var tabletSlots = 0;
+  var tablets = null;
+  if (!content) {
+    var bandTex = bandTexture(registry);
+    bandTex.repeat.set(len / 1.4, 1);
+    var bandMat = track(new THREE.MeshStandardMaterial({ map: bandTex, roughness: 0.5 }));
+    var band = new THREE.Mesh(keep(new THREE.PlaneGeometry(len, 0.3)), bandMat);
+    band.position.set(0, 3.05, S.wallZ + 0.01);
+    group.add(band);
 
-  // Name tablets along the wall, laid out by layout() once the viewpoint is known.
-  var tabletMat = track(new THREE.MeshStandardMaterial({ map: tabletTexture(registry, data.name), roughness: 0.4, envMap: mats.envMap, envMapIntensity: 0.3 }));
-  var tabletSlots = Math.floor(len / 9.2) + 1;
-  var tablets = new THREE.InstancedMesh(keep(new THREE.PlaneGeometry(1.9, 0.56)), tabletMat, tabletSlots);
-  group.add(tablets);
+    // Name tablets along the wall, laid out by layout() once the viewpoint is known.
+    var tabletMat = track(new THREE.MeshStandardMaterial({ map: tabletTexture(registry, data.name), roughness: 0.4, envMap: mats.envMap, envMapIntensity: 0.3 }));
+    tabletSlots = Math.floor(len / 9.2) + 1;
+    tablets = new THREE.InstancedMesh(keep(new THREE.PlaneGeometry(1.9, 0.56)), tabletMat, tabletSlots);
+    group.add(tablets);
+  }
 
   // Ceiling and fluorescent runs.
   var ceilMat = track(new THREE.MeshStandardMaterial({ color: 0x2c2b29, roughness: 0.95 }));
@@ -151,13 +290,15 @@ export function buildStation(data, mats, registry, loader, gap) {
   group.add(columns);
 
   // Hanging signs.
-  var signMat = track(new THREE.MeshBasicMaterial({ map: hangingSignTexture(registry, data.name) }));
-  var signGeo = keep(new THREE.PlaneGeometry(1.9, 0.32));
-  [7.8, -10.6, 26].forEach(function (x) {
-    var sign = new THREE.Mesh(signGeo, signMat);
-    sign.position.set(x, 2.45, -4.2);
-    group.add(sign);
-  });
+  if (!content) {
+    var signMat = track(new THREE.MeshBasicMaterial({ map: hangingSignTexture(registry, data.name) }));
+    var signGeo = keep(new THREE.PlaneGeometry(1.9, 0.32));
+    [7.8, -10.6, 26].forEach(function (x) {
+      var sign = new THREE.Mesh(signGeo, signMat);
+      sign.position.set(x, 2.45, -4.2);
+      group.add(sign);
+    });
+  }
 
   // End portals, so the station reads as a box cut into the tunnel.
   var portalGeo = keep(new THREE.PlaneGeometry(-S.wallZ + 1, S.ceilingY + 1.4));
@@ -168,8 +309,11 @@ export function buildStation(data, mats, registry, loader, gap) {
     group.add(portal);
   });
 
-  // Billboard: black lightbox frame around the artwork.
-  var B = S.billboard;
+  // Billboard: black lightbox frame around the artwork. Under a takeover it's the hero piece,
+  // sized to the doorway, and the click target for GET OFF along with the doorway itself.
+  var B = content ? TAKEOVER.hero : S.billboard;
+  var takeover = content ? createTakeover(data, content, mats, registry, options) : null;
+  if (takeover) group.add(takeover.group);
   var artMat = track(new THREE.MeshBasicMaterial({ color: 0x222222 }));
   var art = new THREE.Mesh(keep(new THREE.PlaneGeometry(B.width, B.height)), artMat);
   var boardZ = S.wallZ + 0.1;
@@ -188,6 +332,14 @@ export function buildStation(data, mats, registry, loader, gap) {
   spill.position.set(0, art.position.y, S.wallZ + 0.02);
   board.add(spill);
 
+  /** Hover over the open doorway: the hero lifts a little (0..1). */
+  var hover = 0;
+  function setHover(f) {
+    if (Math.abs(f - hover) < 0.002) return;
+    hover = f;
+    spillMat.opacity = 0.35 + 0.3 * f;
+    if (artMat.map) artMat.color.setScalar(1 + 0.18 * f);
+  }
   var hidden = new THREE.Matrix4().makeScale(0, 0, 0);
 
   /**
@@ -208,24 +360,30 @@ export function buildStation(data, mats, registry, loader, gap) {
     var clearHalf = B.width / 2 + 0.45;
 
     var windowX = sightAt(camX, camZ, (CAR.window.x0 + CAR.window.x1) / 2, S.wallZ);
-    var k = 0;
-    var first = windowX - Math.floor((windowX + S.halfLength - 1.2) / 9.2) * 9.2;
-    for (var tx = first; tx < S.halfLength - 1.2 && k < tabletSlots; tx += 9.2) {
-      if (Math.abs(tx - boardX) < clearHalf + 1) continue;
-      m.makeTranslation(tx, 2.3, S.wallZ + 0.012);
-      tablets.setMatrixAt(k++, m);
+    if (tablets) {
+      var k = 0;
+      var first = windowX - Math.floor((windowX + S.halfLength - 1.2) / 9.2) * 9.2;
+      for (var tx = first; tx < S.halfLength - 1.2 && k < tabletSlots; tx += 9.2) {
+        if (Math.abs(tx - boardX) < clearHalf + 1) continue;
+        m.makeTranslation(tx, 2.3, S.wallZ + 0.012);
+        tablets.setMatrixAt(k++, m);
+      }
+      for (; k < tabletSlots; k++) tablets.setMatrixAt(k, hidden);
+      tablets.instanceMatrix.needsUpdate = true;
     }
-    for (; k < tabletSlots; k++) tablets.setMatrixAt(k, hidden);
-    tablets.instanceMatrix.needsUpdate = true;
 
     var doorSight = sightAt(camX, camZ, CAR.doorCenterX, S.columnZ);
     var windowSight = sightAt(camX, camZ, (CAR.window.x0 + CAR.window.x1) / 2, S.columnZ);
+    var clearCols = [];
     colXs.forEach(function (x, i) {
       var blocks = Math.abs(x - doorSight) < 1.5 || Math.abs(x - windowSight) < 0.9;
-      if (blocks) columns.setMatrixAt(i, hidden);
+      if (!blocks) clearCols.push(x);
+      // A takeover wraps the columns itself.
+      if (blocks || takeover) columns.setMatrixAt(i, hidden);
       else { m.makeTranslation(x, S.ceilingY / 2, S.columnZ); columns.setMatrixAt(i, m); }
     });
     columns.instanceMatrix.needsUpdate = true;
+    if (takeover) takeover.layout({ boardX: boardX, columns: clearCols, doorSight: doorSight });
   }
   setViewpoint(0, 2.7);
 
@@ -266,14 +424,20 @@ export function buildStation(data, mats, registry, loader, gap) {
     trackOrigin = stopDistance + CAR.doorCenterX;
     var x = gap(trackOrigin, distance);
     group.position.x = x;
-    group.visible = Math.abs(x) < S.halfLength + 40;
+    group.visible = Math.abs(x) < S.halfLength + Math.max(40, takeover ? takeover.reach + 30 : 0);
     lights.forEach(function (l) { l.intensity = 26 * presence; });
+    // Paint the takeover a leg ahead: while the train stands at the previous stop.
+    if (takeover && Math.abs(x) < 420) takeover.wake();
   }
 
   return {
     group: group,
     place: place,
     setViewpoint: setViewpoint,
+    /** The hero piece (a click target) and its size, and the doorway-hover lift. */
+    hero: art,
+    heroSize: B,
+    setHover: setHover,
     /** True when track position a (± margin) falls inside this station. */
     contains: function (a, margin) { return Math.abs(gap(a, trackOrigin)) < S.halfLength + (margin || 0); }
   };
