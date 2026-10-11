@@ -266,9 +266,9 @@ function start() {
   var detachLook = (function () {
     function out() { return atDoor.to && atDoor.f === 1 && !busy; }
     function onDown(e) {
-      // A finger looks round the same way, except while painting or up close to the art.
-      if (!out() || e.button > 0) return;
-      if (e.pointerType === 'touch' && (walk.inspectTo || spray.touchArmed())) return;
+      // A finger looks round the same way, except while painting; neither turns up close to the art.
+      if (!out() || e.button > 0 || walk.inspectTo) return;
+      if (e.pointerType === 'touch' && spray.touchArmed()) return;
       look.drag = { x: e.clientX, yaw: look.toYaw, touch: e.pointerType === 'touch', lastX: e.clientX, lastT: e.timeStamp, lastMove: 0 };
       look.vel = 0;
       try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* pointer already gone */ }
@@ -277,6 +277,7 @@ function start() {
       if (!look.drag) return;
       var k = LOOK.perPx * 900 / Math.max(500, window.innerHeight);
       // A finger: the view sticks to it (a screen's width turns the head one frame's width).
+      if (!look.drag.touch && Math.abs(e.clientX - look.drag.x) > 40) ui.usedHint('d-pan');
       if (look.drag.touch) {
         k = 2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * camera.aspect) / window.innerWidth;
         if (Math.abs(e.clientX - look.drag.x) > 40) ui.usedHint('platform');
@@ -441,6 +442,7 @@ function start() {
   var beenOut = false;
   function toDoor(on) {
     if (!on && atDoor.to) beenOut = true;
+    if (on && !phone) ui.usedHint('d-out');
     atDoor.to = on ? 1 : 0;
   }
   var doorway = (function () {
@@ -460,11 +462,20 @@ function start() {
       var s = lastState;
       return !!s && !busy && s.phase === 'dwell' && s.doors.left > 0.999 && s.doors.right > 0.999;
     };
-    function over(e) {
-      if (!self.ready() || atDoor.to) return false;
+    function aim(e) {
       var rect = canvas.getBoundingClientRect();
       ndc.set(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
       ray.setFromCamera(ndc, camera);
+    }
+    /** On the shut doors themselves (a tap there opens them, as the swipe up does). */
+    function overShut(e) {
+      if (busy || atDoor.to || !lastState || lastState.doors.left > 0) return false;
+      aim(e);
+      return ray.intersectObject(hit, false).length > 0;
+    }
+    function over(e) {
+      if (!self.ready() || atDoor.to) return false;
+      aim(e);
       var targets = [hit];
       var i = stations.indexOf(station());
       if (i >= 0) targets.push(stationViews[i].hero);
@@ -480,11 +491,17 @@ function start() {
     function onMove(e) { self.set(over(e)); }
     function onDown(e) { onMove(e); pressed = self.hover; }
     function onClick(e) {
+      if (overShut(e) && openDoors()) { pressed = false; return; }
       // Seen through the doorway, the visit sign takes the click.
       if (pressed && !busy && !visit.hover && over(e)) { toDoor(true); self.set(false); }
       pressed = false;
     }
-    function onKey(e) { if (e.key === 'Escape' && atDoor.to && !busy) toDoor(false); }
+    // Escape: back from the art first, then onto the train.
+    function onKey(e) {
+      if (e.key !== 'Escape' || !atDoor.to || busy) return;
+      if (walk.inspectTo) { walk.inspectTo = 0; ui.usedHint('d-back'); }
+      else toDoor(false);
+    }
     window.addEventListener('keydown', onKey);
     function onLeave() { self.set(false); }
     canvas.addEventListener('pointermove', onMove);
@@ -571,7 +588,9 @@ function start() {
     selecting: function () {
       var p = lineMap.pointer();
       if (visit.hover) return { onMap: true, stop: 0 };
-      if (atDoor.to) return { onMap: true, stop: -1, cursor: look.drag ? 'grabbing' : 'grab' };
+      if (atDoor.to) {
+        return { onMap: true, stop: -1, cursor: walk.inspectTo ? 'zoom-out' : look.drag ? 'grabbing' : walk.artHover ? 'zoom-in' : 'grab' };
+      }
       return doorway.hover ? { onMap: true, stop: 0 } : p;
     },
     finePointer: finePointer,
@@ -587,12 +606,12 @@ function start() {
   });
 
   /**
-   * The phone's platform: three set viewpoints along the wall (the bays either side of the doors'
-   * own, between the columns), walked between by swipes with an eased glide, and a tap on the art
-   * that walks you up to it (tap again, or swipe down, to step back). Cinematic moves only.
+   * The platform: on a phone three set viewpoints along the wall (the bays either side of the
+   * doors' own, between the columns). Anywhere, a tap or click on the art walks you up to it (tap
+   * or click again, swipe down or Escape to step back). Cinematic moves only.
    */
   var SPOTS = [-WORLD.station.columnStep, 0, WORLD.station.columnStep];
-  var walk = { spot: 1, x: 0, inspect: 0, inspectTo: 0, at: new THREE.Vector3() };
+  var walk = { spot: 1, x: 0, inspect: 0, inspectTo: 0, at: new THREE.Vector3(), artHover: false };
   function currentView() {
     var s = lastState;
     if (!s) return null;
@@ -601,26 +620,49 @@ function start() {
   var detachInspect = (function () {
     var ray = new THREE.Raycaster();
     var ndc = new THREE.Vector2();
-    function onClick(e) {
-      if (!phone || !atDoor.to || atDoor.f < 1 || busy || visit.over(e)) return;
-      if (walk.inspectTo) { walk.inspectTo = 0; return; }
-      var view = currentView();
-      if (!view) return;
+    function standing() { return atDoor.to && atDoor.f === 1 && !busy; }
+    /** The art under the pointer (the wall and what's on it), or null. */
+    function artAt(e, view) {
       var rect = canvas.getBoundingClientRect();
       ndc.set(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
       ray.setFromCamera(ndc, camera);
-      // Only the wall and what's on it: the art.
-      var hit = ray.intersectObject(view.group, true).filter(function (h) { return h.point.z < WORLD.station.wallZ + 0.4; })[0];
+      return ray.intersectObject(view.group, true).filter(function (h) { return h.point.z < WORLD.station.wallZ + 0.4; })[0] || null;
+    }
+    // A mouse drag looks round; only a still click (under 6 px of travel) goes up to the art.
+    var down = null;
+    function onDown(e) { down = { x: e.clientX, y: e.clientY }; }
+    function onMove(e) {
+      var view = e.pointerType === 'mouse' && standing() && !walk.inspectTo && !look.drag ? currentView() : null;
+      walk.artHover = !!(view && artAt(e, view));
+    }
+    function onClick(e) {
+      if (!standing() || visit.over(e)) return;
+      if (e.pointerType !== 'touch' && down && Math.abs(e.clientX - down.x) + Math.abs(e.clientY - down.y) > 6) return;
+      if (walk.inspectTo) {
+        walk.inspectTo = 0;
+        ui.usedHint(phone ? 'inspect' : 'd-back');
+        return;
+      }
+      var view = currentView();
+      if (!view) return;
+      var hit = artAt(e, view);
       if (!hit) return;
       walk.at.copy(hit.point);
       walk.inspectTo = 1;
+      walk.artHover = false;
       // A sharp print of the sheet being looked at, for the length of the look.
       view.sharpen(hit.point);
       walk.sharpView = view;
-      ui.usedHint('platform');
+      ui.usedHint(phone ? 'art' : 'd-art');
     }
+    canvas.addEventListener('pointerdown', onDown);
+    canvas.addEventListener('pointermove', onMove);
     canvas.addEventListener('click', onClick);
-    return function () { canvas.removeEventListener('click', onClick); };
+    return function () {
+      canvas.removeEventListener('pointerdown', onDown);
+      canvas.removeEventListener('pointermove', onMove);
+      canvas.removeEventListener('click', onClick);
+    };
   })();
 
   /** One station along the loop, either way (a scroll step, a key, a phone swipe). */
@@ -653,6 +695,7 @@ function start() {
     // Out at the station nothing rides: only from the train.
     if (atDoor.to || atDoor.f) return;
     if (openDoors()) return;
+    if (!phone) ui.usedHint('d-ride');
     var n = stations.length;
     var here = ((Math.floor(scroll.progress()) % n) + n) % n;
     rideToStation((here + dir + n) % n, dir);
@@ -661,7 +704,7 @@ function start() {
   /**
    * The phone's gestures, by where you are. Seated: up opens the doors (first load) or rides on
    * to the next stop, down rides back to the previous one, a sideways drag looks round the car
-   * (seatLook), and a tap on the open doors steps out. On the platform: a drag looks left and
+   * (seatLook), a tap on the shut doors opens them and a tap on the open doors steps out. On the platform: a drag looks left and
    * right (detachLook, as on a desktop), down steps back (out of a close look first, then onto
    * the train).
    */
@@ -823,20 +866,33 @@ function start() {
     if (!atDoor.to) { walk.spot = 1; walk.inspectTo = 0; }
     // Stepped back from the close look: the everyday print again.
     if (!walk.inspectTo && walk.inspect === 0 && walk.sharpView) { walk.sharpView.sharpen(null); walk.sharpView = null; }
-    var glide = reduceMotion ? 1 : 1 - Math.exp(-dt * 3.2);
-    walk.x += (SPOTS[walk.spot] - walk.x) * glide;
+    var walkEase = reduceMotion ? 1 : 1 - Math.exp(-dt * 3.2);
+    walk.x += (SPOTS[walk.spot] - walk.x) * walkEase;
     walk.inspect = reduceMotion ? walk.inspectTo : Math.max(0, Math.min(1, walk.inspect + (walk.inspectTo ? 1 : -1) * dt / 1.1));
     rig.setSpot(walk.x);
     rig.setInspect(walk.at, walk.inspect);
     rig.update(state, distance, dt);
+    // The tips, one per place (ui.js). Standing at the first stop with the doors still shut
+    // (openDoors): on a phone first teach looking round (a drag or a turn of the phone counts),
+    // then the swipe up that opens them; on a desktop the scroll that opens them. Seated at a stop:
+    // the ride on (a phone only once you've been out and back), then on a desktop the doors. Out
+    // on the platform: looking round, then the art up close.
+    var closed = state.phase === 'settle' && state.doors.left === 0;
+    if (!closed && state.doors.left > 0) ui.usedHint(phone ? 'closed' : 'd-open');
+    var atStop = atDoor.f === 0 && doorway.ready();
     if (phone) {
-      // Standing at the first stop with the doors still shut (openDoors): first teach looking
-      // round (a drag or a turn of the phone counts), then the swipe up that opens them.
-      var closed = state.phase === 'settle' && state.doors.left === 0;
+      if (looked) ui.usedHint('look');
       ui.setHint(busy ? null
-        : atDoor.to ? (atDoor.f === 1 ? (walk.inspectTo ? 'inspect' : 'platform') : null)
-        : closed ? (looked ? 'closed' : 'look')
-        : atDoor.f === 0 && beenOut && doorway.ready() ? 'seat' : null);
+        : atDoor.to ? (atDoor.f === 1 ? (walk.inspectTo ? 'inspect' : ui.seenHint('platform') ? 'art' : 'platform') : null)
+        : closed ? (looked || ui.seenHint('look') ? 'closed' : 'look')
+        : atStop && beenOut ? 'seat' : null);
+    } else {
+      ui.setHint(busy ? null
+        : atDoor.to ? (atDoor.f === 1 ? (walk.inspectTo ? 'd-back' : ui.seenHint('d-pan') ? 'd-art' : 'd-pan') : null)
+        : closed ? 'd-open'
+        : atStop ? (ui.seenHint('d-ride') ? 'd-out' : 'd-ride') : null);
+    }
+    if (phone) {
       // Frames running long (under ~40 fps over two seconds): one notch down in resolution.
       quality.time += dt;
       quality.frames++;

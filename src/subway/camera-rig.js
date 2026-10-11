@@ -3,7 +3,8 @@
  * orbit. Framing adapts to the aspect ratio (on a phone the doors fill the frame). Motion is
  * layered on top: a slow ride float on the clock, scaled by speed (rides are short and fast, so
  * anything keyed to track distance would flicker frame to frame), a lurch that eases after the
- * timeline's acceleration, and a faint idle hum.
+ * timeline's acceleration. Standing, the camera is dead still: any sub-pixel motion makes hard
+ * edges (the door frames) crawl on a phone, where the image isn't antialiased.
  * The doorway: setDoor(f) walks from the seat out through the open doors onto the platform
  * (0 = seated, 1 = standing on the platform facing the wall); out there,
  * setLook(yaw) turns the head left or right along the platform (radians, 0 = facing the wall).
@@ -146,6 +147,8 @@ export function createCameraRig(camera, options) {
 
     if (!reduceMotion) {
       ride += (state.speed - ride) * (1 - Math.exp(-dt * 3));
+      // Settle exactly: an ease that only approaches zero keeps the camera creeping forever.
+      if (ride < 1e-3 && state.speed === 0) ride = 0;
       var v = ride;
       // Ride: a slow float and a gentle sway, a few cycles a second at most.
       var bounce = v * (0.0035 * noise(time * 1.6) + 0.0012 * noise(time * 3.4 + 17));
@@ -153,10 +156,9 @@ export function createCameraRig(camera, options) {
       var roll = v * 0.002 * noise(time * 0.7 + 5);
       // Lurch: pulling away leaves you behind (-x), braking throws you forward (+x). Eased.
       lurch += (-state.accel * 0.035 - lurch) * (1 - Math.exp(-dt * 4));
-      // Idle hum from the motors when standing.
-      var hum = (1 - v) * 0.0004 * Math.sin(time * 31);
+      if (Math.abs(lurch) < 1e-5 && !state.accel) lurch = 0;
       pos.x += lurch + sway * 0.4;
-      pos.y += bounce + hum;
+      pos.y += bounce;
       pos.z += sway * 0.25;
       look.x += lurch * 0.7;
       look.y += bounce * 0.6;

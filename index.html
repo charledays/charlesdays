@@ -1,664 +1,293 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Charles Days — Art Direction, Tattoo, Film & Visual Art</title>
-<meta name="description" content="Multidisciplinary visual portfolio by Charles Days across art direction, tattoo, film and visual art.">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>The Universe of Charle$Days</title>
+<meta name="description" content="Ride the line through the work of Charles Days.">
 <link rel="canonical" href="https://charlesdays.art/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Charles Days — Art Direction, Tattoo, Film & Visual Art">
-<meta property="og:description" content="Multidisciplinary visual portfolio by Charles Days across art direction, tattoo, film and visual art.">
+<meta property="og:title" content="The Universe of Charle$Days">
+<meta property="og:description" content="Ride the line through the work of Charles Days.">
 <meta property="og:url" content="https://charlesdays.art/">
 <meta property="og:image" content="https://charlesdays.art/images/manifiesto/gallery-wall.jpg">
-<meta property="og:image:alt" content="Pared de la galería con obras y skates expuestos durante Manifiesto">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.min.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+  }
+}
+</script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=Space+Grotesk:wght@500;700&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 :root{
-  --bg:#000;--ink:#1a2f6b;--ink-dark:#0f1d42;--muted:#2a4590;--border:#000;
-  /* Real, loaded display typeface (Google Fonts, see @import above) —
-     replaces the earlier 'Neue Machina' placeholder, which was never a
-     real asset (no local file, no CDN, not on Google Fonts) and silently
-     fell back to the browser's plain sans-serif. Space Grotesk was
-     approved on /film/ first, then rolled out sitewide from here. */
-  --font-display:'Space Grotesk', sans-serif;
-  --font-body:'DM Sans', sans-serif;
+  --line:#f26a1b;
+  --ink:#f3efe7;
+  --muted:rgba(243,239,231,0.62);
+  --panel:rgba(8,8,9,0.72);
+  --sign:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  --display:'Space Grotesk',sans-serif;
+  --body:'DM Sans',sans-serif;
+  --edge:clamp(16px,3vw,32px);
 }
-html{background:var(--bg);}
-html,body{color:var(--ink);font-family:var(--font-body);overflow-x:hidden;touch-action:pan-y;}
+html,body{background:#030303;color:var(--ink);font-family:var(--body);}
+body{overflow-x:hidden;}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
 
-/* Hidden until the loop's initial scroll position is set (see script at the
-   end of body) — prevents the load→middle-copy jump from ever being visible.
-   visibility:hidden (not display:none) so layout/offsetTop still compute. */
-body{visibility:hidden;}
-body.wall-ready{visibility:visible;}
+#subwayCanvas{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;}
 
-/* ===== minimal nav — fixed, transparent, floats over the Wall =====
-   No background/blur/border: legibility comes from text-shadow only, so
-   imagery visibly continues underneath the nav at all times. Reused as-is
-   from film.html / wall-final-test.html so Home stays part of the same
-   visual system rather than introducing a new header. */
-.proto-nav{position:fixed;top:0;left:0;right:0;z-index:50;height:52px;display:flex;justify-content:flex-end;align-items:center;padding:0 1.1rem;background:transparent;}
-.proto-logo,.proto-menu a{text-shadow:0 1px 3px rgba(0,0,0,0.75),0 2px 10px rgba(0,0,0,0.55),0 5px 20px rgba(0,0,0,0.35);}
-.proto-logo-img{filter:drop-shadow(0 1px 2px rgba(0,0,0,0.95)) drop-shadow(0 2px 5px rgba(0,0,0,0.6));}
-/* Home only: the wordmark is no longer part of the nav's flex flow — it's
-   fixed dead-center in the viewport, above the Wall, and non-interactive
-   (the Wall underneath must stay fully scrollable/clickable; going "home"
-   from the homepage is a no-op anyway). z-index 40 keeps it below the nav
-   (50) but above the Wall's own tiles (unlayered). */
-.proto-logo{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:40;pointer-events:none;display:inline-flex;align-items:center;}
-/* Home only: .proto-nav (z-index:50) sits above the mobile overlay
-   (z-index:45), and the centered wordmark lives inside .proto-nav — so
-   it showed through the open overlay regardless of its own inner
-   z-index:40. Fix: hide the wordmark itself while the overlay is open.
-   Targets #mobileNavOverlay.is-open directly — the overlay's own real
-   open-state class, already toggled by the existing script below — via
-   :has(), rather than a second, separately-maintained flag that could
-   drift out of sync with it. */
-body:has(#mobileNavOverlay.is-open) .proto-logo{display:none;}
-.proto-logo-img{display:block;width:125px;height:auto;}
-@media (min-width:768px){.proto-logo-img{width:230px;}}
-.proto-menu{display:none;}
-.proto-menu a{font-size:0.75rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:#f5f2ed;text-decoration:none;}
-.proto-menu a:hover{color:#fff;}
-.proto-menu a:focus-visible,.proto-logo:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;}
-@media (min-width:768px){.proto-menu{display:flex;gap:1.5rem;}}
+/* Film grade: vignette + grain, no postprocessing pass. */
+.grade{position:fixed;inset:0;z-index:5;pointer-events:none;overflow:hidden;}
+.grade::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 140% 130% at 50% 50%,transparent 62%,rgba(0,0,0,0.28) 88%,rgba(0,0,0,0.5) 100%);}
+.grade::after{content:'';position:absolute;inset:-50%;opacity:0.07;mix-blend-mode:screen;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.4 -0.35'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grain .9s steps(6) infinite;}
+@keyframes grain{0%{transform:translate(0,0)}20%{transform:translate(-6%,4%)}40%{transform:translate(5%,-5%)}60%{transform:translate(-3%,7%)}80%{transform:translate(7%,1%)}100%{transform:translate(0,0)}}
+.dip{position:fixed;inset:0;z-index:6;background:#000;opacity:0;pointer-events:none;}
 
-/* ===== mobile nav — MENU/CLOSE overlay, mobile-only (<768px). Desktop
-   nav (.proto-menu) is completely untouched; this is an independent
-   addition that reuses the same nav bar for its own header (logo stays
-   pinned top-left, this toggle occupies the same top-right slot the
-   desktop menu uses, so only one of the two is ever visible/laid out
-   at a given width). ===== */
-/* Home-only bug: this page's :root never defines --text (only --ink/
-   --ink-dark/--muted, meant for editorial pages' light background —
-   see below). color:var(--text) was therefore invalid at compute time,
-   which for an inherited property like `color` falls back to the
-   inherited value — html,body's color:var(--ink), a dark navy meant for
-   light backgrounds, over the Wall's dark imagery. That, not opacity
-   alone, is why MENU nearly disappeared. Fixed with an explicit light
-   color (same #f5f2ed used by the mobile nav overlay's own links below);
-   size/weight/opacity raised further so it reads immediately as
-   navigation rather than metadata. Padding grows the tap target without
-   shifting the visible text off the nav's existing right-edge inset
-   (negative margin cancels the padding's own offset). */
-.proto-menu-toggle{display:inline-block;background:none;border:none;padding:0.5rem 0.2rem;margin:-0.5rem -0.2rem;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#f5f2ed;opacity:1;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,0.8),0 2px 10px rgba(0,0,0,0.6),0 5px 20px rgba(0,0,0,0.4);}
-.proto-menu-toggle:hover{opacity:1;}
-.proto-menu-toggle:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;opacity:1;}
-@media (min-width:768px){.proto-menu-toggle{display:none;}}
+/* Overlay */
+.hud{position:fixed;inset:0;z-index:10;pointer-events:none;
+  padding:calc(env(safe-area-inset-top,0px) + var(--edge)) var(--edge) calc(env(safe-area-inset-bottom,0px) + var(--edge));}
+.hud a,.hud button{pointer-events:auto;}
 
-.mobile-nav-overlay{position:fixed;inset:0;z-index:45;background:var(--bg);display:flex;align-items:center;opacity:0;visibility:hidden;transition:opacity .25s ease;}
-.mobile-nav-overlay.is-open{opacity:1;visibility:visible;}
-.mobile-nav-links{display:flex;flex-direction:column;gap:1.4rem;padding:0 1.6rem;width:100%;}
-.mobile-nav-links a{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,10vw,2.6rem);letter-spacing:0.03em;color:#f5f2ed;text-decoration:none;opacity:0.85;}
-.mobile-nav-links a:hover,.mobile-nav-links a:focus-visible{opacity:1;}
-.mobile-nav-links a[aria-current="page"]{opacity:1;text-decoration:underline;text-underline-offset:0.3em;}
-.mobile-nav-links a:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:4px;}
-@media (min-width:768px){.mobile-nav-overlay{display:none;}}
-@media (prefers-reduced-motion:reduce){.mobile-nav-overlay{transition:none;}}
+.top-right{position:absolute;top:calc(env(safe-area-inset-top,0px) + var(--edge));right:var(--edge);display:flex;gap:0.5rem;}
+.chip{font:600 0.68rem/1 var(--sign);letter-spacing:0.12em;text-transform:uppercase;color:var(--ink);
+  background:var(--panel);border:1px solid rgba(243,239,231,0.18);padding:0.6rem 0.8rem;border-radius:999px;
+  text-decoration:none;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);}
+.chip:hover{border-color:rgba(243,239,231,0.5);}
+.chip:focus-visible{outline:2px solid var(--line);outline-offset:3px;}
+/* Icon chips (tips, sound, the spray can): round, a line icon in the ink colour. */
+.chip-icon{display:grid;place-items:center;width:2.6rem;height:2.6rem;padding:0;}
+.chip-icon .icon{width:1.25rem;height:1.25rem;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+[data-sound] .icon-on,[data-sound][aria-pressed="true"] .icon-off{display:none;}
+[data-sound][aria-pressed="true"] .icon-on{display:block;}
+/* Tips chip: a question mark, struck through while the tutorial is off (ui.js). */
+[data-tips][aria-pressed="true"] .icon-slash{display:none;}
+.tips-off .scroll-hint,.tips-off .swipe-hint{display:none;}
 
+/* Keyboard and screen-reader way to the stop's page (the sign on the platform wall is the visible one). */
+.visit-link{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + var(--edge) + 1rem);transform:translateX(-50%);
+  font:700 0.85rem/1 var(--sign);letter-spacing:0.16em;text-transform:uppercase;color:#111;background:#f2c318;padding:0.85rem 1.2rem;
+  text-decoration:none;clip-path:inset(50%);}
+.visit-link:focus-visible{clip-path:none;outline:2px solid var(--line);outline-offset:3px;}
+.visit-link[hidden]{display:none;}
 
-/* ===== Seamless loop — three stacked copies of the same composition =====
-   Fixed at load, never grows. Only #copyMid is real; #copyTop/#copyBottom
-   are visual + navigational clones (see accessibility notes in the report). */
-.wall-loop{display:flex;flex-direction:column;gap:2px;}
+.scroll-hint{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + var(--edge));transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:0.55rem;font:600 0.66rem/1 var(--sign);
+  letter-spacing:0.22em;text-transform:uppercase;color:var(--ink);transition:opacity .6s ease;}
+/* A mouse with its wheel rolling down: scroll, and the train moves. */
+.scroll-mouse{position:relative;width:1.4rem;height:2.2rem;border:2px solid var(--ink);border-radius:0.75rem;
+  box-shadow:0 1px 8px rgba(0,0,0,0.5);}
+.scroll-mouse::before{content:'';position:absolute;left:50%;top:0.4rem;width:0.22rem;height:0.42rem;margin-left:-0.11rem;
+  border-radius:0.11rem;background:var(--ink);animation:hint 1.8s cubic-bezier(.45,0,.55,1) infinite;}
+.scroll-hint::after{content:'';width:0.5rem;height:0.5rem;margin-top:-0.15rem;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);
+  transform:rotate(45deg);animation:hint-chevron 1.8s cubic-bezier(.45,0,.55,1) infinite;}
+@keyframes hint{0%{transform:translateY(0);opacity:1}70%{transform:translateY(0.6rem);opacity:0}100%{transform:translateY(0);opacity:0}}
+@keyframes hint-chevron{0%,100%{opacity:0.3;transform:translateY(0) rotate(45deg)}50%{opacity:1;transform:translateY(0.25rem) rotate(45deg)}}
+.scroll-hint.is-hidden{opacity:0;}
+.scroll-hint[hidden]{display:none;}
+/* Flashing arrows: out through the open doors (placed in the doorway), and back to the train. */
+.step{position:absolute;display:flex;flex-direction:column;align-items:center;gap:0.35rem;padding:0.6rem 0.9rem;
+  background:none;border:0;cursor:pointer;color:#fff;font:700 0.72rem/1 var(--sign);letter-spacing:0.18em;text-transform:uppercase;
+  text-shadow:0 1px 6px rgba(0,0,0,0.8);animation:step-flash 3s ease-in-out infinite;}
+.step[hidden]{display:none;}
+/* Step out / Step in: footprints walking through the doors, out and back (filled icons, not line ones). */
+.step svg.steps{fill:currentColor;stroke:none;}
+/* The footprints sit in a ring: a dark, slightly see-through disc with a white edge. */
+.step svg.steps{box-sizing:border-box;width:3.8rem;height:3.8rem;padding:0.45rem;border:2px solid currentColor;border-radius:50%;background:rgba(8,8,9,0.45);}
+.step svg{width:3.2rem;height:3.2rem;fill:none;stroke:currentColor;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7));}
+.step:hover,.step:focus-visible{color:#fff;animation-play-state:paused;opacity:1;}
+.step:focus-visible{outline:2px solid var(--line);outline-offset:3px;}
+.step-out{left:50%;top:50%;transform:translate(-50%,-50%);}
+.step-in{left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + var(--edge) + 4.4rem);transform:translateX(-50%);}
+/* A slow, soft breath, not a blink. */
+@keyframes step-flash{0%,100%{opacity:1}50%{opacity:0.4}}
 
-/* Global Wall darkening wash — a single fixed, viewport-covering layer,
-   not per-tile. Sits above the Wall imagery (z-index above the Wall's own
-   unlayered tiles) but below the nav (z-index:50) and the Home wordmark
-   (z-index:40). pointer-events:none so it never intercepts clicks/scroll —
-   the Wall underneath stays fully interactive, exactly as before. */
-.wall-darken{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,0.30);pointer-events:none;}
+/* Spray can: tools bottom-left, and a gloved hand with a Montana GOLD can that follows the mouse (aimed by its nozzle). */
+.spray-tools{position:absolute;left:var(--edge);bottom:calc(env(safe-area-inset-bottom,0px) + var(--edge));
+  display:flex;align-items:center;gap:0.6rem;}
+.spray-tools[hidden]{display:none;}
+.spray-tools.has-mouse .spray-toggle{display:none;}
+.spray-tools:not(.has-mouse):not(.is-armed) .swatches,
+.spray-tools:not(.has-mouse):not(.is-armed) [data-buff]{display:none;}
+.spray-toggle[aria-pressed="true"]{background:var(--line);border-color:var(--line);color:#111;}
+.swatches{display:flex;gap:0.45rem;padding:0.4rem 0.55rem;background:var(--panel);border:1px solid rgba(243,239,231,0.18);
+  border-radius:999px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);}
+.swatch{width:1.35rem;height:1.35rem;border-radius:50%;border:2px solid rgba(243,239,231,0.35);background:var(--swatch);cursor:pointer;
+  pointer-events:auto;transition:transform .15s ease;}
+.swatch:hover{transform:scale(1.12);}
+.swatch[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px rgba(0,0,0,0.6);transform:scale(1.12);}
+.swatch:focus-visible{outline:2px solid var(--line);outline-offset:3px;}
 
-/* ===== The Wall — dense, art-directed vertical grid =====
-   Begins at the true top of the viewport; the nav floats over it.
-   Deterministic tile-size assignment (never randomized) so all three
-   copies stay pixel-identical — required for the loop teleport to be invisible. */
-.wall{display:grid;grid-template-columns:repeat(2,1fr);grid-auto-rows:44vw;grid-auto-flow:dense;gap:2px;background:var(--border);}
-@media (min-width:768px){.wall{grid-template-columns:repeat(4,1fr);grid-auto-rows:180px;}}
-/* The Wall's 17 curated items add up to 32 grid cells (t-small=1, t-wide/t-tall=2,
-   t-large=4). 32 divides evenly by 2, 4 and 8 columns, so those column counts
-   pack with zero empty cells — but NOT by 6: ceil(32/6)*6-32 leaves 4 cells that
-   can never be filled by any arrangement of these tiles, which is what produced
-   the large black voids reported at 1280/1440/1536px (this range previously used
-   repeat(6,1fr)). Root cause was this column count, not a tile's row/column span
-   or a height mismatch. Fix: this breakpoint now starts the same 8-column
-   layout used at 1600px+ instead of an ill-fitting 6-column tier — same tile
-   size classes, same row order, no filler, no image stretching (object-fit:cover
-   is unchanged); it only changes how many columns the existing tiles flow into. */
-@media (min-width:1200px){.wall{grid-template-columns:repeat(8,1fr);grid-auto-rows:200px;}}
+.spray-cursor{position:fixed;left:0;top:0;z-index:30;pointer-events:none;opacity:0;color:var(--line);transition:opacity .15s ease;}
+.spray-cursor.is-on{opacity:1;}
+.spray-dot{position:absolute;left:-5px;top:-5px;width:10px;height:10px;border-radius:50%;
+  border:1.5px solid currentColor;box-shadow:0 0 0 1px rgba(0,0,0,0.55);transition:opacity .2s ease;}
+.spray-can{position:absolute;left:6px;top:-9px;width:64px;height:auto;transform-origin:6px 9px;
+  filter:drop-shadow(0 3px 4px rgba(0,0,0,0.5));transition:transform .24s cubic-bezier(.22,1,.36,1),opacity .2s ease;}
+.spray-mist{position:absolute;left:1px;top:-6px;width:12px;height:12px;opacity:0;
+  background:radial-gradient(ellipse at 100% 50%,currentColor,transparent 75%);
+  clip-path:polygon(100% 40%,100% 60%,0 100%,0 0);transition:opacity .08s linear;}
+.spray-cursor.is-spraying .spray-can{transform:translate(-1px,1px);}
+.spray-cursor.is-spraying .spray-mist{opacity:0.75;}
+/* Over the line map the can steps aside for the normal pointer. */
+.spray-cursor.is-away .spray-can{transform:translate(26px,18px) rotate(14deg) scale(0.6);opacity:0;}
+.spray-cursor.is-away .spray-dot{opacity:0;}
 
-/* "Wall breathes": --wall-scale is set once, at html.is-scrolling, and
-   inherits down to every .tile for free — no per-tile listeners, nothing
-   layout-affecting (transform only, never gap/width/height). */
-.tile{position:relative;display:block;overflow:hidden;background:#000;transform:scale(var(--wall-scale,1));transition:transform .85s cubic-bezier(.22,1,.36,1);}
-html.is-scrolling{--wall-scale:.93;}
-/* Entering the active-scroll contraction stays quick/responsive; only the
-   return-to-rest (the base .tile transition above) is slow and soft. */
-html.is-scrolling .tile{transition:transform .28s ease-out;}
-.tile img{width:100%;height:100%;object-fit:cover;display:block;-webkit-user-drag:none;user-drag:none;}
-a.tile{cursor:pointer;}
-a.tile img{transition:transform .6s ease;}
-a.tile::after{content:"";position:absolute;inset:0;background:rgba(15,29,66,0);transition:background .35s ease;}
-a.tile:hover::after,a.tile:focus-visible::after{background:rgba(15,29,66,0.12);}
-a.tile:hover img,a.tile:focus-visible img{transform:scale(1.035);}
-a.tile:focus-visible{outline:2px solid var(--ink-dark);outline-offset:-2px;}
+/* While a ride has the scene, the page itself doesn't scroll. */
+html.is-locked,html.is-locked body{overflow:hidden;}
+/* Phone: the gesture for where you are, on a dark pill that reads over any artwork. */
+.swipe-hint{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + var(--edge) + 3.6rem);transform:translateX(-50%);
+  display:flex;align-items:center;gap:0.5rem;width:max-content;max-width:calc(100vw - 2 * var(--edge));padding:0.4rem 0.95rem 0.4rem 0.55rem;
+  border-radius:999px;background:rgba(8,8,9,0.72);border:1px solid rgba(243,239,231,0.14);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  color:var(--ink);pointer-events:none;white-space:nowrap;
+  opacity:0;visibility:hidden;translate:0 0.5rem;transition:opacity .28s ease,translate .28s ease,visibility 0s linear .28s;}
+.swipe-hint.is-on{opacity:1;visibility:visible;translate:0 0;transition:opacity .35s ease,translate .35s cubic-bezier(.2,.8,.2,1),visibility 0s;}
+.swipe-hint strong{font:700 0.7rem/1 var(--sign);letter-spacing:0.14em;text-transform:uppercase;}
+.swipe-hint[hidden]{display:none;}
+/* Out on the platform the Step in footprints hold the bottom: the hint sits above them. */
+.step-in:not([hidden]) ~ .swipe-hint{bottom:calc(env(safe-area-inset-bottom,0px) + var(--edge) + 9rem);}
+/* The gesture, for anyone not reading the words: a small hand moving the way to swipe (or pressing, for a tap). */
+.gesture{display:grid;place-items:center;width:1.5rem;height:1.5rem;overflow:visible;}
+.gesture svg{fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.gesture .hand{width:1.25rem;height:1.25rem;}
+.gesture .arrow,.gesture .mouse{display:none;}
+/* Desktop tips: a mouse in place of the hand, its wheel rolling, sliding sideways, or clicking. */
+.swipe-hint[data-gesture="wheel"] .mouse,.swipe-hint[data-gesture="drag"] .mouse,.swipe-hint[data-gesture="click"] .mouse{display:block;}
+.swipe-hint[data-gesture="wheel"] .hand,.swipe-hint[data-gesture="drag"] .hand,.swipe-hint[data-gesture="click"] .hand{display:none;}
+.gesture .mouse{width:1.25rem;height:1.25rem;}
+.swipe-hint[data-gesture="wheel"] .mouse .wheel{animation:mouse-wheel 1.8s cubic-bezier(.45,0,.55,1) infinite;}
+.swipe-hint[data-gesture="drag"] .mouse{animation:gesture-x 2.4s ease-in-out infinite;}
+.swipe-hint[data-gesture="click"] .mouse .button{animation:mouse-click 1.6s ease-in-out infinite;}
+@keyframes mouse-wheel{0%{transform:translateY(0);opacity:1}70%{transform:translateY(3px);opacity:0}100%{transform:translateY(0);opacity:0}}
+@keyframes mouse-click{0%,60%,100%{fill:transparent}30%{fill:currentColor}}
+.swipe-hint[data-gesture="x"] .hand{animation:gesture-x 2.4s ease-in-out infinite;}
+.swipe-hint[data-gesture="up"] .hand{animation:gesture-up 2s ease-in-out infinite;}
+.swipe-hint[data-gesture="down"] .hand{animation:gesture-down 2s ease-in-out infinite;}
+.swipe-hint[data-gesture="tap"] .hand{animation:gesture-tap 1.6s ease-in-out infinite;}
+@keyframes gesture-tap{0%,60%,100%{transform:scale(1)}30%{transform:scale(0.82)}}
+@keyframes gesture-x{0%,100%{transform:translateX(-0.3rem)}50%{transform:translateX(0.3rem)}}
+@keyframes gesture-up{0%{transform:translateY(0.25rem);opacity:0}20%{opacity:1}70%{transform:translateY(-0.3rem);opacity:1}100%{transform:translateY(-0.3rem);opacity:0}}
+@keyframes gesture-down{0%{transform:translateY(-0.25rem);opacity:0}20%{opacity:1}70%{transform:translateY(0.3rem);opacity:1}100%{transform:translateY(0.3rem);opacity:0}}
 
-.t-small{grid-column:span 1;grid-row:span 1;}
-.t-wide{grid-column:span 2;grid-row:span 1;}
-.t-tall{grid-column:span 1;grid-row:span 2;}
-.t-large{grid-column:span 2;grid-row:span 2;}
+/* Stepped ride: the page never scrolls; gestures ask for the next or previous stop. */
+/* No pinch or double-tap zoom: the frame is fixed (iOS pinch is also cancelled in scroll.js). */
+html.is-stepped,html.is-stepped body{overflow:hidden;overscroll-behavior:none;height:100%;touch-action:none;}
 
-@media (prefers-reduced-motion: reduce){
-  a.tile img{transition:none;}
-  a.tile:hover img,a.tile:focus-visible img{transform:none;}
-  .tile{transform:none !important;transition:none;}
+.debug{position:fixed;left:50%;top:var(--edge);transform:translateX(-50%);z-index:20;font:12px/1 ui-monospace,monospace;
+  background:#000;color:#0f0;padding:4px 8px;}
+.debug[hidden]{display:none;}
+
+/* Loader: the tag flashing in the middle, a ring running round it; it closes and fades once the scene is up. */
+.loader{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:#030303;transition:opacity .6s ease,visibility 0s linear .6s;}
+.is-loaded .loader{opacity:0;visibility:hidden;}
+.loader-mark{position:relative;width:min(56vw,300px);aspect-ratio:1;display:grid;place-items:center;}
+.loader-ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);}
+.loader-ring circle{fill:none;stroke-width:1.6;}
+.loader-track{stroke:rgba(243,239,231,0.12);}
+/* The ring fills with the load's real progress (main.js sets its dash); the percentage sits under the tag. */
+.loader-run{stroke:var(--line);stroke-linecap:round;stroke-dasharray:0 360;}
+.loader-pct{position:absolute;left:0;right:0;top:78%;text-align:center;font:600 0.8rem/1 var(--sign);letter-spacing:0.18em;
+  color:var(--muted);font-variant-numeric:tabular-nums;}
+/* The tag, cropped to its lettering (WORDMARK.crop in config.js). */
+.loader-tag{width:72%;aspect-ratio:2052/923;background:url(/images/web/brand/charlesdays-wordmark.webp) no-repeat 41.1% 33.4%/110.2% auto;
+  animation:loader-flash 1.1s ease-in-out infinite;}
+@keyframes loader-flash{0%,100%{opacity:1}50%{opacity:0.2}}
+
+/* Before the scene is up, and if WebGL is unavailable: the station billboard as a still. */
+.fallback{position:fixed;inset:0;z-index:1;display:none;place-items:center;padding:var(--edge);background:#0b0b0c;}
+.fallback img{max-width:min(90vw,900px);max-height:70vh;object-fit:contain;border:10px solid #111;}
+.no-webgl .fallback{display:grid;}
+
+@media (max-width:640px){
+  .scroll-hint{bottom:auto;top:56%;}
+  .spray-tools{flex-direction:column-reverse;align-items:flex-start;}
+  .swatches{flex-direction:column;}
 }
-
-/* ===== Editorial image viewer =====
-   Not a generic lightbox: full-bleed black stage, object-fit:contain so the
-   original aspect ratio is never cropped, quiet editorial metadata below
-   rather than a card/panel. Hidden by default via display:none, shown only
-   by adding .is-open (avoids fighting the native [hidden] attribute). */
-.viewer{position:fixed;inset:0;z-index:200;background:#000;display:none;flex-direction:column;}
-.viewer.is-open{display:flex;}
-.viewer-close{position:absolute;top:0.6rem;right:0.6rem;z-index:2;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:transparent;border:none;color:#f5f2ed;font-size:1.7rem;line-height:1;cursor:pointer;}
-.viewer-close:hover{color:#fff;}
-.viewer-close:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:2px;}
-.viewer-stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:3.5rem 1.5rem 1rem;}
-.viewer-stage img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block;}
-.viewer-meta{flex:0 0 auto;text-align:center;padding:0.5rem 1.5rem 2rem;}
-.viewer-discipline{font-size:0.6rem;letter-spacing:0.22em;text-transform:uppercase;color:#9aa4c2;margin-bottom:0.4rem;}
-.viewer-title{font-family:var(--font-display);font-weight:700;font-size:1.4rem;letter-spacing:0.03em;color:#f5f2ed;margin-bottom:0.35rem;}
-.viewer-title:empty,.viewer-role:empty{display:none;}
-.viewer-role{font-size:0.65rem;letter-spacing:0.03em;color:#9aa4c2;margin-bottom:1rem;}
-.viewer-cta{display:inline-block;font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:#f5f2ed;text-decoration:none;border-bottom:1px solid rgba(245,242,237,0.4);padding-bottom:0.15rem;}
-.viewer-cta:hover{border-color:#f5f2ed;}
-.viewer-cta:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;}
-
-@media (min-width:768px){
-  .viewer-stage{padding:4.5rem 3rem 1.5rem;}
-  .viewer-meta{padding:0.5rem 3rem 3rem;}
+/*
+ * Phone (touch, no hover): the thumb lives at the bottom, so the bottom holds the controls (the
+ * speaker left, the spray can right, its colours stacking above it) and the gesture hint goes up
+ * onto the doors, just under the "This is" sign, out of the thumb's way.
+ */
+@media (hover:none) and (pointer:coarse){
+  .top-right{top:auto;right:auto;left:var(--edge);bottom:calc(env(safe-area-inset-bottom,0px) + var(--edge));}
+  .spray-tools{left:auto;right:var(--edge);flex-direction:column-reverse;align-items:flex-end;}
+  .swatches{flex-direction:column;}
+  .swipe-hint{bottom:auto;top:calc(env(safe-area-inset-top,0px) + 25vh);}
+  .step-in:not([hidden]) ~ .swipe-hint{bottom:auto;}
 }
-
-@media (prefers-reduced-motion: reduce){
-  /* No motion is introduced by the viewer itself; nothing to disable here
-     beyond what the existing Wall rule above already covers. */
+@media (prefers-reduced-motion:reduce){
+  .grade::after,.scroll-hint::after,.scroll-mouse::before,.gesture .hand,.gesture .mouse,.gesture .mouse *{animation:none;}
+  .swipe-hint,.swipe-hint.is-on{transition:none;}
+  .step,.loader-tag{animation:none;}
+  .scroll-hint{transition:none;}
+  .spray-can,.swatch{transition:none;}
 }
 </style>
 </head>
 <body>
+<div class="subway">
+  <canvas id="subwayCanvas" aria-hidden="true"></canvas>
+  <div class="fallback"><img src="/images/web/manifiesto/canvas-wide.webp" alt="Manifiesto — station billboard artwork"></div>
+  <div class="grade" aria-hidden="true"></div>
+  <div class="dip" data-dip aria-hidden="true"></div>
 
-<h1 class="sr-only">Charles Days — Art Direction, Tattoo, Film &amp; Visual Art</h1>
+  <div class="hud">
+    <div class="top-right">
+      <button type="button" class="chip chip-icon" data-tips aria-pressed="true" aria-label="Tips on"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.7"/><path d="M12 17.2v0"/><path class="icon-slash" d="M4.5 4.5l15 15"/></svg></button>
+      <button type="button" class="chip chip-icon" data-sound aria-pressed="false" aria-label="Sound off"><svg class="icon icon-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l4 6M21 9l-4 6"/></svg><svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>
+    </div>
 
-<nav class="proto-nav">
-  <a class="proto-logo" href="/" aria-current="page"><img class="proto-logo-img" src="/images/brand/charlesdays-wordmark.png" alt="Charles Days"></a>
-  <div class="proto-menu">
-    <a href="/art-direction/">ART DIRECTION</a>
-    <a href="/tattoo/">TATTOO</a>
-    <a href="/film/">FILM</a>
-    <a href="/about/">ABOUT</a>
-  <a href="/manifiesto/">MANIFIESTO</a>
+    <section class="sr-only" aria-live="polite">
+      <p data-station-kicker>Next stop</p>
+      <h1 data-station-name></h1>
+      <p data-station-sub></p>
+    </section>
+    <nav class="sr-only" aria-label="Line map"><ul data-line-links></ul></nav>
+    <a class="visit-link" data-visit hidden></a>
+    <button type="button" class="step step-out" data-step-out hidden>
+      <svg class="steps" viewBox="0 0 48 52" aria-hidden="true">
+        <g transform="translate(14 32) rotate(-8) scale(-1 1)"><path d="M0-9C4-9 6.2-5 6.2 0C6.2 5 4 8 2.6 9.5L-2.6 9.5C-4 8-6.2 5-6.2 0C-6.2-5-4-9 0-9Z"/><ellipse cx="0" cy="15.5" rx="4.6" ry="4.4"/></g>
+        <g transform="translate(34 18) rotate(8)"><path d="M0-9C4-9 6.2-5 6.2 0C6.2 5 4 8 2.6 9.5L-2.6 9.5C-4 8-6.2 5-6.2 0C-6.2-5-4-9 0-9Z"/><ellipse cx="0" cy="15.5" rx="4.6" ry="4.4"/></g>
+      </svg>
+      <span>Step out</span>
+    </button>
+    <button type="button" class="step step-in" data-step-in hidden>
+      <svg class="steps" viewBox="0 0 48 52" aria-hidden="true">
+        <g transform="rotate(180 24 26)">
+        <g transform="translate(14 32) rotate(-8) scale(-1 1)"><path d="M0-9C4-9 6.2-5 6.2 0C6.2 5 4 8 2.6 9.5L-2.6 9.5C-4 8-6.2 5-6.2 0C-6.2-5-4-9 0-9Z"/><ellipse cx="0" cy="15.5" rx="4.6" ry="4.4"/></g>
+        <g transform="translate(34 18) rotate(8)"><path d="M0-9C4-9 6.2-5 6.2 0C6.2 5 4 8 2.6 9.5L-2.6 9.5C-4 8-6.2 5-6.2 0C-6.2-5-4-9 0-9Z"/><ellipse cx="0" cy="15.5" rx="4.6" ry="4.4"/></g>
+        </g>
+      </svg>
+      <span>Step in</span>
+    </button>
+
+    <div class="spray-tools" data-spray-tools hidden>
+      <button type="button" class="chip chip-icon spray-toggle" data-spray-toggle aria-pressed="false" aria-label="Spray"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 9h8v11.5a1.5 1.5 0 0 1-1.5 1.5h-5A1.5 1.5 0 0 1 8 20.5z"/><path d="M9.5 9V6.5h5V9"/><path d="M11 6.5V4.5h2v2"/><path d="M15.5 3.5h1M18 2.5v0M18 4.5h1.5M17.5 6.5l1 .5"/><path d="M8 13h8"/></svg></button>
+      <div class="swatches" role="group" aria-label="Paint color" data-swatches></div>
+      <button type="button" class="chip" data-buff aria-label="Buff: clear the paint">Buff</button>
+    </div>
+
+    <p class="scroll-hint" data-scroll-hint><span class="scroll-mouse" aria-hidden="true"></span><span data-scroll-text>Scroll to ride</span></p>
+    <p class="swipe-hint" data-swipe-hint><span class="gesture" aria-hidden="true"><svg class="hand" viewBox="0 0 24 24"><path d="M22 14a8 8 0 0 1-8 8"/><path d="M18 11v-1a2 2 0 0 0-4 0"/><path d="M14 10V9a2 2 0 0 0-4 0v1"/><path d="M10 9.5V4a2 2 0 0 0-4 0v10"/><path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg><svg class="mouse" viewBox="0 0 24 24"><rect x="6.5" y="3" width="11" height="18" rx="5.5"/><path class="button" d="M12 3v6.5H6.5V8.5A5.5 5.5 0 0 1 12 3z" style="stroke-width:0"/><path class="wheel" d="M12 7v2.5"/></svg><svg class="arrow arrow-x" viewBox="0 0 32 12"><path d="M2 6h28M7 1.5 2 6l5 4.5M25 1.5 30 6l-5 4.5"/></svg><svg class="arrow arrow-up" viewBox="0 0 12 20"><path d="M6 18V2M1.5 6.5 6 2l4.5 4.5"/></svg><svg class="arrow arrow-down" viewBox="0 0 12 20"><path d="M6 2v16M1.5 13.5 6 18l4.5-4.5"/></svg></span><strong data-swipe-main></strong></p>
   </div>
-  <button type="button" class="proto-menu-toggle" id="mobileMenuToggle" aria-expanded="false" aria-controls="mobileNavOverlay">MENU</button>
-</nav>
 
-<div class="mobile-nav-overlay" id="mobileNavOverlay" role="dialog" aria-modal="true" aria-label="Menú principal" aria-hidden="true">
-  <nav class="mobile-nav-links" aria-label="Navegación móvil">
-    <a href="/art-direction/">ART DIRECTION</a>
-    <a href="/tattoo/">TATTOO</a>
-    <a href="/film/">FILM</a>
-    <a href="/about/">ABOUT</a>
-    <a href="/manifiesto/">MANIFIESTO</a>
-  </nav>
+  <div class="loader" data-loader role="status" aria-label="Loading">
+    <div class="loader-mark">
+      <svg class="loader-ring" viewBox="0 0 120 120" aria-hidden="true"><circle class="loader-track" cx="60" cy="60" r="57.3"/><circle class="loader-run" data-loader-run cx="60" cy="60" r="57.3"/></svg>
+      <div class="loader-tag"></div>
+      <p class="loader-pct" data-loader-pct aria-live="off">0%</p>
+    </div>
+  </div>
+
+  <div class="debug" data-debug hidden></div>
 </div>
-
-<script>
-(function () {
-  var toggle = document.getElementById('mobileMenuToggle');
-  var overlay = document.getElementById('mobileNavOverlay');
-  if (!toggle || !overlay) return;
-  var isOpen = false;
-
-  function openMenu() {
-    isOpen = true;
-    overlay.classList.add('is-open');
-    overlay.removeAttribute('aria-hidden');
-    toggle.textContent = 'CLOSE';
-    toggle.setAttribute('aria-expanded', 'true');
-    document.documentElement.style.overflow = 'hidden';
-    document.body.style.overflow = 'hidden';
-    var firstLink = overlay.querySelector('a');
-    if (firstLink) firstLink.focus();
-  }
-
-  function closeMenu() {
-    isOpen = false;
-    overlay.classList.remove('is-open');
-    overlay.setAttribute('aria-hidden', 'true');
-    toggle.textContent = 'MENU';
-    toggle.setAttribute('aria-expanded', 'false');
-    document.documentElement.style.overflow = '';
-    document.body.style.overflow = '';
-    toggle.focus();
-  }
-
-  toggle.addEventListener('click', function () {
-    if (isOpen) { closeMenu(); } else { openMenu(); }
-  });
-
-  document.addEventListener('keydown', function (e) {
-    if (isOpen && e.key === 'Escape') { closeMenu(); }
-  });
-})();
-</script>
-
-<div class="wall-loop" id="wallLoop">
-
-  <!-- Clone copy (loop only) — visually identical, fully clickable (same
-       hrefs/metadata as the real copy), but excluded from keyboard/AT
-       traversal via aria-hidden on the container + tabindex="-1" on each
-       link (set by renderCopy below). Not inert: a visible clone must
-       still be tappable/clickable. Tiles are rendered from stories.js —
-       see the module script at the end of body. -->
-  <div class="wall-copy" id="copyTop" aria-hidden="true">
-    <main class="wall"></main>
-  </div>
-
-  <!-- Real copy — the only one exposed to assistive tech / keyboard. -->
-  <div class="wall-copy" id="copyMid">
-    <main class="wall" id="wallGrid"></main>
-  </div>
-
-  <!-- Clone copy (loop only) — same treatment as the top clone. -->
-  <div class="wall-copy" id="copyBottom" aria-hidden="true">
-    <main class="wall"></main>
-  </div>
-
-</div>
-
-<div class="wall-darken" aria-hidden="true"></div>
-
-<!-- Editorial image viewer — opens over the Wall on tile click.
-     role="dialog"/aria-modal="true" + focus trap + Escape close. -->
-<div id="viewer" class="viewer" role="dialog" aria-modal="true" aria-label="Visor de imagen">
-  <button type="button" class="viewer-close" id="viewerClose" aria-label="Cerrar">&times;</button>
-  <div class="viewer-stage">
-    <img id="viewerImg" src="" alt="">
-  </div>
-  <div class="viewer-meta">
-    <p class="viewer-discipline" id="viewerDiscipline"></p>
-    <p class="viewer-title" id="viewerTitle"></p>
-    <p class="viewer-role" id="viewerRole"></p>
-    <a class="viewer-cta" id="viewerCta" href="#"></a>
-  </div>
-</div>
-
-<script type="module">
-/* === Home = The Wall, driven by stories.js =============================
-   Production migration of wall-final-test.html (the approved prototype):
-   same loop/breathe/inertia/viewer systems, unchanged in behavior, now
-   rendering real canonical entries instead of the prototype's generic
-   wall-01..wall-14.jpg placeholders.
-
-   Data source of truth: stories.js. Only entries explicitly curated for
-   the Wall (`wall.include === true`) are rendered — that flag already
-   exists in the schema for exactly this purpose, so no new field was
-   needed to select Wall membership. Curation model: the Wall is built
-   progressively from each finished section's strongest pieces, not from
-   every story in the file — Film is the first finished section, so its
-   11 selected entries are currently the entire Wall. Display order uses
-   `wall.order` (an existing schema field) so the Wall can present an
-   interleaved editorial sequence independent of Film's own series
-   grouping (lost-frames/vidabandida/days-off) — that series grouping
-   stays exactly as-is for film.html; `wall.order` has no effect there.
-   Entries without a numeric `wall.order` fall back to their array
-   position in `stories`, the same "array order = display order"
-   convention already used for Film.
-
-   Tile sizing reuses the exact size-class sequence from the approved
-   prototype's 14-slot composition (t-tall/t-small/t-wide/t-large in the
-   prototype's own order), applied positionally to however many real
-   entries currently exist — this is not a new layout decision, it's the
-   same rhythm the prototype already used, just not hand-authored per
-   tile since the tile count is now data-driven. This is a first-stage
-   composition, not a final one — it will be revisited once more sections
-   are curated and added.
-
-   Destination pages mostly don't exist yet (only /film — film.html — is
-   built). `data-dest` still carries each entry's real intended route
-   (nothing is invented or dropped), but the viewer's CTA link only
-   renders when the destination is in BUILT_DESTINATIONS below — this is
-   the one behavioral adjustment made for dynamic data integration, and
-   it only prevents dead links; it does not change the Wall's visible
-   composition, loop, breathe, or inertia behavior in any way. */
-import { stories } from './stories.js';
-
-var BUILT_DESTINATIONS = ['/film/', '/tattoo/', '/manifiesto/', '/art-direction/']; // pages that actually exist right now
-
-/* Explicit per-position size sequence, one entry per Wall item (not cycled
-   via idx % length — an earlier version of this array was shorter than the
-   item count and wrapped, which silently aliased later items onto earlier
-   ones' sizes and reintroduced dense-packing holes at the 6-/8-column
-   desktop breakpoints; see git history if that bug resurfaces). Every time
-   items are added, extend this array by the same number of entries — do
-   not let it fall short again.
-
-   Current 26-item sequence was hand-verified (dense-packing simulation at
-   2/4/8 columns, the only column counts the CSS above still uses) to leave
-   zero empty grid cells at every supported breakpoint: the total tile area
-   this sequence produces (48 grid cells, same target as before — two items
-   were removed but one remaining tile was bumped to t-large to keep the
-   total unchanged) is evenly divisible by all of them. Sizes were chosen
-   to roughly match each image's native aspect ratio (portrait photos as
-   t-tall/t-small, landscape photos as t-wide) while hitting that area
-   target — not randomized, not uniform. */
-var WALL_TILE_SIZES = ['t-tall','t-small','t-small','t-wide','t-tall','t-small','t-large','t-large','t-tall','t-small','t-small','t-small','t-large','t-small','t-small','t-wide','t-tall','t-small','t-large','t-wide','t-small','t-wide','t-small','t-wide','t-small','t-wide'];
-
-var wallItems = stories
-  .filter(function (s) { return s.wall && s.wall.include; })
-  .map(function (s, arrayIndex) { return { story: s, arrayIndex: arrayIndex }; })
-  .sort(function (a, b) {
-    var orderA = (a.story.wall.order == null) ? a.arrayIndex : a.story.wall.order;
-    var orderB = (b.story.wall.order == null) ? b.arrayIndex : b.story.wall.order;
-    return orderA - orderB;
-  })
-  .map(function (entry) { return entry.story; });
-
-function escapeAttr(s) {
-  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
-}
-
-function tileMarkup(item, idx, isClone) {
-  var size = WALL_TILE_SIZES[idx % WALL_TILE_SIZES.length];
-  var dest = item.destinationUrl || '';
-  var label = item.disciplineLabel || '';
-  var title = item.title || '';
-  var role = Array.isArray(item.role) ? item.role.join(', ') : '';
-  // Wall-specific image override: use `wall.image` when a story sets one
-  // (e.g. ALYH shows a different still on the Wall than on /film), else
-  // fall back to the story's canonical `cover`. film.html never reads
-  // `wall.image` — it only ever uses `cover`, so this has no effect there.
-  var wallImage = item.wall && item.wall.image;
-  var alt = (wallImage && wallImage.alt) || (item.cover && item.cover.alt) || '';
-  var src = (wallImage && wallImage.src) || (item.cover && item.cover.src) || '';
-  var tabindex = isClone ? ' tabindex="-1"' : '';
-  var loading = (!isClone && idx === 0) ? 'eager' : 'lazy';
-
-  return '<a class="tile ' + size + '" href="#" data-nav' + tabindex +
-    ' data-dest="' + escapeAttr(dest) + '"' +
-    ' data-discipline-label="' + escapeAttr(label) + '"' +
-    ' data-title="' + escapeAttr(title) + '"' +
-    ' data-role="' + escapeAttr(role) + '">' +
-    '<img src="' + escapeAttr(src) + '" alt="' + escapeAttr(alt) + '" loading="' + loading + '" decoding="async">' +
-    '</a>';
-}
-
-function renderCopy(containerId, isClone) {
-  var grid = document.querySelector('#' + containerId + ' .wall');
-  if (!grid) return;
-  grid.innerHTML = wallItems.map(function (item, idx) { return tileMarkup(item, idx, isClone); }).join('');
-}
-
-renderCopy('copyTop', true);
-renderCopy('copyMid', false);
-renderCopy('copyBottom', true);
-
-/* === Seamless vertical loop + "Wall breathes" — unified desktop/mobile ===
-   Unchanged from wall-final-test.html. Native document scroll only: the
-   browser owns scrolling throughout — we only ever reassign scrollY after
-   the fact (never preventDefault, never a custom wheel/touch engine).
-   Three stacked copies already exist in the DOM (#copyTop / #copyMid /
-   #copyBottom), now populated above from stories.js instead of being
-   hand-authored — fixed at load, nothing grows after that. */
-(function () {
-  var copyTop = document.getElementById('copyTop');
-  var copyMid = document.getElementById('copyMid');
-  var copyBottom = document.getElementById('copyBottom');
-
-  function reveal() { document.body.classList.add('wall-ready'); }
-
-  if (!copyTop || !copyMid || !copyBottom) { reveal(); return; }
-
-  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var root = document.documentElement;
-  var H = 0;
-  var scrollEndTimer = null;
-  var resizeTimer = null;
-  var SCROLL_END_DELAY = 60;
-  var RESIZE_DEBOUNCE = 180;
-
-  function measure() { H = copyMid.offsetTop - copyTop.offsetTop; }
-
-  /* Loop teleport is deliberately deferred to scroll-END (see onScroll
-     below) rather than run on every 'scroll' tick. Root cause of the
-     mobile instability report: iOS Safari's native kinetic scrolling
-     fires continuous 'scroll' events throughout its momentum phase, and
-     calling window.scrollTo() WHILE that momentum is still running
-     interrupts/resets it — perceived as the scroll randomly slowing or
-     stopping mid-flick. All three copies are pixel-identical, so the
-     teleport is invisible whenever it fires; deferring it until momentum
-     has actually settled (same SCROLL_END_DELAY window already used for
-     the breathe effect) avoids ever fighting the OS's own physics.
-     Desktop's synthetic wheel-inertia (below) fires 'scroll' every rAF
-     frame too, so this settles at the same natural point there as well —
-     nothing about its own GAIN/FRICTION/velocity model changes. */
-  function reposition() {
-    if (H <= 0) return;
-    var y = window.scrollY;
-    if (y < H * 0.5) {
-      window.scrollTo({ top: y + H, left: 0, behavior: 'auto' });
-    } else if (y > H * 1.5) {
-      window.scrollTo({ top: y - H, left: 0, behavior: 'auto' });
-    }
-  }
-
-  function onScroll() {
-    if (!reduceMotion) { root.classList.add('is-scrolling'); }
-    if (scrollEndTimer) clearTimeout(scrollEndTimer);
-    scrollEndTimer = setTimeout(function () {
-      if (!reduceMotion) { root.classList.remove('is-scrolling'); }
-      reposition();
-    }, SCROLL_END_DELAY);
-  }
-
-  /* Viewport/layout can change the composition's height (breakpoint
-     switch, font/image load settling). Re-measure on resize, but keep the
-     visitor's logical position in the sequence (0 = top of the middle
-     copy, 1 = bottom of it) rather than an absolute pixel offset, so a
-     resize never throws them at an unrelated image. Debounced; no
-     continuous observers. */
-  function onResize() {
-    if (resizeTimer) clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(function () {
-      if (H <= 0) { measure(); return; }
-      var frac = (window.scrollY - copyMid.offsetTop) / H;
-      measure();
-      if (H > 0) {
-        window.scrollTo({ top: copyMid.offsetTop + frac * H, left: 0, behavior: 'auto' });
-      }
-    }, RESIZE_DEBOUNCE);
-  }
-
-  window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', onResize);
-
-  measure();
-  if (H > 0) { window.scrollTo(0, H); }
-  reveal();
-})();
-
-/* === Desktop wheel synthetic inertia =====================================
-   Unchanged from wall-final-test.html (the validation debug overlay that
-   sat alongside this block in the prototype has been removed — it was
-   explicitly marked in that file as "TEMPORARY DEBUG OVERLAY — validation
-   build only... remove once the inertia feel is approved"; this is now
-   production, so it's removed per that note, not redesigned). Real
-   document scrolling only (window.scrollBy inside rAF) — the page itself
-   is never transformed, so the seamless loop above needs no special
-   handling. */
-(function () {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-  function isDesktop() { return window.innerWidth >= 768; }
-
-  var GAIN = 1.9;
-  var FRICTION = 0.92;
-  var STOP_THRESHOLD = 0.5;
-  var MAX_VELOCITY = 140;
-
-  var velocity = 0;
-  var rafId = null;
-  var viewerOpen = false;
-
-  function stop() {
-    velocity = 0;
-    if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
-  }
-
-  function tick() {
-    window.scrollBy(0, velocity);
-    velocity *= FRICTION;
-    if (Math.abs(velocity) < STOP_THRESHOLD) {
-      velocity = 0;
-      rafId = null;
-      return;
-    }
-    rafId = requestAnimationFrame(tick);
-  }
-
-  function onWheel(e) {
-    if (!isDesktop() || viewerOpen) return;
-    e.preventDefault();
-    velocity += e.deltaY * GAIN;
-    if (velocity > MAX_VELOCITY) velocity = MAX_VELOCITY;
-    if (velocity < -MAX_VELOCITY) velocity = -MAX_VELOCITY;
-    if (rafId === null) { rafId = requestAnimationFrame(tick); }
-  }
-
-  window.addEventListener('wheel', onWheel, { passive: false });
-  window.addEventListener('wall:viewer-open', function () { viewerOpen = true; stop(); });
-  window.addEventListener('wall:viewer-close', function () { viewerOpen = false; });
-})();
-
-/* === Editorial image viewer ===============================================
-   Unchanged from wall-final-test.html except for one addition: the CTA
-   only renders when its destination is in BUILT_DESTINATIONS (declared at
-   the top of this script), so a tile whose real page doesn't exist yet
-   (everything except /film, for now) opens the viewer to show the image
-   and its known metadata, but offers no dead link forward. Loop, breathe,
-   hover, and nav code are untouched. */
-(function () {
-  var viewer = document.getElementById('viewer');
-  var stageImg = document.getElementById('viewerImg');
-  var disciplineEl = document.getElementById('viewerDiscipline');
-  var titleEl = document.getElementById('viewerTitle');
-  var roleEl = document.getElementById('viewerRole');
-  var ctaEl = document.getElementById('viewerCta');
-  var closeBtn = document.getElementById('viewerClose');
-  if (!viewer || !stageImg || !closeBtn) return;
-
-  var savedScrollY = 0;
-  var lastActiveTile = null;
-  var isOpen = false;
-
-  function ctaLabelFor(dest) {
-    if (!dest) return null;
-    if (dest.indexOf('/projects/') === 0) return 'VIEW PROJECT →';
-    if (dest === '/art-direction/') return 'ART DIRECTION →';
-    if (dest === '/tattoo/') return 'TATTOO →';
-    if (dest === '/film/') return 'FILM →';
-    if (dest === '/manifiesto/') return 'MANIFIESTO →';
-    return null;
-  }
-
-  function isDestinationBuilt(dest) {
-    return !!dest && BUILT_DESTINATIONS.indexOf(dest) !== -1;
-  }
-
-  function getFocusable() {
-    return Array.prototype.slice.call(viewer.querySelectorAll('a[href], button:not([disabled])'));
-  }
-
-  function onKeydown(e) {
-    if (e.key === 'Escape') { e.preventDefault(); closeViewer(); return; }
-    if (e.key === 'Tab') {
-      var f = getFocusable();
-      if (!f.length) return;
-      var first = f[0], last = f[f.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault(); last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault(); first.focus();
-      }
-    }
-  }
-
-  function openViewer(tile) {
-    var img = tile.querySelector('img');
-    if (!img) return;
-
-    lastActiveTile = tile;
-    stageImg.src = img.currentSrc || img.src;
-    stageImg.alt = img.alt || '';
-
-    disciplineEl.textContent = tile.getAttribute('data-discipline-label') || '';
-    titleEl.textContent = tile.getAttribute('data-title') || '';
-    roleEl.textContent = tile.getAttribute('data-role') || '';
-
-    var dest = tile.getAttribute('data-dest') || '';
-    var cta = isDestinationBuilt(dest) ? ctaLabelFor(dest) : null;
-    if (cta) {
-      ctaEl.textContent = cta;
-      ctaEl.setAttribute('href', dest);
-      ctaEl.style.display = '';
-    } else {
-      ctaEl.style.display = 'none';
-    }
-
-    /* Scroll lock that preserves exact position (fixed-body technique) —
-       robust on iOS Safari, unlike plain overflow:hidden. */
-    savedScrollY = window.scrollY;
-    document.body.style.position = 'fixed';
-    document.body.style.top = (-savedScrollY) + 'px';
-    document.body.style.width = '100%';
-
-    window.dispatchEvent(new CustomEvent('wall:viewer-open'));
-
-    viewer.classList.add('is-open');
-    isOpen = true;
-    document.addEventListener('keydown', onKeydown, true);
-    closeBtn.focus();
-  }
-
-  function closeViewer() {
-    if (!isOpen) return;
-    isOpen = false;
-    viewer.classList.remove('is-open');
-    document.removeEventListener('keydown', onKeydown, true);
-
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.width = '';
-    window.scrollTo(0, savedScrollY);
-
-    window.dispatchEvent(new CustomEvent('wall:viewer-close'));
-
-    if (lastActiveTile) { lastActiveTile.focus(); }
-    lastActiveTile = null;
-  }
-
-  closeBtn.addEventListener('click', closeViewer);
-
-  document.querySelectorAll('a.tile[data-nav]').forEach(function (a) {
-    a.addEventListener('click', function (e) {
-      e.preventDefault();
-      openViewer(a);
-    });
-  });
-})();
-</script>
+<script type="module" src="/src/subway/main.js"></script>
 </body>
 </html>
