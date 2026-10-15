@@ -214,18 +214,12 @@ a.film-card:hover .film-card-overlay,a.film-card:focus-visible .film-card-overla
 
   <div class="film-index" role="group" aria-label="Filtrar Film por serie">
     <button type="button" class="film-index-btn is-active" data-filter="all" aria-pressed="true">ALL</button>
-    <button type="button" class="film-index-btn" data-filter="lost-frames" aria-pressed="false">LOST FRAMES</button>
     <button type="button" class="film-index-btn" data-filter="vidabandida" aria-pressed="false">VIDABANDIDA</button>
     <button type="button" class="film-index-btn" data-filter="days-off" aria-pressed="false">DAYS OFF</button>
+    <button type="button" class="film-index-btn" data-filter="lost-frames" aria-pressed="false">LOST FRAMES</button>
   </div>
 
   <div id="filmContent">
-    <section class="film-series" data-series="lost-frames" aria-labelledby="lost-frames-heading">
-      <h2 id="lost-frames-heading" class="film-series-title">LOST FRAMES</h2>
-      <div class="film-grid" data-series-grid="lost-frames"></div>
-      <a href="#" class="film-viewall" data-series-viewall="lost-frames" hidden>View all →</a>
-    </section>
-
     <section class="film-series" data-series="vidabandida" aria-labelledby="vidabandida-heading">
       <h2 id="vidabandida-heading" class="film-series-title">VIDABANDIDA</h2>
       <div class="film-grid" data-series-grid="vidabandida"></div>
@@ -236,6 +230,12 @@ a.film-card:hover .film-card-overlay,a.film-card:focus-visible .film-card-overla
       <h2 id="days-off-heading" class="film-series-title">DAYS OFF</h2>
       <div class="film-grid" data-series-grid="days-off"></div>
       <a href="#" class="film-viewall" data-series-viewall="days-off" hidden>View all →</a>
+    </section>
+
+    <section class="film-series" data-series="lost-frames" aria-labelledby="lost-frames-heading">
+      <h2 id="lost-frames-heading" class="film-series-title">LOST FRAMES</h2>
+      <div class="film-grid" data-series-grid="lost-frames"></div>
+      <a href="#" class="film-viewall" data-series-viewall="lost-frames" hidden>View all →</a>
     </section>
   </div>
 </main>
@@ -250,9 +250,9 @@ a.film-card:hover .film-card-overlay,a.film-card:focus-visible .film-card-overla
 import { stories } from '/stories.js';
 
 var SERIES = [
-  { key: 'lost-frames', label: 'LOST FRAMES' },
   { key: 'vidabandida', label: 'VIDABANDIDA' },
-  { key: 'days-off', label: 'DAYS OFF' }
+  { key: 'days-off', label: 'DAYS OFF' },
+  { key: 'lost-frames', label: 'LOST FRAMES' }
 ];
 var MOBILE_PREVIEW_COUNT = { 'lost-frames': 4, 'vidabandida': 4, 'days-off': 4 };
 
