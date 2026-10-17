@@ -68,6 +68,14 @@
 .g-index a:hover{opacity:1;}
 .g-index sup{font-size:0.55rem;margin-left:0.3em;color:#8f96a8;letter-spacing:0.05em;}
 
+/* text link + page footer (footer carries the site-wide "Contacto" link) */
+.g-link{display:inline-flex;align-items:center;gap:0.5em;font-size:0.68rem;letter-spacing:0.18em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid rgba(245,242,237,0.3);padding-bottom:0.25rem;transition:border-color .2s ease;}
+.g-link:hover{border-color:#f5f2ed;}
+.g-link:focus-visible,.g-index a:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;}
+
+.g-foot{padding-top:4rem;padding-bottom:3rem;display:flex;justify-content:space-between;gap:1rem;font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:#8f96a8;}
+.g-foot-links{display:flex;flex-wrap:wrap;gap:1.4rem;align-items:baseline;}
+
 @media (min-width:768px){
   .proto-logo-img{width:135px;margin:-20px 0 -31px;}
   .proto-menu{display:flex;justify-content:center;gap:1.5rem;margin-top:0.9rem;}

@@ -16,9 +16,3 @@ a{color:inherit;}
 /* museum wall label */
 .g-label{display:flex;gap:0.8rem;align-items:baseline;font-size:0.68rem;line-height:1.45;color:var(--muted);}
 .g-label b{font-family:var(--font-display);font-weight:500;color:var(--text);letter-spacing:0.02em;}
-
-.g-link{display:inline-flex;align-items:center;gap:0.5em;font-size:0.68rem;letter-spacing:0.18em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid var(--hair-strong);padding-bottom:0.25rem;transition:border-color .2s ease;}
-.g-link:hover{border-color:var(--text);}
-.g-link:focus-visible,.g-index a:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;}
-
-.g-foot{padding-top:4rem;padding-bottom:3rem;display:flex;justify-content:space-between;gap:1rem;font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);}

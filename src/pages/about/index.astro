@@ -24,6 +24,9 @@ const AT_WORK = [
   { src: '/images/manifiesto/process-cutting.jpg', alt: 'Charles Days trabajando sobre una superficie de espejo con caligrafía blanca', caption: 'Manifiesto', link: '/exhibitions/manifiesto/', linkLabel: 'Ver exposición' },
 ];
 
+// Same number as the tattoo quotes; the message just says it's a project.
+const WHATSAPP = 'https://wa.me/51923386692?text=Hola%20Charles%2C%20vi%20tu%20trabajo%20en%20charlesdays.art%20y%20tengo%20un%20proyecto%20en%20mente.';
+
 const DOORS = [
   { href: '/projects/', label: 'PROJECTS', src: '/images/stories/interlock/cover.jpg' },
   { href: '/film/', label: 'FILM & PHOTO', src: '/images/wall/avirex.png' },
@@ -63,6 +66,21 @@ const DOORS = [
 
     <GalleryRow id="estudio" kicker="Charles en el trabajo" title="EN EL ESTUDIO" items={AT_WORK} size="md" />
 
+    <section class="ab-contact g-wrap" id="contacto" aria-labelledby="contactoTitle">
+      <div>
+        <p class="g-kicker">Contacto</p>
+        <h2 class="g-title" id="contactoTitle">TRABAJEMOS</h2>
+      </div>
+      <div class="ab-contact-body">
+        <p>Dirección creativa, dirección de arte, murales e intervenciones, y colaboraciones con marcas y artistas.</p>
+        <div class="ab-contact-links">
+          <a class="ab-contact-btn" href={WHATSAPP} target="_blank" rel="noopener noreferrer">Escríbeme por WhatsApp <span aria-hidden="true">↗</span></a>
+          <a class="g-link" href="https://www.instagram.com/charlesdays.art" target="_blank" rel="noopener noreferrer">Instagram ↗</a>
+          <a class="g-link" href="/tattoo/#cotizar">Cotizar un tattoo</a>
+        </div>
+      </div>
+    </section>
+
     <section class="ab-doors g-wrap" aria-label="Secciones">
       {DOORS.map((d) => (
         <a class="ab-door" href={d.href}>
@@ -92,6 +110,18 @@ const DOORS = [
   .ab-bio p + p{margin-top:0.5rem;}
   .ab-bio .ab-small{margin-top:1.2rem;font-size:0.88rem;line-height:1.7;color:#bdb9b2;}
   .ab-links{display:flex;flex-wrap:wrap;gap:1.6rem;margin-top:2rem;}
+
+  /* Title on its own row (it's as big as every page title), then the
+     line about the work and the contacts side by side under it. */
+  .ab-contact{padding:clamp(1rem,4vw,3rem) 0 clamp(4rem,9vw,7rem);border-top:1px solid var(--hair);margin-top:clamp(1rem,3vw,2rem);scroll-margin-top:var(--nav-h);}
+  .ab-contact .g-kicker{margin-top:clamp(2rem,5vw,3.4rem);}
+  .ab-contact-body{display:grid;gap:1.6rem;margin-top:clamp(1.4rem,3vw,2.4rem);}
+  @media (min-width:900px){.ab-contact-body{grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:4vw;}}
+  .ab-contact-body p{max-width:28rem;font-size:clamp(1rem,1.3vw,1.15rem);line-height:1.55;font-weight:300;color:#d6d3cd;}
+  .ab-contact-links{display:flex;flex-wrap:wrap;align-items:center;gap:1.2rem 1.6rem;}
+  .ab-contact-btn{display:inline-flex;align-items:center;gap:0.7em;background:var(--text);color:#0b0b0b;text-decoration:none;border-radius:4px;font-size:0.72rem;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;padding:1rem 1.3rem;transition:background .2s ease,color .2s ease;}
+  .ab-contact-btn:hover{background:#e2312d;color:#fff;}
+  .ab-contact-btn:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;}
 
   .ab-doors{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;}
   @media (min-width:900px){.ab-doors{grid-template-columns:repeat(4,1fr);gap:10px;}}
