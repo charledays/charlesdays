@@ -65,7 +65,7 @@ body:has(#mobileNavOverlay.is-open) .proto-logo{display:none;}
 .proto-menu a{font-size:0.75rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:#f5f2ed;text-decoration:none;}
 .proto-menu a:hover{color:#fff;}
 .proto-menu a:focus-visible,.proto-logo:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;}
-@media (min-width:768px){.proto-menu{display:flex;gap:1.5rem;}}
+@media (min-width:768px){.proto-nav{justify-content:center;}.proto-menu{display:flex;gap:1.5rem;}}
 
 /* ===== mobile nav — MENU/CLOSE overlay, mobile-only (<768px). Desktop
    nav (.proto-menu) is completely untouched; this is an independent
@@ -117,7 +117,7 @@ body:has(#mobileNavOverlay.is-open) .proto-logo{display:none;}
    unlayered tiles) but below the nav (z-index:50) and the Home wordmark
    (z-index:40). pointer-events:none so it never intercepts clicks/scroll —
    the Wall underneath stays fully interactive, exactly as before. */
-.wall-darken{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,0.30);pointer-events:none;}
+.wall-darken{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,0.12);pointer-events:none;}
 
 /* ===== The Wall — dense, art-directed grid of fixed-size square cells =====
    Fixed cell size (not 1fr) so one copy has a known width and height to tile

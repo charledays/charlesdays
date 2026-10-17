@@ -20,18 +20,23 @@ html{background:var(--bg);}
 html,body{color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
 
 /* ===== nav — reused as-is from index.html / film.html ===== */
-.proto-nav{position:fixed;top:0;left:0;right:0;z-index:50;height:52px;display:flex;justify-content:flex-end;align-items:center;padding:0 1.1rem;background:transparent;}
+/* Taller nav: wordmark centered with real breathing room above it, links
+   centered on their own row underneath. The wordmark PNG carries
+   transparent padding (≈15% above, ≈30% below the ink), so the negative
+   margins on .proto-logo-img cancel it and the padding here is the actual
+   visible space. */
+.proto-nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;flex-direction:column;align-items:center;padding:1.1rem 1.1rem 0.9rem;background:transparent;}
 .proto-logo,.proto-menu a{text-shadow:0 1px 3px rgba(0,0,0,0.75),0 2px 10px rgba(0,0,0,0.55),0 5px 20px rgba(0,0,0,0.35);}
-.proto-logo{position:absolute;left:50%;top:50%;transform:translate(-50%,calc(-50% + 6px));display:inline-flex;align-items:center;}
+.proto-logo{display:inline-flex;align-items:center;}
 .proto-logo-img{filter:drop-shadow(0 1px 2px rgba(0,0,0,0.95)) drop-shadow(0 2px 5px rgba(0,0,0,0.6));}
-.proto-logo-img{display:block;width:118px;height:auto;margin-top:-8px;}
-@media (min-width:768px){.proto-logo-img{width:135px;margin-top:0;}}
+.proto-logo-img{display:block;width:118px;height:auto;margin:-18px 0 -27px;}
+@media (min-width:768px){.proto-logo-img{width:135px;margin:-20px 0 -31px;}}
 .proto-menu{display:none;}
 .proto-menu a{font-size:0.75rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);text-decoration:none;opacity:0.72;}
 .proto-menu a:hover{opacity:1;}
 .proto-menu a[aria-current="page"]{opacity:1;}
 .proto-menu a:focus-visible,.proto-logo:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;}
-@media (min-width:768px){.proto-menu{display:flex;gap:1.5rem;}}
+@media (min-width:768px){.proto-menu{display:flex;justify-content:center;gap:1.5rem;margin-top:0.9rem;}}
 
 /* ===== mobile nav — MENU/CLOSE overlay, mobile-only (<768px). Desktop
    nav (.proto-menu) is completely untouched; this is an independent
@@ -39,7 +44,7 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
    pinned top-left, this toggle occupies the same top-right slot the
    desktop menu uses, so only one of the two is ever visible/laid out
    at a given width). ===== */
-.proto-menu-toggle{display:inline-block;background:none;border:none;padding:0;font-family:'DM Sans',sans-serif;font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);opacity:0.72;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,0.55),0 2px 10px rgba(0,0,0,0.35);}
+.proto-menu-toggle{position:absolute;right:1.1rem;top:2.35rem;transform:translateY(-50%);display:inline-block;background:none;border:none;padding:0;font-family:'DM Sans',sans-serif;font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);opacity:0.72;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,0.55),0 2px 10px rgba(0,0,0,0.35);}
 .proto-menu-toggle:hover{opacity:1;}
 .proto-menu-toggle:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;opacity:1;}
 @media (min-width:768px){.proto-menu-toggle{display:none;}}
@@ -56,7 +61,7 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
 
 
 /* ===== opening — extremely compact, clears the nav and stops ===== */
-.intro{padding:3.2rem 1.2rem 0.5rem;}
+.intro{padding:9.5rem 1.2rem 0.5rem;}
 .intro h1{font-family:var(--font-display);font-weight:700;font-size:clamp(1.4rem,3.4vw,2.1rem);letter-spacing:-0.01em;line-height:1;color:var(--text);}
 
 /* ===== strips — edge to edge, near-continuous vertical stack ===== */
@@ -66,10 +71,8 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
   position:relative;display:block;overflow:hidden;isolation:isolate;
   height:35vh;margin-bottom:2px;background:#050505;
   text-decoration:none;color:inherit;cursor:pointer;
-  transition:height .45s cubic-bezier(.22,1,.36,1);
 }
 .strip:last-child{margin-bottom:0;}
-.strip:hover,.strip:focus-visible{height:37vh;}
 .strip:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:-3px;}
 
 /* Explicit z-index (not just DOM order) — .strip-img and .strip::before
@@ -79,8 +82,17 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
    real, per-strip-inconsistent stacking in Safari (image over gradient
    on some strips, gradient over image on others). `isolation:isolate`
    on .strip plus explicit z-index below removes that ambiguity. */
-.strip-img{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;transition:transform .6s ease;-webkit-user-drag:none;}
-.strip:hover .strip-img,.strip:focus-visible .strip-img{transform:scale(1.035);}
+/* Hover: the photo slowly pans upward inside the strip (no zoom, no height
+   change, nothing else on the page moves). The image is 30% taller than
+   the strip and starts centered (top:-15%), so it can travel exactly
+   15% of the strip (= 11.5% of its own height) before its bottom edge
+   would show. Leaving glides back at the same slow pace. Only on devices
+   that really hover, so a tap on mobile never triggers it. */
+.strip-img{position:absolute;left:0;top:-15%;z-index:0;width:100%;height:130%;object-fit:cover;transition:transform 1.6s cubic-bezier(.25,.1,.25,1);will-change:transform;-webkit-user-drag:none;}
+@media (hover:hover){
+  .strip:hover .strip-img{transform:translateY(-11.5%);}
+}
+.strip:focus-visible .strip-img{transform:translateY(-11.5%);}
 
 /* Single horizontal vignette from the left edge, protecting the title/
    metadata block. Same values on every strip — no per-project darkness
@@ -112,7 +124,6 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
 }
 
 @media (prefers-reduced-motion:reduce){
-  .strip{transition:none;}
   .strip-img{transition:none;}
   .strip:hover .strip-img,.strip:focus-visible .strip-img{transform:none;}
   .strip::before{transition:none;}
@@ -120,16 +131,15 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
 
 /* ===== mobile — taller strips, still near-continuous, no hover dependency ===== */
 @media (max-width:767px){
-  .intro{padding:3rem 1rem 0.5rem;}
+  .intro{padding:6.5rem 1rem 0.5rem;}
   .strip{height:34vh;}
   /* Was `height:inherit` — that doesn't mean "keep 34vh", it resolves
      against the parent's (auto) height, which collapsed the tapped strip
      since its only in-flow content is the meta text. On touch devices the
      tap-triggered :hover/:focus-visible match fired that collapse mid-tap,
      shifting every strip below it before the click coordinates resolved —
-     root cause of a tap opening the wrong project. Explicit 34vh keeps
-     hover/focus a true no-op at this breakpoint. */
-  .strip:hover,.strip:focus-visible{height:34vh;}
+     root cause of a tap opening the wrong project. Hover no longer
+     changes height at all, so nothing here needs overriding. */
   .strip-meta{padding:1.2rem 1.1rem;max-width:100%;}
   .strip-title{font-size:clamp(1.5rem,6vw,2.2rem);}
 }
