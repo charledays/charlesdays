@@ -52,6 +52,22 @@
 .mobile-nav-links a:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:4px;}
 @media (prefers-reduced-motion:reduce){.mobile-nav-overlay{transition:none;}}
 
+/* ===== shared page shell + page header (every inner page) =====
+   Content column, then: small kicker, one huge word, optional index line.
+   Same title on Projects, Film & Photo, Tattoo, Exhibitions, About. */
+.g-page{padding-top:var(--nav-h);}
+.g-wrap{width:min(100% - 2 * var(--gutter),var(--container));margin-left:auto;margin-right:auto;}
+
+/* page header: kicker, one huge word, an optional index line */
+.g-head{padding-top:1.4rem;padding-bottom:2.6rem;}
+@media (min-width:900px){.g-head{padding-top:2rem;padding-bottom:3.4rem;}}
+.g-kicker{font-size:0.62rem;letter-spacing:0.24em;text-transform:uppercase;color:#8f96a8;}
+.g-title{margin-top:0.7rem;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(3rem,11vw,8.5rem);letter-spacing:-0.035em;line-height:0.86;}
+.g-index{display:flex;flex-wrap:wrap;gap:0.5rem 1.6rem;margin-top:1.6rem;}
+.g-index a{font-size:0.7rem;letter-spacing:0.16em;text-transform:uppercase;text-decoration:none;opacity:0.75;transition:opacity .2s ease;}
+.g-index a:hover{opacity:1;}
+.g-index sup{font-size:0.55rem;margin-left:0.3em;color:#8f96a8;letter-spacing:0.05em;}
+
 @media (min-width:768px){
   .proto-logo-img{width:135px;margin:-20px 0 -31px;}
   .proto-menu{display:flex;justify-content:center;gap:1.5rem;margin-top:0.9rem;}

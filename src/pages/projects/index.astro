@@ -22,8 +22,6 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
 /* Header layout (sizes, centering, gradient) lives in /assets/nav.css. */
 
 /* ===== opening — extremely compact, clears the nav and stops ===== */
-.intro{padding:calc(var(--nav-h) + 1rem) 1.2rem 0.5rem;}
-.intro h1{font-family:var(--font-display);font-weight:700;font-size:clamp(1.4rem,3.4vw,2.1rem);letter-spacing:-0.01em;line-height:1;color:var(--text);}
 
 /* ===== group headings — ONGOING (universes he keeps running) / PROJECTS ===== */
 .strips-group{display:flex;align-items:baseline;gap:0.9rem;padding:2.4rem 1.2rem 0.9rem;font-size:0.62rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--text-muted);}
@@ -34,11 +32,10 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
 
 /* ===== strips — edge to edge, near-continuous vertical stack ===== */
 .strips{display:flex;flex-direction:column;}
-/* Desktop: title, group headings and strips share the site content width
+/* Desktop: group headings and strips share the site content width
    (--container, /assets/nav.css). Phones keep edge-to-edge strips. */
 @media (min-width:768px){
-  .intro,.strips{width:min(100% - 2 * var(--gutter),var(--container));margin-left:auto;margin-right:auto;}
-  .intro{padding-left:0;padding-right:0;}
+  .strips{width:min(100% - 2 * var(--gutter),var(--container));margin-left:auto;margin-right:auto;}
   .strips .strips-group{padding-left:0;padding-right:0;}
 }
 
@@ -106,7 +103,6 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
 
 /* ===== mobile — taller strips, still near-continuous, no hover dependency ===== */
 @media (max-width:767px){
-  .intro{padding:calc(var(--nav-h) + 0.5rem) 1rem 0.5rem;}
   .strip{height:34vh;}
   /* Was `height:inherit` — that doesn't mean "keep 34vh", it resolves
      against the parent's (auto) height, which collapsed the tapped strip
@@ -120,9 +116,10 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
 }
 </style>
 </Fragment>
-<main>
-  <header class="intro">
-    <h1>PROJECTS</h1>
+<main class="g-page">
+  <header class="g-head g-wrap">
+    <p class="g-kicker">Universos en curso · Proyectos</p>
+    <h1 class="g-title">PROJECTS</h1>
   </header>
 
   <div id="strips" class="strips"></div>
