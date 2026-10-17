@@ -1,0 +1,510 @@
+{
+ "/images/manifiesto/bust-detail.jpg": [
+  954,
+  1696
+ ],
+ "/images/manifiesto/canvas-lettering-detail.jpg": [
+  954,
+  1696
+ ],
+ "/images/manifiesto/canvas-wide.jpg": [
+  1600,
+  1200
+ ],
+ "/images/manifiesto/closing-charles-mother.jpg": [
+  1130,
+  1696
+ ],
+ "/images/manifiesto/cover.jpg": [
+  6000,
+  4000
+ ],
+ "/images/manifiesto/floor-installation.jpg": [
+  1600,
+  1200
+ ],
+ "/images/manifiesto/fox-artwork-detail.jpg": [
+  1272,
+  1696
+ ],
+ "/images/manifiesto/gallery-wall.jpg": [
+  2000,
+  1333
+ ],
+ "/images/manifiesto/opening-room.jpg": [
+  1600,
+  1200
+ ],
+ "/images/manifiesto/process-cutting.jpg": [
+  2544,
+  1696
+ ],
+ "/images/manifiesto/process-mirror.jpg": [
+  2000,
+  1333
+ ],
+ "/images/manifiesto/workshop-presentation.jpg": [
+  2000,
+  1125
+ ],
+ "/images/manifiesto/workshop-table.jpg": [
+  1272,
+  1696
+ ],
+ "/images/stories/3rd-gen-building-systems/cover.png": [
+  1696,
+  1696
+ ],
+ "/images/stories/3rd-gen-building-systems/detail-01.png": [
+  1696,
+  1696
+ ],
+ "/images/stories/3rd-gen-building-systems/detail-02.png": [
+  1696,
+  1696
+ ],
+ "/images/stories/3rd-gen-building-systems/detail-03.png": [
+  1696,
+  1696
+ ],
+ "/images/stories/3rd-gen-building-systems/detail-04.png": [
+  1696,
+  1696
+ ],
+ "/images/stories/3rd-gen-building-systems/detail-05.jpg": [
+  1200,
+  1600
+ ],
+ "/images/stories/art/cover.jpg": [
+  3024,
+  4032
+ ],
+ "/images/stories/art/detail-01.jpg": [
+  2268,
+  4032
+ ],
+ "/images/stories/art/detail-02.jpg": [
+  954,
+  1696
+ ],
+ "/images/stories/art/detail-03.jpeg": [
+  1272,
+  1696
+ ],
+ "/images/stories/art/detail-04.jpg": [
+  954,
+  1696
+ ],
+ "/images/stories/art/detail-05.jpg": [
+  1272,
+  1696
+ ],
+ "/images/stories/highend-night-car-meet/cover.jpeg": [
+  2048,
+  1365
+ ],
+ "/images/stories/highend-night-car-meet/detail-01.jpeg": [
+  2048,
+  1365
+ ],
+ "/images/stories/highend-night-car-meet/detail-02.jpeg": [
+  2048,
+  1365
+ ],
+ "/images/stories/highend-night-car-meet/detail-03.jpeg": [
+  2048,
+  1365
+ ],
+ "/images/stories/highend-night-car-meet/detail-04.jpeg": [
+  2048,
+  1365
+ ],
+ "/images/stories/highend-night-car-meet/detail-06.jpeg": [
+  2730,
+  4095
+ ],
+ "/images/stories/highend-night-car-meet/detail-07.jpeg": [
+  1276,
+  1700
+ ],
+ "/images/stories/highend-night-car-meet/detail-08.jpeg": [
+  1276,
+  1700
+ ],
+ "/images/stories/interlock/cover.jpg": [
+  954,
+  1696
+ ],
+ "/images/stories/interlock/detail-01.jpg": [
+  1272,
+  1696
+ ],
+ "/images/stories/interlock/detail-02.jpg": [
+  1272,
+  1696
+ ],
+ "/images/stories/internazionale/cover.jpg": [
+  1391,
+  1400
+ ],
+ "/images/stories/internazionale/detail-01.jpg": [
+  787,
+  1400
+ ],
+ "/images/stories/internazionale/detail-02.jpg": [
+  1400,
+  1382
+ ],
+ "/images/stories/internazionale/detail-03.png": [
+  1272,
+  1696
+ ],
+ "/images/stories/internazionale/detail-04.jpg": [
+  2500,
+  1667
+ ],
+ "/images/stories/internazionale/detail-05.png": [
+  2048,
+  2048
+ ],
+ "/images/stories/internazionale/detail-06.png": [
+  2048,
+  2048
+ ],
+ "/images/stories/internazionale/detail-07.png": [
+  1383,
+  1920
+ ],
+ "/images/stories/mr-enz-x-charles-days/cover.jpg": [
+  2268,
+  4032
+ ],
+ "/images/stories/mr-enz-x-charles-days/detail-01.jpg": [
+  2268,
+  4032
+ ],
+ "/images/stories/mr-enz-x-charles-days/detail-02.jpg": [
+  2268,
+  4032
+ ],
+ "/images/stories/mr-enz-x-charles-days/detail-03.jpg": [
+  2268,
+  4032
+ ],
+ "/images/stories/mr-enz-x-charles-days/detail-04.jpg": [
+  3024,
+  4032
+ ],
+ "/images/stories/mr-enz-x-charles-days/detail-05.jpg": [
+  3024,
+  4032
+ ],
+ "/images/stories/mr-enz-x-charles-days/detail-06.png": [
+  2992,
+  624
+ ],
+ "/images/stories/new-yorker-85/cover.png": [
+  1272,
+  1696
+ ],
+ "/images/stories/new-yorker-85/detail-01.png": [
+  1272,
+  1696
+ ],
+ "/images/stories/new-yorker-85/detail-02.png": [
+  1272,
+  1696
+ ],
+ "/images/stories/new-yorker-85/detail-03.png": [
+  1086,
+  1448
+ ],
+ "/images/stories/new-yorker-85/detail-04.jpg": [
+  1272,
+  1696
+ ],
+ "/images/stories/new-yorker-85/detail-05.jpg": [
+  954,
+  1696
+ ],
+ "/images/stories/new-yorker-85/detail-06.jpg": [
+  768,
+  1024
+ ],
+ "/images/stories/reflections/cover.png": [
+  1086,
+  1448
+ ],
+ "/images/stories/reflections/detail-01.png": [
+  720,
+  1280
+ ],
+ "/images/stories/reflections/detail-02.png": [
+  720,
+  1280
+ ],
+ "/images/stories/reflections/detail-03.png": [
+  1280,
+  720
+ ],
+ "/images/stories/tattoo-black-red/detail-01.jpg": [
+  4284,
+  5712
+ ],
+ "/images/stories/ufology/cover.jpg": [
+  1700,
+  1700
+ ],
+ "/images/stories/ufology/detail-01.jpg": [
+  1440,
+  1800
+ ],
+ "/images/stories/ufology/detail-02.jpg": [
+  1700,
+  1700
+ ],
+ "/images/stories/ufology/detail-03.jpg": [
+  2268,
+  4032
+ ],
+ "/images/stories/vida-bandida-tracks/cover.jpg": [
+  900,
+  1600
+ ],
+ "/images/stories/vida-bandida-tracks/detail-01.jpg": [
+  956,
+  1700
+ ],
+ "/images/stories/vida-bandida-tracks/detail-02.jpg": [
+  1590,
+  2120
+ ],
+ "/images/stories/vida-bandida-tracks/detail-03.jpg": [
+  2400,
+  1600
+ ],
+ "/images/stories/vida-bandida-tracks/detail-04.jpg": [
+  2400,
+  1600
+ ],
+ "/images/stories/vida-bandida-tracks/detail-05.jpg": [
+  2400,
+  1600
+ ],
+ "/images/stories/vida-bandida-tracks/detail-06.jpg": [
+  2400,
+  1600
+ ],
+ "/images/stories/vidabandida-buenas-malas-decisiones/cover.jpg": [
+  1400,
+  933
+ ],
+ "/images/stories/vidabandida-buenas-malas-decisiones/detail-01.png": [
+  1360,
+  1700
+ ],
+ "/images/stories/vidabandida-buenas-malas-decisiones/detail-02.png": [
+  1360,
+  1700
+ ],
+ "/images/stories/vidabandida-buenas-malas-decisiones/detail-03.png": [
+  1360,
+  1700
+ ],
+ "/images/stories/vidabandida-chlorotype-series/cover.jpeg": [
+  2730,
+  4095
+ ],
+ "/images/stories/vidabandida-chlorotype-series/detail-01.jpg": [
+  3024,
+  4032
+ ],
+ "/images/stories/vidabandida-chlorotype-series/detail-02.jpeg": [
+  2730,
+  4095
+ ],
+ "/images/stories/vidabandida-chlorotype-series/detail-03.jpeg": [
+  2730,
+  4095
+ ],
+ "/images/stories/vidabandida-chlorotype-series/detail-04.jpeg": [
+  2730,
+  4095
+ ],
+ "/images/stories/vidabandida-chlorotype-series/detail-05.jpeg": [
+  2730,
+  4095
+ ],
+ "/images/stories/vidabandida-chlorotype-series/detail-07.jpeg": [
+  954,
+  1696
+ ],
+ "/images/stories/vidabandida-chlorotype-series/detail-08.jpeg": [
+  1356,
+  1696
+ ],
+ "/images/tattoo/chameleon.jpg": [
+  1356,
+  1696
+ ],
+ "/images/tattoo/chest-ornamental-black.jpg": [
+  3024,
+  4032
+ ],
+ "/images/tattoo/eagle-profile.jpg": [
+  332,
+  378
+ ],
+ "/images/tattoo/freddy.jpg": [
+  1272,
+  1696
+ ],
+ "/images/tattoo/head-lettering-02.jpg": [
+  3024,
+  4032
+ ],
+ "/images/tattoo/head-lettering.jpg": [
+  1080,
+  1920
+ ],
+ "/images/tattoo/head-neck-night.jpg": [
+  3448,
+  4592
+ ],
+ "/images/tattoo/lettering-arm.jpg": [
+  2027,
+  2700
+ ],
+ "/images/tattoo/lettering-floral.jpg": [
+  1507,
+  2679
+ ],
+ "/images/tattoo/raccoon.jpg": [
+  1356,
+  1696
+ ],
+ "/images/tattoo/sloth-hand.jpg": [
+  332,
+  378
+ ],
+ "/images/tattoo/tiki.jpg": [
+  954,
+  1696
+ ],
+ "/images/tattoo/wolf.jpg": [
+  3024,
+  4032
+ ],
+ "/images/wall/alyh-wall.png": [
+  1057,
+  1488
+ ],
+ "/images/wall/avirex.png": [
+  1377,
+  1142
+ ],
+ "/images/wall/bryan.png": [
+  1179,
+  987
+ ],
+ "/images/wall/caribes-del-pacifico.jpg": [
+  954,
+  1696
+ ],
+ "/images/wall/chinatown.png": [
+  1570,
+  1001
+ ],
+ "/images/wall/comuna-13-co.png": [
+  1272,
+  1696
+ ],
+ "/images/wall/david-oliva-pe.png": [
+  670,
+  1062
+ ],
+ "/images/wall/ekors-fr.jpg": [
+  1272,
+  1696
+ ],
+ "/images/wall/eye-tag.jpg": [
+  1299,
+  2126
+ ],
+ "/images/wall/internazionale-statement.png": [
+  1272,
+  1696
+ ],
+ "/images/wall/kaido-house-collection.png": [
+  1213,
+  1297
+ ],
+ "/images/wall/kef-pe.png": [
+  1272,
+  1696
+ ],
+ "/images/wall/morena-pe.jpg": [
+  954,
+  1696
+ ],
+ "/images/wall/nekroz-fr.jpg": [
+  1272,
+  1696
+ ],
+ "/images/wall/raiz-specialty-coffee.png": [
+  1179,
+  1105
+ ],
+ "/images/wall/tattoo-black-red.jpg": [
+  956,
+  1700
+ ],
+ "/images/wall/tattoo-eagle.png": [
+  731,
+  1397
+ ],
+ "/images/wall/tattoo-leg-red-black.jpg": [
+  1080,
+  1920
+ ],
+ "/images/wall/tattoo-neck-sky.jpg": [
+  954,
+  1696
+ ],
+ "/images/wall/vdba-x-fuck-up-x-kamaq.jpg": [
+  1242,
+  1643
+ ],
+ "/images/wall/vidabandida-drop-caballo-ganador.jpg": [
+  1617,
+  1617
+ ],
+ "/images/wall/vidabandida-drop-rococo-kitsune-i.jpg": [
+  1320,
+  1760
+ ],
+ "/images/wall/vidabandida-drop-rococo-kitsune-ii.png": [
+  1037,
+  1517
+ ],
+ "/images/wall/vidabandida-tracks-alyh.png": [
+  941,
+  1672
+ ],
+ "/images/wall/vidabandida-tracks-dj-sheiler.png": [
+  1190,
+  1322
+ ],
+ "/images/wall/vidabandida-tracks-karem-ro.png": [
+  784,
+  1696
+ ],
+ "/images/wall/vidabandida-x-ekors-mob.png": [
+  1354,
+  1161
+ ],
+ "/images/wall/vozchler-charles-ft-dj-sheiler.png": [
+  2048,
+  1365
+ ]
+}

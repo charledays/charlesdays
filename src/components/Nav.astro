@@ -10,17 +10,16 @@ interface Props {
 const { variant = 'page' } = Astro.props;
 
 const LINKS = [
-  { href: '/art-direction/', label: 'ART DIRECTION' },
+  { href: '/projects/', label: 'PROJECTS' },
+  { href: '/film/', label: 'FILM & PHOTO' },
   { href: '/tattoo/', label: 'TATTOO' },
-  { href: '/film/', label: 'FILM' },
+  { href: '/exhibitions/', label: 'EXHIBITIONS' },
   { href: '/about/', label: 'ABOUT' },
-  { href: '/manifiesto/', label: 'MANIFIESTO' },
 ];
 
-// Project detail pages live under /projects/ but belong to Art Direction.
+// A section's own pages (e.g. /projects/ufology/) highlight its link too.
 const path = Astro.url.pathname;
-const section = path.startsWith('/projects/') ? '/art-direction/' : path;
-const current = (href: string) => (href === section ? 'page' : undefined);
+const current = (href: string) => (path.startsWith(href) ? 'page' : undefined);
 ---
 <nav class="proto-nav">
   <a class="proto-logo" href="/" aria-current={variant === 'home' ? 'page' : undefined}><img class="proto-logo-img" src="/images/brand/charlesdays-wordmark.png" alt="Charles Days"></a>

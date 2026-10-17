@@ -530,7 +530,7 @@ export const stories = [
   // reuse supportingImages already approved above for the "new-yorker-85"
   // project page (detail-01 through detail-06, same supply order — no new
   // copies, no new crops) but are separate Wall tiles with their own
-  // destinations: Art Direction ones route to /art-direction/ (discipline,
+  // destinations: Art Direction ones route to /projects/ (discipline,
   // not the project page), the behind-the-scenes shot of photographers
   // around the car routes to /film/ instead.
   //
@@ -554,7 +554,7 @@ export const stories = [
     disciplineLabel: "ART DIRECTION",
     project: null,
     destinationType: "discipline",
-    destinationUrl: "/art-direction/",
+    destinationUrl: "/projects/",
     cover: { src: "/images/stories/new-yorker-85/detail-01.png", alt: "Persona sentada frente al costado del auto amarillo" },
     supportingImages: [],
     role: ["Art Direction"],
@@ -572,7 +572,7 @@ export const stories = [
     disciplineLabel: "ART DIRECTION",
     project: null,
     destinationType: "discipline",
-    destinationUrl: "/art-direction/",
+    destinationUrl: "/projects/",
     cover: { src: "/images/stories/new-yorker-85/detail-03.png", alt: "Proceso — personas reunidas alrededor del auto" },
     supportingImages: [],
     role: ["Art Direction"],
@@ -590,7 +590,7 @@ export const stories = [
     disciplineLabel: "ART DIRECTION",
     project: null,
     destinationType: "discipline",
-    destinationUrl: "/art-direction/",
+    destinationUrl: "/projects/",
     cover: { src: "/images/stories/new-yorker-85/detail-05.jpg", alt: "Charles Days de pie frente al New Yorker amarillo intervenido, dentro de Fvbrikv" },
     supportingImages: [],
     role: ["Art Direction"],
@@ -1679,7 +1679,7 @@ export const stories = [
     disciplineLabel: "MANIFIESTO",
     project: "Manifiesto",
     destinationType: "manifiesto",
-    destinationUrl: "/manifiesto/",
+    destinationUrl: "/exhibitions/manifiesto/",
     cover: {
       src: "/images/manifiesto/cover.jpg",
       alt: null // PENDING — no confirmed description to build real alt text from yet
@@ -1719,7 +1719,7 @@ export const stories = [
     disciplineLabel: "MANIFIESTO",
     project: "Manifiesto",
     destinationType: "manifiesto",
-    destinationUrl: "/manifiesto/",
+    destinationUrl: "/exhibitions/manifiesto/",
     cover: { src: "/images/manifiesto/bust-detail.jpg", alt: null },
     supportingImages: [],
     role: [],
@@ -1737,7 +1737,7 @@ export const stories = [
     disciplineLabel: "MANIFIESTO",
     project: "Manifiesto",
     destinationType: "manifiesto",
-    destinationUrl: "/manifiesto/",
+    destinationUrl: "/exhibitions/manifiesto/",
     cover: { src: "/images/manifiesto/canvas-lettering-detail.jpg", alt: null },
     supportingImages: [],
     role: [],
@@ -1755,7 +1755,7 @@ export const stories = [
     disciplineLabel: "MANIFIESTO",
     project: "Manifiesto",
     destinationType: "manifiesto",
-    destinationUrl: "/manifiesto/",
+    destinationUrl: "/exhibitions/manifiesto/",
     cover: { src: "/images/manifiesto/process-cutting.jpg", alt: null },
     supportingImages: [],
     role: [],
@@ -1773,7 +1773,7 @@ export const stories = [
     disciplineLabel: "MANIFIESTO",
     project: "Manifiesto",
     destinationType: "manifiesto",
-    destinationUrl: "/manifiesto/",
+    destinationUrl: "/exhibitions/manifiesto/",
     cover: { src: "/images/manifiesto/canvas-wide.jpg", alt: null },
     supportingImages: [],
     role: [],

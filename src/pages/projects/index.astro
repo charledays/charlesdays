@@ -3,13 +3,13 @@ import Base from '../../layouts/Base.astro';
 ---
 <Base>
 <Fragment slot="head">
-<title>Art Direction — Charles Days</title>
-<meta name="description" content="Art direction and visual intervention work by Charles Days — murals, album art, vehicle and object interventions, and brand identity.">
-<link rel="canonical" href="https://charlesdays.art/art-direction/">
+<title>Projects — Charles Days</title>
+<meta name="description" content="Projects by creative director Charles Days — ongoing universes like VIDABANDIDA plus art direction, murals, album art, vehicle and object interventions, and brand identity.">
+<link rel="canonical" href="https://charlesdays.art/projects/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Art Direction — Charles Days">
-<meta property="og:description" content="Art direction and visual intervention work by Charles Days — murals, album art, vehicle and object interventions, and brand identity.">
-<meta property="og:url" content="https://charlesdays.art/art-direction/">
+<meta property="og:title" content="Projects — Charles Days">
+<meta property="og:description" content="Projects by creative director Charles Days — ongoing universes like VIDABANDIDA plus art direction, murals, album art, vehicle and object interventions, and brand identity.">
+<meta property="og:url" content="https://charlesdays.art/projects/">
 <meta property="og:image" content="https://charlesdays.art/images/stories/interlock/cover.jpg">
 <meta property="og:image:alt" content="Mural terminado — grandes formas geométricas azules entrelazadas con elementos caligráficos blancos/plateados sobre fondo oscuro">
 <style is:inline>
@@ -24,6 +24,13 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
 /* ===== opening — extremely compact, clears the nav and stops ===== */
 .intro{padding:calc(var(--nav-h) + 1rem) 1.2rem 0.5rem;}
 .intro h1{font-family:var(--font-display);font-weight:700;font-size:clamp(1.4rem,3.4vw,2.1rem);letter-spacing:-0.01em;line-height:1;color:var(--text);}
+
+/* ===== group headings — ONGOING (universes he keeps running) / PROJECTS ===== */
+.strips-group{display:flex;align-items:baseline;gap:0.9rem;padding:2.4rem 1.2rem 0.9rem;font-size:0.62rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--text-muted);}
+.strips-group b{font-family:var(--font-display);font-weight:700;font-size:clamp(1.1rem,2vw,1.5rem);letter-spacing:-0.01em;color:var(--text);}
+.strips-group i{font-style:normal;display:inline-flex;align-items:center;gap:0.45em;}
+.strips-group i::before{content:"";width:7px;height:7px;border-radius:50%;background:#e2312d;box-shadow:0 0 0 3px rgba(226,49,45,0.18);}
+@media (min-width:768px){.strips-group{padding:3rem 2.4rem 1.1rem;}}
 
 /* ===== strips — edge to edge, near-continuous vertical stack ===== */
 .strips{display:flex;flex-direction:column;}
@@ -108,7 +115,7 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
 </Fragment>
 <main>
   <header class="intro">
-    <h1>ART DIRECTION</h1>
+    <h1>PROJECTS</h1>
   </header>
 
   <div id="strips" class="strips"></div>
@@ -201,7 +208,20 @@ function stripHTML(entry, index) {
     '</a>';
 }
 
-document.getElementById('strips').innerHTML = SEQUENCE.map(stripHTML).join('');
+/* Two groups: ONGOING — the universes Charles keeps running (VIDABANDIDA
+   for now; add an id to ONGOING to move a project up) — then every other
+   project in the existing curated order. */
+var ONGOING = ['vida-bandida-tracks', 'vidabandida-buenas-malas-decisiones', 'vidabandida-chlorotype-series'];
+var ongoing = ONGOING.map(function (id) { return SEQUENCE.find(function (e) { return e.id === id; }); }).filter(Boolean);
+var oneOff = SEQUENCE.filter(function (e) { return ONGOING.indexOf(e.id) === -1; });
+
+function groupHTML(label, kicker, live) {
+  return '<h2 class="strips-group">' + (live ? '<i>' + kicker + '</i>' : '<span>' + kicker + '</span>') + '<b>' + label + '</b></h2>';
+}
+
+document.getElementById('strips').innerHTML =
+  groupHTML('VIDABANDIDA', 'En curso', true) + ongoing.map(stripHTML).join('') +
+  groupHTML('PROYECTOS', 'Selección', false) + oneOff.map(function (e, i) { return stripHTML(e, i + ongoing.length); }).join('');
 
 /* Mobile object-position overrides — applied via JS rather than a CSS
    media query per image, since only a couple of covers actually need a

@@ -1,0 +1,162 @@
+---
+/* One "gallery wall": a row of photos hung at the same height, each at its
+   own natural width (nothing cropped), scrolled sideways — trackpad,
+   Shift+wheel, drag with the mouse, swipe, or the ← → buttons. A thin line
+   under the row shows how far along it you are. Photos open in <Viewer />
+   (grouped per row for prev/next). Grid images are the standard-quality
+   WebPs; the viewer gets the HD original. */
+import { smSrc, sizeOf } from '../lib/media';
+
+export type RowItem = {
+  src: string;
+  alt: string;
+  caption?: string | null;
+  meta?: string | number | null;
+  link?: string | null;
+  linkLabel?: string | null;
+};
+
+interface Props {
+  id: string;
+  title: string;
+  kicker?: string;
+  items: RowItem[];
+  size?: 'lg' | 'md';
+}
+
+const { id, title, kicker, items, size = 'lg' } = Astro.props;
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+<section class:list={['row', `row-${size}`]} id={id} aria-labelledby={`${id}-title`}>
+  <header class="row-head g-wrap">
+    <div>
+      {kicker && <p class="g-kicker">{kicker}</p>}
+      <h2 class="row-title" id={`${id}-title`}>{title}<sup>{pad(items.length)}</sup></h2>
+    </div>
+    <div class="row-nav">
+      <button type="button" class="row-btn" data-row-prev aria-label={`${title}: anterior`}>&larr;</button>
+      <button type="button" class="row-btn" data-row-next aria-label={`${title}: siguiente`}>&rarr;</button>
+    </div>
+  </header>
+
+  <div class="row-track" data-row tabindex="0" aria-label={`${title} — galería`}>
+    {items.map((it, i) => {
+      const [w, h] = sizeOf(it.src);
+      return (
+        <figure class="row-item" style={`--ar:${(w / h).toFixed(4)}`}>
+          <button
+            type="button"
+            class="row-photo"
+            data-view={id}
+            data-full={it.src}
+            data-sm={smSrc(it.src)}
+            data-caption={[it.caption, it.meta].filter(Boolean).join(' — ')}
+            data-link={it.link || undefined}
+            data-link-label={it.linkLabel || undefined}
+            aria-label={`Ver: ${it.caption || it.alt}`}
+          >
+            <img src={smSrc(it.src)} alt={it.alt} width={w} height={h} loading={i < 3 ? 'eager' : 'lazy'} decoding="async" draggable="false" />
+          </button>
+          {(it.caption || it.meta) && (
+            <figcaption class="g-label row-cap">
+              <span>{pad(i + 1)}</span>
+              <span><b>{it.caption}</b>{it.meta && <> · {it.meta}</>}</span>
+            </figcaption>
+          )}
+        </figure>
+      );
+    })}
+  </div>
+  <div class="row-progress g-wrap" aria-hidden="true"><i data-row-progress></i></div>
+</section>
+
+<style>
+  .row{margin-bottom:clamp(3.5rem,8vw,6.5rem);}
+  .row-lg{--row-h:clamp(240px,58vh,640px);}
+  .row-md{--row-h:clamp(200px,42vh,460px);}
+  @media (max-width:599px){.row-lg{--row-h:min(56vh,118vw);}.row-md{--row-h:min(44vh,92vw);}}
+
+  .row-head{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:1.1rem;}
+  .row-title{margin-top:0.35rem;font-family:var(--font-display);font-weight:700;font-size:clamp(1.5rem,3.2vw,2.6rem);letter-spacing:-0.02em;line-height:1;text-transform:uppercase;}
+  .row-title sup{font-size:0.38em;font-weight:500;letter-spacing:0.08em;color:var(--muted);margin-left:0.5em;vertical-align:super;}
+  .row-nav{display:flex;gap:0.5rem;}
+  .row-btn{width:42px;height:42px;border-radius:50%;border:1px solid var(--hair-strong);background:transparent;color:var(--text);font-size:1rem;cursor:pointer;transition:border-color .2s ease,opacity .2s ease;}
+  .row-btn:hover{border-color:var(--text);}
+  .row-btn:disabled{opacity:0.25;cursor:default;}
+  .row-btn:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:2px;}
+  @media (hover:none){.row-nav{display:none;}}
+
+  .row-track{
+    display:flex;gap:clamp(10px,1.3vw,22px);overflow-x:auto;overflow-y:hidden;
+    padding:0 var(--gutter);scroll-padding:0 var(--gutter);
+    scroll-snap-type:x proximity;overscroll-behavior-x:contain;
+    scrollbar-width:none;cursor:grab;
+  }
+  .row-track::-webkit-scrollbar{display:none;}
+  .row-track.is-dragging{cursor:grabbing;scroll-snap-type:none;}
+  .row-track.is-dragging .row-photo{pointer-events:none;}
+  .row-track:focus-visible{outline:2px solid rgba(255,255,255,0.5);outline-offset:4px;}
+
+  .row-item{flex:0 0 auto;scroll-snap-align:start;width:calc(var(--row-h) * var(--ar));}
+  .row-photo{display:block;width:100%;height:var(--row-h);padding:0;border:0;background:#111;cursor:zoom-in;overflow:hidden;}
+  .row-photo img{width:100%;height:100%;object-fit:cover;filter:brightness(.9);transition:filter .4s ease;user-select:none;-webkit-user-drag:none;}
+  .row-photo:hover img,.row-photo:focus-visible img{filter:brightness(1);}
+  .row-photo:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:-2px;}
+  .row-cap{margin-top:0.7rem;padding-right:0.5rem;}
+
+  .row-progress{margin-top:1.4rem;}
+  .row-progress::before{content:"";display:block;height:1px;background:var(--hair);}
+  .row-progress i{display:block;height:1px;margin-top:-1px;background:var(--text);width:100%;transform-origin:left;transform:scaleX(0);}
+  @media (prefers-reduced-motion:reduce){.row-photo img{transition:none;}}
+</style>
+
+<script>
+  /* Per row: arrow buttons, progress line, mouse drag-to-scroll. Vertical
+     wheel is left alone (it scrolls the page); trackpads and Shift+wheel
+     scroll the row natively. */
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.querySelectorAll<HTMLElement>('.row').forEach((row) => {
+    const track = row.querySelector<HTMLElement>('[data-row]')!;
+    const prev = row.querySelector<HTMLButtonElement>('[data-row-prev]')!;
+    const next = row.querySelector<HTMLButtonElement>('[data-row-next]')!;
+    const bar = row.querySelector<HTMLElement>('[data-row-progress]')!;
+
+    const update = () => {
+      const max = track.scrollWidth - track.clientWidth;
+      const p = max > 0 ? track.scrollLeft / max : 1;
+      bar.style.transform = `scaleX(${Math.max(0.04, p)})`;
+      prev.disabled = track.scrollLeft <= 2;
+      next.disabled = track.scrollLeft >= max - 2;
+    };
+    const step = (dir: number) =>
+      track.scrollBy({ left: dir * track.clientWidth * 0.8, behavior: reduce ? 'auto' : 'smooth' });
+
+    prev.addEventListener('click', () => step(-1));
+    next.addEventListener('click', () => step(1));
+    track.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+
+    // Mouse drag-to-scroll; a drag never opens a photo.
+    let startX = 0, startLeft = 0, down = false, moved = false;
+    track.addEventListener('pointerdown', (e) => {
+      if (e.pointerType !== 'mouse' || e.button !== 0) return;
+      down = true; moved = false; startX = e.clientX; startLeft = track.scrollLeft;
+    });
+    window.addEventListener('pointermove', (e) => {
+      if (!down) return;
+      const dx = e.clientX - startX;
+      if (!moved && Math.abs(dx) < 6) return;
+      if (!moved) { moved = true; track.classList.add('is-dragging'); }
+      track.scrollLeft = startLeft - dx;
+    });
+    window.addEventListener('pointerup', () => {
+      if (!down) return;
+      down = false;
+      if (moved) requestAnimationFrame(() => track.classList.remove('is-dragging'));
+    });
+    track.addEventListener('click', (e) => { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } }, true);
+    track.addEventListener('dragstart', (e) => e.preventDefault());
+  });
+</script>

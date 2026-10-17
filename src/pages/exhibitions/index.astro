@@ -1,0 +1,96 @@
+---
+/* EXHIBITIONS — shows and workshops, each presented like a poster on the
+   wall: one big image, the title, where it happened, and a few views from
+   inside. Add an entry to SHOWS for the next one; numbering, layout and
+   the nav all follow. */
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import { smSrc } from '../../lib/media';
+import '../../styles/gallery.css';
+
+const SHOWS = [
+  {
+    href: '/exhibitions/manifiesto/',
+    title: 'MANIFIESTO',
+    kind: 'Primera exposición individual',
+    venue: 'Galería Symbiosis Art',
+    extra: 'Incluye el taller Huella y Superficie',
+    cover: { src: '/images/manifiesto/gallery-wall.jpg', alt: 'Pared de la galería con obras y skates expuestos durante Manifiesto' },
+    views: [
+      { src: '/images/manifiesto/opening-room.jpg', alt: 'Vista general de la sala de exposición durante Manifiesto' },
+      { src: '/images/manifiesto/bust-detail.jpg', alt: 'Detalle de un busto escultórico intervenido por Charles Days' },
+      { src: '/images/manifiesto/process-mirror.jpg', alt: 'Charles Days interviniendo un espejo' },
+    ],
+  },
+];
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+<Base>
+  <PageHead
+    slot="head"
+    title="Exhibitions — Charles Days"
+    description="Exposiciones y talleres de Charles Days: Manifiesto, primera exposición individual en Galería Symbiosis Art."
+    image="/images/manifiesto/gallery-wall.jpg"
+    imageAlt="Pared de la galería con obras y skates expuestos durante Manifiesto"
+  />
+
+  <main class="g-page">
+    <header class="g-head g-wrap">
+      <p class="g-kicker">Exposiciones · Talleres</p>
+      <h1 class="g-title">EXHIBITIONS</h1>
+    </header>
+
+    {SHOWS.map((s, i) => (
+      <article class="ex g-wrap">
+        <a class="ex-poster" href={s.href} aria-label={`${s.title} — ver exposición`}>
+          <img src={s.cover.src} alt={s.cover.alt} loading={i === 0 ? 'eager' : 'lazy'} decoding="async" />
+          <span class="ex-num">{pad(i + 1)}</span>
+          <span class="ex-cta">Ver exposición &rarr;</span>
+        </a>
+        <div class="ex-info">
+          <div>
+            <h2 class="ex-title"><a href={s.href}>{s.title}</a></h2>
+            <p class="ex-meta">{s.kind}<br />{s.venue}</p>
+            {s.extra && <p class="ex-extra">{s.extra}</p>}
+          </div>
+          <div class="ex-views">
+            {s.views.map((v) => (
+              <a href={s.href} tabindex="-1" aria-hidden="true"><img src={smSrc(v.src)} alt="" loading="lazy" decoding="async" /></a>
+            ))}
+          </div>
+        </div>
+      </article>
+    ))}
+
+    <footer class="g-foot g-wrap">
+      <span>Charles Days · Exhibitions</span>
+      <span>Lima, Perú</span>
+    </footer>
+  </main>
+</Base>
+
+<style>
+  .ex{display:grid;gap:1.6rem;margin-bottom:clamp(4rem,9vw,7rem);}
+  @media (min-width:1000px){.ex{grid-template-columns:minmax(0,7fr) minmax(0,3fr);gap:2.4rem;align-items:stretch;}}
+
+  .ex-poster{position:relative;display:block;overflow:hidden;aspect-ratio:3/2;background:#111;}
+  .ex-poster img{position:absolute;left:0;top:0;width:100%;height:110%;object-fit:cover;transition:transform 1.6s cubic-bezier(.25,.1,.25,1),filter .5s ease;filter:brightness(.92);}
+  .ex-poster::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.55),rgba(0,0,0,0) 40%);}
+  .ex-num{position:absolute;left:1.1rem;top:1rem;z-index:1;font-family:var(--font-display);font-size:0.8rem;letter-spacing:0.1em;}
+  .ex-cta{position:absolute;right:1.1rem;bottom:1rem;z-index:1;font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;}
+  @media (hover:hover){
+    /* same slow upward drift as the Projects strips — no zoom */
+    .ex-poster:hover img{transform:translateY(-9%);filter:brightness(1);}
+  }
+  .ex-poster:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;}
+
+  .ex-info{display:flex;flex-direction:column;justify-content:space-between;gap:1.6rem;}
+  .ex-title{font-family:var(--font-display);font-weight:700;font-size:clamp(2.2rem,4.4vw,4rem);letter-spacing:-0.035em;line-height:0.9;}
+  .ex-title a{text-decoration:none;}
+  .ex-meta{margin-top:1rem;font-size:0.8rem;line-height:1.6;color:#cfcbc4;}
+  .ex-extra{margin-top:0.8rem;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);}
+  .ex-views{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+  .ex-views img{width:100%;aspect-ratio:3/4;object-fit:cover;filter:brightness(.85);transition:filter .3s ease;}
+  .ex-views a:hover img{filter:brightness(1);}
+  @media (prefers-reduced-motion:reduce){.ex-poster img{transition:none;}}
+</style>

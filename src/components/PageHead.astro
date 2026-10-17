@@ -1,0 +1,26 @@
+---
+/* Title, description, canonical, Open Graph and fonts for the gallery-style
+   pages. Goes in Base's "head" slot. */
+interface Props {
+  title: string;
+  description: string;
+  image: string;
+  imageAlt: string;
+}
+
+const { title, description, image, imageAlt } = Astro.props;
+const url = new URL(Astro.url.pathname, Astro.site).href;
+const imageUrl = new URL(image, Astro.site).href;
+---
+<title>{title}</title>
+<meta name="description" content={description}>
+<link rel="canonical" href={url}>
+<meta property="og:type" content="website">
+<meta property="og:title" content={title}>
+<meta property="og:description" content={description}>
+<meta property="og:url" content={url}>
+<meta property="og:image" content={imageUrl}>
+<meta property="og:image:alt" content={imageAlt}>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=Space+Grotesk:wght@500;700&display=swap">

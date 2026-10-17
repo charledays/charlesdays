@@ -4,7 +4,7 @@
     <loc>https://charlesdays.art/</loc>
   </url>
   <url>
-    <loc>https://charlesdays.art/art-direction/</loc>
+    <loc>https://charlesdays.art/projects/</loc>
   </url>
   <url>
     <loc>https://charlesdays.art/tattoo/</loc>
@@ -16,7 +16,10 @@
     <loc>https://charlesdays.art/about/</loc>
   </url>
   <url>
-    <loc>https://charlesdays.art/manifiesto/</loc>
+    <loc>https://charlesdays.art/exhibitions/</loc>
+  </url>
+  <url>
+    <loc>https://charlesdays.art/exhibitions/manifiesto/</loc>
   </url>
   <url>
     <loc>https://charlesdays.art/projects/interlock/</loc>

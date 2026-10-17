@@ -1,0 +1,129 @@
+---
+/* MANIFIESTO — first solo exhibition, presented as an exhibition page:
+   the room first (full-bleed opening shot, title on the wall), a short
+   wall text with the full curatorial text one click away, then the show
+   hung as gallery walls — the room, the works, the workshop
+   — and a closing image with the closing text. Copy is the curatorial
+   text by Symbiosis Art, unchanged. cover.jpg is left out: same view as
+   gallery-wall.jpg at 10 MB. */
+import Base from '../../../layouts/Base.astro';
+import PageHead from '../../../components/PageHead.astro';
+import GalleryRow from '../../../components/GalleryRow.astro';
+import Viewer from '../../../components/Viewer.astro';
+import { smSrc, sizeOf } from '../../../lib/media';
+import '../../../styles/gallery.css';
+
+const M = '/images/manifiesto/';
+const ROOMS = [
+  {
+    id: 'sala', kicker: 'Sala', title: 'LA SALA',
+    items: [
+      { src: M + 'opening-room.jpg', alt: 'Vista general de la sala de exposición durante Manifiesto, primera exposición individual de Charles Days', caption: 'Vista de sala' },
+      { src: M + 'gallery-wall.jpg', alt: 'Pared de la galería con obras y skates expuestos durante Manifiesto', caption: 'Pared principal' },
+      { src: M + 'floor-installation.jpg', alt: 'Instalación de piso durante el montaje de Manifiesto, con fotógrafos documentando la exhibición', caption: 'Instalación de piso' },
+    ],
+  },
+  {
+    id: 'obras', kicker: 'Piezas', title: 'OBRAS',
+    items: [
+      { src: M + 'bust-detail.jpg', alt: 'Detalle de un busto escultórico intervenido por Charles Days', caption: 'Busto intervenido' },
+      { src: M + 'fox-artwork-detail.jpg', alt: 'Detalle de una pintura caligráfica de un zorro, parte de la exposición Manifiesto', caption: 'Zorro — detalle' },
+      { src: M + 'canvas-lettering-detail.jpg', alt: 'Detalle de un lienzo con caligrafía dorada y trazos blancos sobre negro', caption: 'Lienzo — detalle' },
+      { src: M + 'canvas-wide.jpg', alt: 'Lienzo negro con caligrafía blanca y dorada', caption: 'Lienzo' },
+      // process-cutting.jpg is the same shot as process-mirror.jpg, so only one is hung.
+      { src: M + 'process-mirror.jpg', alt: 'Charles Days interviniendo un espejo como parte de su proceso creativo', caption: 'Intervención en espejo' },
+    ],
+  },
+  {
+    id: 'taller', kicker: 'Taller realizado durante la exposición', title: 'HUELLA Y SUPERFICIE',
+    items: [
+      { src: M + 'workshop-presentation.jpg', alt: 'Presentación proyectada durante el taller Huella y Superficie', caption: 'Presentación' },
+      { src: M + 'workshop-table.jpg', alt: 'Mesa con materiales y objetos usados durante el taller Huella y Superficie', caption: 'Mesa de trabajo' },
+    ],
+  },
+];
+
+const HERO = M + 'gallery-wall.jpg';
+const CLOSING = M + 'closing-charles-mother.jpg';
+const [cw, ch] = sizeOf(CLOSING);
+---
+<Base>
+  <PageHead
+    slot="head"
+    title="Manifiesto — Exposición individual — Charles Days"
+    description="Manifiesto, primera exposición individual de Charles Days en Galería Symbiosis Art: caligrafía, graffiti, bustos intervenidos y el taller Huella y Superficie."
+    image={HERO}
+    imageAlt="Pared de la galería con obras y skates expuestos durante Manifiesto"
+  />
+
+  <main>
+    <section class="mf-hero">
+      <img class="mf-hero-img" src={HERO} alt="Pared de la galería con obras y skates expuestos durante Manifiesto" fetchpriority="high" decoding="async" />
+      <div class="mf-hero-text g-wrap">
+        <p class="g-kicker">Exposición individual · Galería Symbiosis Art</p>
+        <h1 class="mf-title">MANIFIESTO</h1>
+        <nav class="g-index" aria-label="Salas">
+          {ROOMS.map((r) => <a href={`#${r.id}`}>{r.title}</a>)}
+        </nav>
+      </div>
+    </section>
+
+    <section class="mf-wall g-wrap" aria-label="Texto curatorial">
+      <p class="g-kicker">Texto curatorial — Symbiosis Art</p>
+      <div>
+        <p class="mf-lede">La obra de Charles Days se erige como un ejercicio de autoexpresión radical, donde cada pieza nace del impulso de intervenir y personalizar lo que lo rodea, de inscribir la marca del yo en la materia. Su recorrido creativo atraviesa distintos soportes pero conserva siempre una misma esencia: la necesidad de comunicar a través de la palabra, el trazo y el color.</p>
+        <details class="mf-more">
+          <summary class="g-link">Leer texto completo</summary>
+          <p>El contraste sobrio entre blanco y negro estructura gran parte de su estética, mientras que los destellos de dorado y plateado irrumpen para subrayar la intensidad del gesto. En este equilibrio entre sobriedad y resplandor, la letra se convierte en textura visual: una escritura que no solo se muestra, sino que también se despliega y ocupa espacio. Tal como señala Tim Ingold, la caligrafía no es un canal de comunicación estandarizada, sino huella viva, gesto encarnado. En la obra de Charles Days, este trazo se mueve entre norma y personalidad, revelando en ocasiones fragmentos legibles que, como en la calle, invitan a descubrir sentidos allí donde antes parecía solo indescifrable. El artista juega así con la tensión entre mostrar y velar, recordándonos que en toda escritura persiste la expectativa de significado.</p>
+          <p>Esta exploración se amplía en el ámbito tridimensional: dos bustos intervenidos se convierten en superficies de inscripción, prolongando la impronta del gesto más allá de la obra hacia el espacio que la contiene. Aquí también resuena lo que Ingold describe como el carácter performativo del trazo: no solo deja marca, sino que configura movimiento y relación. La galería, en este sentido, no neutraliza el pulso urbano, sino que lo concentra; el gesto caligráfico y la energía del graffiti se despliegan en un nuevo contexto para reafirmar una urgencia vital, la de inscribir la propia voz en diálogo con otras.</p>
+        </details>
+      </div>
+    </section>
+
+    {ROOMS.map((r, i) => (
+      <GalleryRow id={r.id} kicker={r.kicker} title={r.title} items={r.items} size={i === 1 ? 'lg' : 'md'} />
+    ))}
+
+    <section class="mf-close g-wrap" aria-label="Cierre">
+      <button type="button" class="mf-close-photo" data-view="cierre" data-full={CLOSING} data-sm={smSrc(CLOSING)} data-caption="Charles Days junto a su madre" aria-label="Ver: Charles Days junto a su madre">
+        <img src={smSrc(CLOSING)} alt="Charles Days junto a su madre" width={cw} height={ch} loading="lazy" decoding="async" />
+      </button>
+      <div class="mf-close-text">
+        <p class="g-kicker">Cierre</p>
+        <p class="mf-lede">Manifiesto se presenta, así, como un testimonio de que la escritura es siempre más que lenguaje; es trazo, identidad, cuerpo y memoria. En la obra de Charles Days, cada textura y cada intervención recuerdan que la calle —y la vida misma— están hechas de líneas superpuestas que nos comunican, pero que también laten como gestos vivos.</p>
+        <a class="g-link" href="https://www.instagram.com/reel/DP_zxAxDtI4/" target="_blank" rel="noopener noreferrer">Ver aftermovie de la exposición ↗</a>
+      </div>
+    </section>
+
+    <footer class="g-foot g-wrap">
+      <a class="g-link" href="/exhibitions/">&larr; Exhibitions</a>
+      <span>Manifiesto · Galería Symbiosis Art</span>
+    </footer>
+  </main>
+
+  <Viewer />
+</Base>
+
+<style>
+  .mf-hero{position:relative;height:100svh;min-height:520px;overflow:hidden;margin-bottom:clamp(3rem,7vw,6rem);}
+  .mf-hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 45%;}
+  .mf-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.35) 0%,rgba(0,0,0,0) 30%,rgba(0,0,0,0.15) 55%,rgba(0,0,0,0.85) 100%);}
+  .mf-hero-text{position:absolute;left:0;right:0;bottom:0;z-index:1;padding-bottom:clamp(1.8rem,4vw,3rem);}
+  .mf-title{margin-top:0.6rem;font-family:var(--font-display);font-weight:700;font-size:clamp(3.2rem,13vw,11rem);letter-spacing:-0.04em;line-height:0.84;text-shadow:0 6px 40px rgba(0,0,0,0.4);}
+
+  .mf-wall{display:grid;gap:1.2rem;margin-bottom:clamp(4rem,9vw,7rem);}
+  @media (min-width:900px){.mf-wall{grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:4vw;}}
+  .mf-lede{font-size:clamp(1.05rem,1.6vw,1.4rem);line-height:1.55;font-weight:300;max-width:46rem;}
+  .mf-more{margin-top:1.6rem;max-width:46rem;}
+  .mf-more summary{cursor:pointer;list-style:none;}
+  .mf-more summary::-webkit-details-marker{display:none;}
+  .mf-more[open] summary{margin-bottom:1.4rem;}
+  .mf-more p{font-size:0.92rem;line-height:1.75;color:#cfcbc4;margin-bottom:1rem;}
+
+  .mf-close{display:grid;gap:2rem;align-items:end;margin-top:clamp(2rem,6vw,5rem);}
+  @media (min-width:900px){.mf-close{grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:5vw;}}
+  .mf-close-photo{display:block;padding:0;border:0;background:#111;cursor:zoom-in;}
+  .mf-close-photo img{width:100%;height:auto;}
+  .mf-close-photo:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;}
+  .mf-close-text{display:flex;flex-direction:column;gap:1.4rem;align-items:flex-start;}
+</style>

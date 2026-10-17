@@ -1,0 +1,135 @@
+---
+/* Pop-out viewer shared by the gallery pages (same treatment as the Wall's):
+   the photo floats over a blurred, dimmed page, opens instantly with the
+   standard-quality image and swaps in the HD original once it has loaded.
+   Opens from any element with data-view="<group>"; prev/next (buttons,
+   arrow keys, swipe) walk that group. Optional data-caption, and
+   data-link / data-link-label for an outbound link (e.g. the reel). */
+---
+<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Visor de imagen" aria-hidden="true">
+  <button type="button" class="v-btn v-close" data-v-close aria-label="Cerrar">&times;</button>
+  <button type="button" class="v-btn v-prev" data-v-prev aria-label="Anterior">&larr;</button>
+  <button type="button" class="v-btn v-next" data-v-next aria-label="Siguiente">&rarr;</button>
+  <div class="v-stage" data-v-stage><img data-v-img alt="" /></div>
+  <div class="v-meta">
+    <p class="v-cap" data-v-cap></p>
+    <a class="g-link v-link" data-v-link target="_blank" rel="noopener noreferrer" hidden></a>
+    <p class="v-count" data-v-count></p>
+  </div>
+</div>
+
+<style>
+  .viewer{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;background:rgba(0,0,0,0.5);-webkit-backdrop-filter:blur(22px) saturate(1.1);backdrop-filter:blur(22px) saturate(1.1);opacity:0;visibility:hidden;transition:opacity .25s ease,visibility 0s linear .25s;}
+  .viewer.is-open{opacity:1;visibility:visible;transition:opacity .25s ease,visibility 0s;}
+  .v-stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:3.6rem 1rem 0.8rem;}
+  .v-stage img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;box-shadow:0 20px 60px rgba(0,0,0,0.5);transform:scale(.96);transition:transform .35s cubic-bezier(.22,1,.36,1);}
+  .viewer.is-open .v-stage img{transform:none;}
+  .v-meta{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:0.7rem;padding:0.4rem 1.5rem 1.6rem;text-align:center;}
+  .v-cap{font-family:var(--font-display);font-size:0.95rem;letter-spacing:0.02em;}
+  .v-cap:empty{display:none;}
+  .v-count{font-size:0.6rem;letter-spacing:0.2em;color:var(--muted);}
+  .v-btn{position:absolute;z-index:2;width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.25);border:1px solid var(--hair);border-radius:50%;color:var(--text);font-size:1.3rem;line-height:1;cursor:pointer;}
+  .v-btn:hover{background:rgba(0,0,0,0.5);}
+  .v-btn:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:2px;}
+  .v-close{top:0.8rem;right:0.8rem;}
+  .v-prev{left:0.8rem;top:50%;transform:translateY(-50%);}
+  .v-next{right:0.8rem;top:50%;transform:translateY(-50%);}
+  @media (min-width:768px){
+    .v-stage{padding:4.5rem 5.5rem 1rem;}
+    .v-prev{left:1.4rem;}
+    .v-next{right:1.4rem;}
+  }
+  @media (prefers-reduced-motion:reduce){.viewer,.viewer.is-open,.v-stage img{transition:none;}}
+</style>
+
+<script>
+  const viewer = document.getElementById('viewer')!;
+  const img = viewer.querySelector<HTMLImageElement>('[data-v-img]')!;
+  const cap = viewer.querySelector<HTMLElement>('[data-v-cap]')!;
+  const link = viewer.querySelector<HTMLAnchorElement>('[data-v-link]')!;
+  const count = viewer.querySelector<HTMLElement>('[data-v-count]')!;
+  const closeBtn = viewer.querySelector<HTMLButtonElement>('[data-v-close]')!;
+  const prevBtn = viewer.querySelector<HTMLButtonElement>('[data-v-prev]')!;
+  const nextBtn = viewer.querySelector<HTMLButtonElement>('[data-v-next]')!;
+
+  let items: HTMLElement[] = [];
+  let index = -1;
+  let trigger: HTMLElement | null = null;
+
+  function show(i: number) {
+    index = (i + items.length) % items.length;
+    const el = items[index];
+    const full = el.dataset.full || '';
+    const inner = el.querySelector('img');
+    img.src = el.dataset.sm || full;
+    img.alt = inner?.alt || '';
+    cap.textContent = el.dataset.caption || '';
+    if (el.dataset.link) {
+      link.href = el.dataset.link;
+      link.textContent = (el.dataset.linkLabel || 'VER') + ' ↗';
+      link.hidden = false;
+    } else {
+      link.hidden = true;
+    }
+    count.textContent = items.length > 1 ? `${String(index + 1).padStart(2, '0')} / ${String(items.length).padStart(2, '0')}` : '';
+    prevBtn.hidden = nextBtn.hidden = items.length < 2;
+    const want = index;
+    const hd = new Image();
+    hd.onload = () => { if (index === want && viewer.classList.contains('is-open')) img.src = full; };
+    hd.src = full;
+  }
+
+  function onKey(e: KeyboardEvent) {
+    if (e.key === 'Escape') { e.preventDefault(); close(); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); show(index - 1); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); show(index + 1); }
+    else if (e.key === 'Tab') {
+      const f = Array.from(viewer.querySelectorAll<HTMLElement>('button:not([hidden]), a:not([hidden])'));
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  }
+
+  function open(el: HTMLElement) {
+    items = Array.from(document.querySelectorAll<HTMLElement>(`[data-view="${el.dataset.view}"]`));
+    trigger = el;
+    viewer.classList.add('is-open');
+    viewer.removeAttribute('aria-hidden');
+    show(items.indexOf(el));
+    document.documentElement.style.overflow = 'hidden';
+    document.addEventListener('keydown', onKey, true);
+    closeBtn.focus();
+  }
+
+  function close() {
+    viewer.classList.remove('is-open');
+    viewer.setAttribute('aria-hidden', 'true');
+    document.documentElement.style.overflow = '';
+    document.removeEventListener('keydown', onKey, true);
+    trigger?.focus({ preventScroll: true });
+  }
+
+  document.addEventListener('click', (e) => {
+    const el = (e.target as HTMLElement).closest<HTMLElement>('[data-view]');
+    if (!el || e.defaultPrevented) return;
+    e.preventDefault();
+    open(el);
+  });
+  closeBtn.addEventListener('click', close);
+  prevBtn.addEventListener('click', () => show(index - 1));
+  nextBtn.addEventListener('click', () => show(index + 1));
+  viewer.addEventListener('click', (e) => {
+    const t = e.target as HTMLElement;
+    if (t === viewer || t.hasAttribute('data-v-stage')) close();
+  });
+
+  let sx: number | null = null, sy = 0;
+  viewer.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+  viewer.addEventListener('touchend', (e) => {
+    if (sx === null) return;
+    const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+    sx = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) show(index + (dx < 0 ? 1 : -1));
+  });
+</script>

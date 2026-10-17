@@ -280,7 +280,7 @@ a.tile:focus-visible{outline:2px solid var(--ink-dark);outline-offset:-2px;}
    composition, loop, breathe, or inertia behavior in any way. */
 import { stories } from './stories.js';
 
-var BUILT_DESTINATIONS = ['/film/', '/tattoo/', '/manifiesto/', '/art-direction/']; // pages that actually exist right now
+var BUILT_DESTINATIONS = ['/film/', '/tattoo/', '/exhibitions/manifiesto/', '/projects/']; // pages that actually exist right now
 
 /* Explicit per-position size sequence, one entry per Wall item (not cycled
    via idx % length — an earlier version of this array was shorter than the
@@ -672,10 +672,10 @@ renderCopy(document.getElementById('wallGrid'), false);
   function ctaLabelFor(dest) {
     if (!dest) return null;
     if (dest.indexOf('/projects/') === 0) return 'VIEW PROJECT →';
-    if (dest === '/art-direction/') return 'ART DIRECTION →';
+    if (dest === '/projects/') return 'PROJECTS →';
     if (dest === '/tattoo/') return 'TATTOO →';
-    if (dest === '/film/') return 'FILM →';
-    if (dest === '/manifiesto/') return 'MANIFIESTO →';
+    if (dest === '/film/') return 'FILM & PHOTO →';
+    if (dest === '/exhibitions/manifiesto/') return 'MANIFIESTO →';
     return null;
   }
 
