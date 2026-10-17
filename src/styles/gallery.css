@@ -6,7 +6,6 @@
 :root{
   --bg:#000;--text:#f5f2ed;--muted:#8f96a8;--hair:rgba(245,242,237,0.14);--hair-strong:rgba(245,242,237,0.3);
   --font-display:'Space Grotesk',sans-serif;--font-body:'DM Sans',sans-serif;
-  --gutter:clamp(1.2rem,3vw,2.6rem);
 }
 html{background:var(--bg);overflow-x:clip;}
 body{color:var(--text);font-family:var(--font-body);-webkit-font-smoothing:antialiased;}
@@ -14,7 +13,7 @@ img{display:block;max-width:100%;}
 a{color:inherit;}
 
 .g-page{padding-top:var(--nav-h);}
-.g-wrap{padding-left:var(--gutter);padding-right:var(--gutter);max-width:1720px;margin:0 auto;}
+.g-wrap{width:min(100% - 2 * var(--gutter),var(--container));margin-left:auto;margin-right:auto;}
 
 /* page header: kicker, one huge word, an optional index line */
 .g-head{padding-top:1.4rem;padding-bottom:2.6rem;}

@@ -14,7 +14,10 @@
    150–155) so the header is there on every page; the mobile menu overlay
    sits just under it so MENU/CLOSE stays on top. The header itself lets
    clicks and wheel events through everywhere except its links. */
-:root{--nav-h:96px;}
+/* --container: the one content width for every inner page (headers,
+   galleries, strips, text). Full-bleed moments (the Manifiesto opening
+   shot, Home's Wall) opt out on purpose. */
+:root{--nav-h:96px;--container:1240px;--gutter:clamp(1.2rem,3vw,2.6rem);}
 @media (min-width:768px){:root{--nav-h:116px;}}
 
 .proto-nav{position:fixed;top:0;left:0;right:0;z-index:170;display:flex;flex-direction:column;align-items:center;padding:1.1rem 1.1rem 0.9rem;background:transparent;pointer-events:none;}

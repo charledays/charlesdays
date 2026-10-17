@@ -35,7 +35,7 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;}
    uncropped, then a visual quote builder that hands off to WhatsApp.
    Photos open in the same blurred pop-out as the Wall (HD original
    swapped in once loaded). ===== */
-.tt-wrap{width:min(100% - 2.4rem,1500px);margin:0 auto;}
+.tt-wrap{width:min(100% - 2 * var(--gutter),var(--container));margin:0 auto;}
 
 /* --- header --- */
 .tt-head{padding:1.2rem 0 1.6rem;display:grid;gap:1.4rem;}
@@ -63,7 +63,7 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;}
 /* Pinterest-style: full page width, small tiles, the column count follows
    the viewport (2 on phones, then as many ~210px columns as fit). */
 .tt-gallery{columns:2;column-gap:6px;padding:0 6px;}
-@media (min-width:600px){.tt-gallery{columns:210px;}}
+@media (min-width:600px){.tt-gallery{columns:210px;width:min(100% - 2 * var(--gutter),var(--container));margin:0 auto;padding:0;}}
 .tt-photo{position:relative;display:block;width:100%;margin:0 0 6px;break-inside:avoid;overflow:hidden;background:#111;cursor:zoom-in;border:0;padding:0;border-radius:6px;}
 .tt-photo img{display:block;width:100%;height:auto;filter:brightness(.88);transition:filter .45s ease;}
 .tt-photo-cap{position:absolute;left:0;right:0;bottom:0;padding:2rem 0.7rem 0.6rem;text-align:left;font-size:0.62rem;letter-spacing:0.06em;line-height:1.4;color:var(--text);background:linear-gradient(to top,rgba(0,0,0,0.75),rgba(0,0,0,0));opacity:0;transform:translateY(8px);transition:opacity .35s ease,transform .45s cubic-bezier(.22,1,.36,1);}

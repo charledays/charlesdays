@@ -34,6 +34,13 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
 
 /* ===== strips — edge to edge, near-continuous vertical stack ===== */
 .strips{display:flex;flex-direction:column;}
+/* Desktop: title, group headings and strips share the site content width
+   (--container, /assets/nav.css). Phones keep edge-to-edge strips. */
+@media (min-width:768px){
+  .intro,.strips{width:min(100% - 2 * var(--gutter),var(--container));margin-left:auto;margin-right:auto;}
+  .intro{padding-left:0;padding-right:0;}
+  .strips .strips-group{padding-left:0;padding-right:0;}
+}
 
 .strip{
   position:relative;display:block;overflow:hidden;isolation:isolate;

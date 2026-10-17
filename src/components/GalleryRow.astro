@@ -86,13 +86,17 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .row-btn:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:2px;}
   @media (hover:none){.row-nav{display:none;}}
 
+  /* Contained to the page width like everything else; on phones the row
+     runs to the screen edges (with the gutter as padding) so a swipe has
+     room and the next photo peeks in. */
   .row-track{
     display:flex;gap:clamp(10px,1.3vw,22px);overflow-x:auto;overflow-y:hidden;
-    padding:0 var(--gutter);scroll-padding:0 var(--gutter);
+    width:min(100% - 2 * var(--gutter),var(--container));margin:0 auto;
     scroll-snap-type:x proximity;overscroll-behavior-x:contain;
     scrollbar-width:none;cursor:grab;
   }
   .row-track::-webkit-scrollbar{display:none;}
+  @media (max-width:599px){.row-track{width:auto;padding:0 var(--gutter);scroll-padding:0 var(--gutter);}}
   .row-track.is-dragging{cursor:grabbing;scroll-snap-type:none;}
   .row-track.is-dragging .row-photo{pointer-events:none;}
   .row-track:focus-visible{outline:2px solid rgba(255,255,255,0.5);outline-offset:4px;}
