@@ -360,53 +360,9 @@ mq.addEventListener('change', render);
 
 render();
 
-/* ======================================================================
-   SCROLL INERTIA — same mechanism/constants already approved and used on
-   Art Direction/Tattoo/About/Manifiesto (identical INERTIA_GAIN/FRICTION/
-   STOP/MAX, identical velocity/friction rAF tick, identical desktop-only
-   + reduced-motion gating). Film is a plain document like those pages —
-   window.scrollBy, no fixed-overlay scroll container. Desktop here
-   begins at 768px, the same breakpoint where .film-index (the mobile-
-   only horizontal filter-chip row) is hidden and the nav switches to
-   its desktop menu — so this listener and that row's native horizontal
-   scroll never overlap: below 768px the row is visible and this
-   listener is inactive; at/above 768px the row doesn't exist in the
-   layout at all. Only e.deltaY drives velocity, so a trackpad's
-   horizontal component is never read by this handler either way.
-   ====================================================================== */
-var reduceMotionForInertia = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-var INERTIA_GAIN = 1.9;
-var INERTIA_FRICTION = 0.92;
-var INERTIA_STOP = 0.5;
-var INERTIA_MAX = 140;
-
-var inertiaVelocity = 0;
-var inertiaRaf = null;
-
-function isDesktopWidth() { return window.innerWidth >= 768; }
-
-function inertiaTick() {
-  window.scrollBy(0, inertiaVelocity);
-  inertiaVelocity *= INERTIA_FRICTION;
-  if (Math.abs(inertiaVelocity) < INERTIA_STOP) {
-    inertiaVelocity = 0;
-    inertiaRaf = null;
-    return;
-  }
-  inertiaRaf = requestAnimationFrame(inertiaTick);
-}
-
-if (!reduceMotionForInertia) {
-  window.addEventListener('wheel', function (e) {
-    if (!isDesktopWidth()) return;
-    e.preventDefault();
-    inertiaVelocity += e.deltaY * INERTIA_GAIN;
-    if (inertiaVelocity > INERTIA_MAX) inertiaVelocity = INERTIA_MAX;
-    if (inertiaVelocity < -INERTIA_MAX) inertiaVelocity = -INERTIA_MAX;
-    if (inertiaRaf === null) { inertiaRaf = requestAnimationFrame(inertiaTick); }
-  }, { passive: false });
-}
+/* Scrolling is native everywhere: the old synthetic wheel inertia
+   (preventDefault + scrollBy/scrollTop in rAF) made the wheel feel
+   hijacked and slow, so it's gone. */
 </script>
 </body>
 </html>

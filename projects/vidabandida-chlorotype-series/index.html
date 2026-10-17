@@ -647,50 +647,9 @@ function openChlorotypeSeries(story) {
 }
 
 
-/* ======================================================================
-   SCROLL INERTIA — identical mechanism/constants to every completed
-   project (reused unchanged), retargeted at this file's own
-   #of-scroll. */
-var reduceMotionForInertia = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-var INERTIA_GAIN = 1.9;
-var INERTIA_FRICTION = 0.92;
-var INERTIA_STOP = 0.5;
-var INERTIA_MAX = 140;
-
-var inertiaVelocity = 0;
-var inertiaRaf = null;
-
-function isDesktopWidth() { return window.innerWidth >= 900; }
-
-function stopInertia() {
-  inertiaVelocity = 0;
-  if (inertiaRaf !== null) { cancelAnimationFrame(inertiaRaf); inertiaRaf = null; }
-}
-
-function inertiaTick() {
-  var scrollEl = document.getElementById('of-scroll');
-  scrollEl.scrollTop += inertiaVelocity;
-  inertiaVelocity *= INERTIA_FRICTION;
-  if (Math.abs(inertiaVelocity) < INERTIA_STOP) {
-    inertiaVelocity = 0;
-    inertiaRaf = null;
-    return;
-  }
-  inertiaRaf = requestAnimationFrame(inertiaTick);
-}
-
-if (!reduceMotionForInertia) {
-  window.addEventListener('wheel', function (e) {
-    var scrollEl = document.getElementById('of-scroll');
-    if (!isDesktopWidth() || !scrollEl.classList.contains('is-active')) return;
-    e.preventDefault();
-    inertiaVelocity += e.deltaY * INERTIA_GAIN;
-    if (inertiaVelocity > INERTIA_MAX) inertiaVelocity = INERTIA_MAX;
-    if (inertiaVelocity < -INERTIA_MAX) inertiaVelocity = -INERTIA_MAX;
-    if (inertiaRaf === null) { inertiaRaf = requestAnimationFrame(inertiaTick); }
-  }, { passive: false });
-}
+/* Scrolling is native everywhere: the old synthetic wheel inertia
+   (preventDefault + scrollBy/scrollTop in rAF) made the wheel feel
+   hijacked and slow, so it's gone. */
 </script>
 </body>
 </html>

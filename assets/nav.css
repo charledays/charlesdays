@@ -23,7 +23,12 @@
 .proto-nav a,.proto-nav button{pointer-events:auto;}
 
 .proto-logo{position:static;transform:none;display:inline-flex;align-items:center;}
-.proto-logo-img{display:block;width:118px;height:auto;margin:-18px 0 -27px;}
+/* The image's transparent padding hangs ~30px below the logo link's own box
+   (that's what the negative margin cancels) — straight over the links row.
+   pointer-events:none on the image so only the link's real box (the ink)
+   is clickable; otherwise the top half of every nav link clicked through
+   to the logo and went Home. */
+.proto-logo-img{display:block;width:118px;height:auto;margin:-18px 0 -27px;pointer-events:none;}
 
 .proto-menu{display:none;}
 .proto-menu a{opacity:0.82;}

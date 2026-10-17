@@ -314,52 +314,9 @@ mq.addEventListener('change', applyPositions);
    each strip's href (set from s.destinationUrl in stripHTML above) is
    left as-is — no override map, no click interception needed. */
 
-/* ======================================================================
-   SCROLL INERTIA — same mechanism/constants already approved and
-   working in every project-detail page's own "SCROLL INERTIA" block
-   (identical INERTIA_GAIN/FRICTION/STOP/MAX, identical velocity/
-   friction rAF tick, identical desktop-only + reduced-motion gating).
-   Only the scroll target changes: the project-detail pages drive a
-   custom #of-scroll overlay container via scrollTop, while this page
-   has no such overlay — it's the plain document, so the same velocity
-   model drives native `window.scrollBy` instead. Nothing else about
-   the mechanism is reinterpreted. (Those pages' stopInertia() exists
-   only to cancel inertia on their own overlay-close teardown; this
-   page has no equivalent close/teardown state, so it isn't ported —
-   there's nothing here that would call it.) */
-var reduceMotionForInertia = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-var INERTIA_GAIN = 1.9;
-var INERTIA_FRICTION = 0.92;
-var INERTIA_STOP = 0.5;
-var INERTIA_MAX = 140;
-
-var inertiaVelocity = 0;
-var inertiaRaf = null;
-
-function isDesktopWidth() { return window.innerWidth >= 768; }
-
-function inertiaTick() {
-  window.scrollBy(0, inertiaVelocity);
-  inertiaVelocity *= INERTIA_FRICTION;
-  if (Math.abs(inertiaVelocity) < INERTIA_STOP) {
-    inertiaVelocity = 0;
-    inertiaRaf = null;
-    return;
-  }
-  inertiaRaf = requestAnimationFrame(inertiaTick);
-}
-
-if (!reduceMotionForInertia) {
-  window.addEventListener('wheel', function (e) {
-    if (!isDesktopWidth()) return;
-    e.preventDefault();
-    inertiaVelocity += e.deltaY * INERTIA_GAIN;
-    if (inertiaVelocity > INERTIA_MAX) inertiaVelocity = INERTIA_MAX;
-    if (inertiaVelocity < -INERTIA_MAX) inertiaVelocity = -INERTIA_MAX;
-    if (inertiaRaf === null) { inertiaRaf = requestAnimationFrame(inertiaTick); }
-  }, { passive: false });
-}
+/* Scrolling is native everywhere: the old synthetic wheel inertia
+   (preventDefault + scrollBy/scrollTop in rAF) made the wheel feel
+   hijacked and slow, so it's gone. */
 </script>
 </body>
 </html>

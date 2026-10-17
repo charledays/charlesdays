@@ -444,6 +444,8 @@ renderCopy(document.getElementById('wallGrid'), false);
   var DRAG_SLOP = 6;        // px a press may move and still count as a tap
   var KEY_STEP = 0.4;       // share of the viewport per arrow press
   var RESIZE_DEBOUNCE = 180;
+  var DRIFT_SPEED = 28;     // px per second the Wall drifts down on its own
+  var DRIFT_RESUME = 5000;  // ms of no input before the drift picks up again
 
   var stepX = 0, stepY = 0; // one copy + one gap
   var x = 0, y = 0;         // current offset
@@ -453,6 +455,8 @@ renderCopy(document.getElementById('wallGrid'), false);
   var clones = [];
   var resizeTimer = null;
   var dpr = window.devicePixelRatio || 1;
+  var drifting = !reduceMotion; // the Wall slowly moves vertically by itself
+  var driftTimer = null;
 
   function mod(a, n) { return ((a % n) + n) % n; }
   function snap(v) { return Math.round(v * dpr) / dpr; }
@@ -488,6 +492,7 @@ renderCopy(document.getElementById('wallGrid'), false);
   function frame(t) {
     var dt = lastT ? Math.min(t - lastT, 64) : 16.7;
     lastT = t;
+    if (drifting && !locked) { ty += DRIFT_SPEED * dt / 1000; }
     if (dragging || reduceMotion) {
       x = tx; y = ty;
     } else {
@@ -497,11 +502,24 @@ renderCopy(document.getElementById('wallGrid'), false);
       if (Math.abs(tx - x) < 0.2 && Math.abs(ty - y) < 0.2) { x = tx; y = ty; }
     }
     apply();
-    if (x === tx && y === ty) { rafId = null; lastT = 0; return; }
+    if (!drifting && x === tx && y === ty) { rafId = null; lastT = 0; return; }
     rafId = requestAnimationFrame(frame);
   }
 
   function kick() { if (rafId === null) rafId = requestAnimationFrame(frame); }
+
+  /* Auto-drift: any click, tap, drag, wheel or arrow key stops it on the
+     spot; it eases back in after DRIFT_RESUME ms without input (never while
+     the viewer is open). Off entirely under reduced motion. */
+  function pauseDrift() {
+    drifting = false;
+    if (driftTimer) clearTimeout(driftTimer);
+    driftTimer = locked || reduceMotion ? null : setTimeout(function () {
+      if (locked) return;
+      drifting = true;
+      kick();
+    }, DRIFT_RESUME);
+  }
 
   /* Wheel / trackpad. Trackpads already send their own momentum, so the
      easing above only smooths it; a notched mouse wheel gets its glide
@@ -509,6 +527,7 @@ renderCopy(document.getElementById('wallGrid'), false);
   stage.addEventListener('wheel', function (e) {
     if (locked || e.ctrlKey) return;
     e.preventDefault();
+    pauseDrift();
     var unit = e.deltaMode === 1 ? 16 : (e.deltaMode === 2 ? window.innerHeight : 1);
     var dx = e.deltaX * unit;
     var dy = e.deltaY * unit;
@@ -526,7 +545,8 @@ renderCopy(document.getElementById('wallGrid'), false);
 
   stage.addEventListener('pointerdown', function (e) {
     if (locked || pointerId !== null || (e.pointerType === 'mouse' && e.button !== 0)) return;
-    var wasGliding = Math.abs(tx - x) > 2 || Math.abs(ty - y) > 2;
+    var wasGliding = !drifting && (Math.abs(tx - x) > 2 || Math.abs(ty - y) > 2);
+    pauseDrift();
     tx = x; ty = y;                // grabbing stops a glide
     pointerId = e.pointerId;
     dragging = true;
@@ -592,6 +612,7 @@ renderCopy(document.getElementById('wallGrid'), false);
       default: return;
     }
     e.preventDefault();
+    pauseDrift();
     kick();
   });
 
@@ -629,15 +650,18 @@ renderCopy(document.getElementById('wallGrid'), false);
 
   window.addEventListener('wall:viewer-open', function () {
     locked = true;
+    drifting = false;
+    if (driftTimer) { clearTimeout(driftTimer); driftTimer = null; }
     pointerId = null; dragging = false;
     stage.classList.remove('is-dragging');
     tx = x; ty = y;
   });
-  window.addEventListener('wall:viewer-close', function () { locked = false; });
+  window.addEventListener('wall:viewer-close', function () { locked = false; pauseDrift(); });
 
   layout();
   apply();
   reveal();
+  if (drifting) kick();
 })();
 
 /* === Loading screen =======================================================

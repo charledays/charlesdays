@@ -857,68 +857,9 @@ function openInternazionale(story) {
    is enough to bring back the Wall/strips at exactly the scroll
    position the visitor left them at — no manual save/restore needed. */
 
-/* ======================================================================
-   SCROLL INERTIA — adapted from the Wall's own approved mechanism.
-   Read-only inspection of wall-final-test.html (the current approved
-   Wall interaction reference, per CLAUDE.md) found a velocity/friction
-   model: wheel deltaY accumulates into a velocity value (clamped to
-   MAX_VELOCITY), a requestAnimationFrame loop applies it every frame
-   and decays it by FRICTION until it drops below STOP_THRESHOLD, driven
-   through a real scroll call rather than a transform — GAIN 1.9,
-   FRICTION 0.92, STOP_THRESHOLD 0.5, MAX_VELOCITY 140, desktop-only
-   (innerWidth >= 768), fully skipped under prefers-reduced-motion.
-
-   That mechanism IS safely reusable here, unchanged, because it never
-   assumes it's scrolling `window` — the tick function only ever calls
-   one scroll primitive on one target. The Wall drives `window.scrollBy`
-   because the Wall scrolls the real document; this prototype's project
-   body scrolls independently inside `#of-scroll` (a fixed overlay,
-   while the underlying document stays locked), so the same algorithm
-   and the same constants are reused verbatim, just retargeted at
-   `#of-scroll` instead of `window`. Live only while INTERNAZIONALE's
-   sequence is active (`#of-scroll.is-active`) — the underlying Wall/
-   strips list is untouched by this and keeps its ordinary native
-   scroll, exactly as before this pass. */
-var reduceMotionForInertia = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-var INERTIA_GAIN = 1.9;
-var INERTIA_FRICTION = 0.92;
-var INERTIA_STOP = 0.5;
-var INERTIA_MAX = 140;
-
-var inertiaVelocity = 0;
-var inertiaRaf = null;
-
-function isDesktopWidth() { return window.innerWidth >= 900; }
-
-function stopInertia() {
-  inertiaVelocity = 0;
-  if (inertiaRaf !== null) { cancelAnimationFrame(inertiaRaf); inertiaRaf = null; }
-}
-
-function inertiaTick() {
-  var scrollEl = document.getElementById('of-scroll');
-  scrollEl.scrollTop += inertiaVelocity;
-  inertiaVelocity *= INERTIA_FRICTION;
-  if (Math.abs(inertiaVelocity) < INERTIA_STOP) {
-    inertiaVelocity = 0;
-    inertiaRaf = null;
-    return;
-  }
-  inertiaRaf = requestAnimationFrame(inertiaTick);
-}
-
-if (!reduceMotionForInertia) {
-  window.addEventListener('wheel', function (e) {
-    var scrollEl = document.getElementById('of-scroll');
-    if (!isDesktopWidth() || !scrollEl.classList.contains('is-active')) return;
-    e.preventDefault();
-    inertiaVelocity += e.deltaY * INERTIA_GAIN;
-    if (inertiaVelocity > INERTIA_MAX) inertiaVelocity = INERTIA_MAX;
-    if (inertiaVelocity < -INERTIA_MAX) inertiaVelocity = -INERTIA_MAX;
-    if (inertiaRaf === null) { inertiaRaf = requestAnimationFrame(inertiaTick); }
-  }, { passive: false });
-}
+/* Scrolling is native everywhere: the old synthetic wheel inertia
+   (preventDefault + scrollBy/scrollTop in rAF) made the wheel feel
+   hijacked and slow, so it's gone. */
 </script>
 </body>
 </html>
