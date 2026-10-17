@@ -36,12 +36,28 @@ html,body{color:var(--ink);font-family:var(--font-body);overflow:hidden;height:1
 body{visibility:hidden;}
 body.wall-ready{visibility:visible;}
 
+/* ===== Loading screen — wordmark + a thin progress line while the images
+   in the first view arrive; fades out once they're in (or after a few
+   seconds at most, so a slow image never holds the page hostage). ===== */
+.loader{position:fixed;inset:0;z-index:300;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.8rem;visibility:visible;transition:opacity .6s ease,visibility 0s linear .6s;}
+.loader.is-done{opacity:0;visibility:hidden;}
+.loader-mark{display:block;width:170px;height:auto;animation:loader-breathe 1.8s ease-in-out infinite;}
+@media (min-width:768px){.loader-mark{width:230px;}}
+.loader-bar{width:150px;height:1px;background:rgba(245,242,237,0.18);overflow:hidden;}
+.loader-bar i{display:block;height:100%;background:#f5f2ed;transform:scaleX(0);transform-origin:left;transition:transform .35s ease;}
+@keyframes loader-breathe{0%,100%{opacity:1;}50%{opacity:.55;}}
+@media (prefers-reduced-motion:reduce){.loader-mark{animation:none;}.loader,.loader-bar i{transition:none;}}
+
 /* ===== minimal nav — fixed, transparent, floats over the Wall =====
    No background/blur/border: legibility comes from text-shadow only, so
    imagery visibly continues underneath the nav at all times. Reused as-is
    from film.html / wall-final-test.html so Home stays part of the same
    visual system rather than introducing a new header. */
 .proto-nav{position:fixed;top:0;left:0;right:0;z-index:50;height:52px;display:flex;justify-content:flex-end;align-items:center;padding:0 1.1rem;background:transparent;}
+/* Soft black gradient behind the links (no hard bar) so they read over
+   any image the Wall pans underneath. Sits inside the nav's own stacking
+   context, under the links and the centered wordmark. */
+.proto-nav::before{content:"";position:absolute;inset:0 0 -44px 0;z-index:-1;pointer-events:none;background:linear-gradient(to bottom,rgba(0,0,0,0.72) 0%,rgba(0,0,0,0.4) 50%,rgba(0,0,0,0) 100%);}
 .proto-logo,.proto-menu a{text-shadow:0 1px 3px rgba(0,0,0,0.75),0 2px 10px rgba(0,0,0,0.55),0 5px 20px rgba(0,0,0,0.35);}
 .proto-logo-img{filter:drop-shadow(0 1px 2px rgba(0,0,0,0.95)) drop-shadow(0 2px 5px rgba(0,0,0,0.6));}
 /* Home only: the wordmark is no longer part of the nav's flex flow — it's
@@ -185,6 +201,11 @@ a.tile:focus-visible{outline:2px solid var(--ink-dark);outline-offset:-2px;}
 </style>
 </head>
 <body>
+
+<div class="loader" id="loader" aria-hidden="true">
+  <img class="loader-mark" src="/images/brand/charlesdays-wordmark.png" alt="">
+  <div class="loader-bar"><i id="loaderBar"></i></div>
+</div>
 
 <h1 class="sr-only">Charles Days — Art Direction, Tattoo, Film &amp; Visual Art</h1>
 
@@ -617,6 +638,51 @@ renderCopy(document.getElementById('wallGrid'), false);
   layout();
   apply();
   reveal();
+})();
+
+/* === Loading screen =======================================================
+   Waits for the images that are actually on screen after the Wall is laid
+   out (clones share URLs, so each image is counted once), drives the
+   progress line, then fades out. Capped at MAX_WAIT so a slow or failed
+   image never blocks the page. */
+(function () {
+  var loader = document.getElementById('loader');
+  var bar = document.getElementById('loaderBar');
+  if (!loader) return;
+  var MAX_WAIT = 6000;
+  var finished = false;
+
+  function finish() {
+    if (finished) return;
+    finished = true;
+    if (bar) bar.style.transform = 'scaleX(1)';
+    setTimeout(function () { loader.classList.add('is-done'); }, 180);
+  }
+
+  var seen = {};
+  var pending = [];
+  document.querySelectorAll('#wallPlane img').forEach(function (img) {
+    var r = img.getBoundingClientRect();
+    if (r.right < 0 || r.bottom < 0 || r.left > window.innerWidth || r.top > window.innerHeight) return;
+    var src = img.getAttribute('src');
+    if (seen[src]) return;
+    seen[src] = true;
+    if (!img.complete) pending.push(img);
+  });
+
+  var total = pending.length;
+  if (!total) { finish(); return; }
+  var done = 0;
+  pending.forEach(function (img) {
+    function one() {
+      done++;
+      if (bar) bar.style.transform = 'scaleX(' + (done / total) + ')';
+      if (done >= total) finish();
+    }
+    img.addEventListener('load', one, { once: true });
+    img.addEventListener('error', one, { once: true });
+  });
+  setTimeout(finish, MAX_WAIT);
 })();
 
 /* === Editorial image viewer ===============================================

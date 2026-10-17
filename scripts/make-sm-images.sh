@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# Builds the standard-quality Wall images: every image the Wall shows gets a
-# WebP copy under /images/sm/ (same path, .webp), long side capped at 1600px.
-# The Wall tiles load these; the pop-out viewer loads the HD original.
-# Re-run after adding or changing a Wall image in stories.js.
+# Builds standard-quality copies of the images shown in grids: every Wall
+# image, every tattoo story image and everything in images/tattoo/ gets a
+# WebP under /images/sm/ (same path, .webp), long side capped at 1600px.
+# Grids load these; the pop-out viewers load the HD original.
+# Re-run after adding or changing one of those images.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 node --input-type=module -e "
@@ -11,7 +12,11 @@ for (const s of stories) {
   if (!s.wall || !s.wall.include) continue;
   const src = (s.wall.image && s.wall.image.src) || (s.cover && s.cover.src);
   if (src) console.log(src);
-}" | python3 -I -c '
+}
+for (const s of stories) {
+  if (!(s.discipline || []).includes('tattoo')) continue;
+  for (const im of [s.cover, ...(s.supportingImages || [])]) if (im && im.src) console.log(im.src);
+}" | { cat; find images/tattoo -type f | sed 's|^|/|'; } | sort -u | python3 -I -c '
 import sys, os
 from PIL import Image, ImageOps
 MAX = 1600
