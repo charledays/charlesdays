@@ -1,0 +1,29 @@
+---
+/* Page shell shared by every page: doctype, charset/viewport, the page's
+   own head content (title, meta, inline styles via the "head" slot), the
+   shared header, then the page body.
+
+   variant="home": Home styles its own nav (centered wordmark over the
+   Wall) inline, so the shared header stylesheet is not loaded there. */
+import Nav from '../components/Nav.astro';
+
+interface Props {
+  variant?: 'page' | 'home';
+}
+
+const { variant = 'page' } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<slot name="head" />
+{variant === 'page' && <link rel="stylesheet" href="/assets/nav.css">}
+</head>
+<body>
+<slot name="before-nav" />
+<Nav variant={variant} />
+<slot />
+</body>
+</html>

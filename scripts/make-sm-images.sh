@@ -5,7 +5,8 @@
 # Grids load these; the pop-out viewers load the HD original.
 # Re-run after adding or changing one of those images.
 set -euo pipefail
-cd "$(dirname "$0")/.."
+# Paths are site paths (/images/...), served from public/.
+cd "$(dirname "$0")/../public"
 node --input-type=module -e "
 import { stories } from './stories.js';
 for (const s of stories) {

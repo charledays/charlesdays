@@ -1,0 +1,72 @@
+---
+/* The one site header: wordmark, desktop links, mobile MENU/CLOSE overlay.
+   The current section is derived from the URL, so every page highlights
+   the right link without passing anything in. Styling: /assets/nav.css on
+   every page except Home, which styles this same markup inline. */
+interface Props {
+  variant?: 'page' | 'home';
+}
+
+const { variant = 'page' } = Astro.props;
+
+const LINKS = [
+  { href: '/art-direction/', label: 'ART DIRECTION' },
+  { href: '/tattoo/', label: 'TATTOO' },
+  { href: '/film/', label: 'FILM' },
+  { href: '/about/', label: 'ABOUT' },
+  { href: '/manifiesto/', label: 'MANIFIESTO' },
+];
+
+// Project detail pages live under /projects/ but belong to Art Direction.
+const path = Astro.url.pathname;
+const section = path.startsWith('/projects/') ? '/art-direction/' : path;
+const current = (href: string) => (href === section ? 'page' : undefined);
+---
+<nav class="proto-nav">
+  <a class="proto-logo" href="/" aria-current={variant === 'home' ? 'page' : undefined}><img class="proto-logo-img" src="/images/brand/charlesdays-wordmark.png" alt="Charles Days"></a>
+  <div class="proto-menu">
+    {LINKS.map((l) => <a href={l.href} aria-current={current(l.href)}>{l.label}</a>)}
+  </div>
+  <button type="button" class="proto-menu-toggle" id="mobileMenuToggle" aria-expanded="false" aria-controls="mobileNavOverlay">MENU</button>
+</nav>
+
+<div class="mobile-nav-overlay" id="mobileNavOverlay" role="dialog" aria-modal="true" aria-label="Menú principal" aria-hidden="true">
+  <nav class="mobile-nav-links" aria-label="Navegación móvil">
+    {LINKS.map((l) => <a href={l.href} aria-current={current(l.href)}>{l.label}</a>)}
+  </nav>
+</div>
+
+<script>
+  const toggle = document.getElementById('mobileMenuToggle');
+  const overlay = document.getElementById('mobileNavOverlay');
+  if (toggle && overlay) {
+    let isOpen = false;
+
+    const openMenu = () => {
+      isOpen = true;
+      overlay.classList.add('is-open');
+      overlay.removeAttribute('aria-hidden');
+      toggle.textContent = 'CLOSE';
+      toggle.setAttribute('aria-expanded', 'true');
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+      overlay.querySelector('a')?.focus();
+    };
+
+    const closeMenu = () => {
+      isOpen = false;
+      overlay.classList.remove('is-open');
+      overlay.setAttribute('aria-hidden', 'true');
+      toggle.textContent = 'MENU';
+      toggle.setAttribute('aria-expanded', 'false');
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+      toggle.focus();
+    };
+
+    toggle.addEventListener('click', () => (isOpen ? closeMenu() : openMenu()));
+    document.addEventListener('keydown', (e) => {
+      if (isOpen && e.key === 'Escape') closeMenu();
+    });
+  }
+</script>
