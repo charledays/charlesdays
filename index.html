@@ -27,11 +27,12 @@
   --font-body:'DM Sans', sans-serif;
 }
 html{background:var(--bg);}
-html,body{color:var(--ink);font-family:var(--font-body);overflow-x:hidden;touch-action:pan-y;}
+/* The page itself never scrolls — the Wall is a fixed stage panned in two
+   directions by the script at the end of body. */
+html,body{color:var(--ink);font-family:var(--font-body);overflow:hidden;height:100%;overscroll-behavior:none;}
 
-/* Hidden until the loop's initial scroll position is set (see script at the
-   end of body) — prevents the load→middle-copy jump from ever being visible.
-   visibility:hidden (not display:none) so layout/offsetTop still compute. */
+/* Hidden until the Wall's copies are measured and placed (see script at the
+   end of body). visibility:hidden (not display:none) so layout still computes. */
 body{visibility:hidden;}
 body.wall-ready{visibility:visible;}
 
@@ -100,10 +101,16 @@ body:has(#mobileNavOverlay.is-open) .proto-logo{display:none;}
 @media (prefers-reduced-motion:reduce){.mobile-nav-overlay{transition:none;}}
 
 
-/* ===== Seamless loop — three stacked copies of the same composition =====
-   Fixed at load, never grows. Only #copyMid is real; #copyTop/#copyBottom
-   are visual + navigational clones (see accessibility notes in the report). */
-.wall-loop{display:flex;flex-direction:column;gap:2px;}
+/* ===== Seamless 2D loop — the same composition tiled in both directions =====
+   .wall-stage is the fixed viewport; .wall-plane is the one element that
+   moves (a single translate3d per frame). The plane holds as many copies of
+   the Wall as it takes to cover the viewport plus one, laid out on a grid
+   whose step is one copy + one gap, so seams look like any other grid line.
+   Only the first copy (#wallGrid) is exposed to keyboard/assistive tech. */
+.wall-stage{position:fixed;inset:0;overflow:hidden;background:var(--border);touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;}
+.wall-stage.is-dragging{cursor:grabbing;}
+.wall-plane{position:absolute;top:0;left:0;will-change:transform;}
+.wall-copy{position:absolute;top:0;left:0;}
 
 /* Global Wall darkening wash — a single fixed, viewport-covering layer,
    not per-tile. Sits above the Wall imagery (z-index above the Wall's own
@@ -112,33 +119,19 @@ body:has(#mobileNavOverlay.is-open) .proto-logo{display:none;}
    the Wall underneath stays fully interactive, exactly as before. */
 .wall-darken{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,0.30);pointer-events:none;}
 
-/* ===== The Wall — dense, art-directed vertical grid =====
-   Begins at the true top of the viewport; the nav floats over it.
-   Deterministic tile-size assignment (never randomized) so all three
-   copies stay pixel-identical — required for the loop teleport to be invisible. */
-.wall{display:grid;grid-template-columns:repeat(2,1fr);grid-auto-rows:44vw;grid-auto-flow:dense;gap:2px;background:var(--border);}
-@media (min-width:768px){.wall{grid-template-columns:repeat(4,1fr);grid-auto-rows:180px;}}
-/* The Wall's 17 curated items add up to 32 grid cells (t-small=1, t-wide/t-tall=2,
-   t-large=4). 32 divides evenly by 2, 4 and 8 columns, so those column counts
-   pack with zero empty cells — but NOT by 6: ceil(32/6)*6-32 leaves 4 cells that
-   can never be filled by any arrangement of these tiles, which is what produced
-   the large black voids reported at 1280/1440/1536px (this range previously used
-   repeat(6,1fr)). Root cause was this column count, not a tile's row/column span
-   or a height mismatch. Fix: this breakpoint now starts the same 8-column
-   layout used at 1600px+ instead of an ill-fitting 6-column tier — same tile
-   size classes, same row order, no filler, no image stretching (object-fit:cover
-   is unchanged); it only changes how many columns the existing tiles flow into. */
-@media (min-width:1200px){.wall{grid-template-columns:repeat(8,1fr);grid-auto-rows:200px;}}
+/* ===== The Wall — dense, art-directed grid of fixed-size square cells =====
+   Fixed cell size (not 1fr) so one copy has a known width and height to tile
+   by. Deterministic tile-size assignment (never randomized) so every copy is
+   pixel-identical — required for the wraparound to be invisible.
+   The curated items add up to 48 grid cells (t-small=1, t-wide/t-tall=2,
+   t-large=4), which divides evenly by 4 and 8 columns, so both tiers pack
+   with zero empty cells and every copy is a solid rectangle. The 2px gap on
+   the black background is the Wall's border; it stays put while panning. */
+.wall{--cols:4;--cell:46vw;display:grid;grid-template-columns:repeat(var(--cols),var(--cell));grid-auto-rows:var(--cell);grid-auto-flow:dense;gap:2px;background:var(--border);}
+@media (min-width:768px){.wall{--cols:8;--cell:clamp(180px,15vw,260px);}}
 
-/* "Wall breathes": --wall-scale is set once, at html.is-scrolling, and
-   inherits down to every .tile for free — no per-tile listeners, nothing
-   layout-affecting (transform only, never gap/width/height). */
-.tile{position:relative;display:block;overflow:hidden;background:#000;transform:scale(var(--wall-scale,1));transition:transform .85s cubic-bezier(.22,1,.36,1);}
-html.is-scrolling{--wall-scale:.93;}
-/* Entering the active-scroll contraction stays quick/responsive; only the
-   return-to-rest (the base .tile transition above) is slow and soft. */
-html.is-scrolling .tile{transition:transform .28s ease-out;}
-.tile img{width:100%;height:100%;object-fit:cover;display:block;-webkit-user-drag:none;user-drag:none;}
+.tile{position:relative;display:block;overflow:hidden;background:#000;}
+.tile img{width:100%;height:100%;object-fit:cover;display:block;-webkit-user-drag:none;user-drag:none;pointer-events:none;}
 a.tile{cursor:pointer;}
 a.tile img{transition:transform .6s ease;}
 a.tile::after{content:"";position:absolute;inset:0;background:rgba(15,29,66,0);transition:background .35s ease;}
@@ -154,16 +147,22 @@ a.tile:focus-visible{outline:2px solid var(--ink-dark);outline-offset:-2px;}
 @media (prefers-reduced-motion: reduce){
   a.tile img{transition:none;}
   a.tile:hover img,a.tile:focus-visible img{transform:none;}
-  .tile{transform:none !important;transition:none;}
 }
 
 /* ===== Editorial image viewer =====
-   Not a generic lightbox: full-bleed black stage, object-fit:contain so the
-   original aspect ratio is never cropped, quiet editorial metadata below
-   rather than a card/panel. Hidden by default via display:none, shown only
-   by adding .is-open (avoids fighting the native [hidden] attribute). */
-.viewer{position:fixed;inset:0;z-index:200;background:#000;display:none;flex-direction:column;}
-.viewer.is-open{display:flex;}
+   Pops the piece out over a blurred, dimmed Wall (the Wall stays visible
+   behind it) instead of a solid black stage. object-fit:contain so the
+   original aspect ratio is never cropped; quiet editorial metadata below.
+   The stage shows the Wall's standard-quality image instantly and swaps in
+   the HD original once it has loaded (see openViewer). */
+.viewer{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;background:rgba(0,0,0,0.45);-webkit-backdrop-filter:blur(22px) saturate(1.1);backdrop-filter:blur(22px) saturate(1.1);opacity:0;visibility:hidden;transition:opacity .25s ease,visibility 0s linear .25s;}
+.viewer.is-open{opacity:1;visibility:visible;transition:opacity .25s ease,visibility 0s;}
+.viewer-stage img{transform:scale(.96);transition:transform .35s cubic-bezier(.22,1,.36,1);box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+.viewer.is-open .viewer-stage img{transform:none;}
+@media (prefers-reduced-motion: reduce){
+  .viewer,.viewer.is-open{transition:none;}
+  .viewer-stage img{transform:none;transition:none;}
+}
 .viewer-close{position:absolute;top:0.6rem;right:0.6rem;z-index:2;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:transparent;border:none;color:#f5f2ed;font-size:1.7rem;line-height:1;cursor:pointer;}
 .viewer-close:hover{color:#fff;}
 .viewer-close:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:2px;}
@@ -183,10 +182,6 @@ a.tile:focus-visible{outline:2px solid var(--ink-dark);outline-offset:-2px;}
   .viewer-meta{padding:0.5rem 3rem 3rem;}
 }
 
-@media (prefers-reduced-motion: reduce){
-  /* No motion is introduced by the viewer itself; nothing to disable here
-     beyond what the existing Wall rule above already covers. */
-}
 </style>
 </head>
 <body>
@@ -255,28 +250,19 @@ a.tile:focus-visible{outline:2px solid var(--ink-dark);outline-offset:-2px;}
 })();
 </script>
 
-<div class="wall-loop" id="wallLoop">
+<div class="wall-stage" id="wallStage">
+  <div class="wall-plane" id="wallPlane">
 
-  <!-- Clone copy (loop only) — visually identical, fully clickable (same
-       hrefs/metadata as the real copy), but excluded from keyboard/AT
-       traversal via aria-hidden on the container + tabindex="-1" on each
-       link (set by renderCopy below). Not inert: a visible clone must
-       still be tappable/clickable. Tiles are rendered from stories.js —
-       see the module script at the end of body. -->
-  <div class="wall-copy" id="copyTop" aria-hidden="true">
-    <main class="wall"></main>
+    <!-- Real copy — the only one exposed to assistive tech / keyboard.
+         Clone copies (loop only) are added next to it by the script at the
+         end of body: visually identical and fully clickable, but excluded
+         from keyboard/AT traversal via aria-hidden + tabindex="-1". Tiles
+         are rendered from stories.js. -->
+    <div class="wall-copy" id="copyMain">
+      <main class="wall" id="wallGrid"></main>
+    </div>
+
   </div>
-
-  <!-- Real copy — the only one exposed to assistive tech / keyboard. -->
-  <div class="wall-copy" id="copyMid">
-    <main class="wall" id="wallGrid"></main>
-  </div>
-
-  <!-- Clone copy (loop only) — same treatment as the top clone. -->
-  <div class="wall-copy" id="copyBottom" aria-hidden="true">
-    <main class="wall"></main>
-  </div>
-
 </div>
 
 <div class="wall-darken" aria-hidden="true"></div>
@@ -299,8 +285,8 @@ a.tile:focus-visible{outline:2px solid var(--ink-dark);outline-offset:-2px;}
 <script type="module">
 /* === Home = The Wall, driven by stories.js =============================
    Production migration of wall-final-test.html (the approved prototype):
-   same loop/breathe/inertia/viewer systems, unchanged in behavior, now
-   rendering real canonical entries instead of the prototype's generic
+   same viewer system (the vertical loop/breathe/inertia have since been
+   replaced by the two-axis pan below), now rendering real canonical entries instead of the prototype's generic
    wall-01..wall-14.jpg placeholders.
 
    Data source of truth: stories.js. Only entries explicitly curated for
@@ -371,6 +357,14 @@ function escapeAttr(s) {
   return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 }
 
+/* Standard-quality copy of a Wall image, built by scripts/make-wall-images.sh:
+   /images/x/y.jpg -> /images/sm/x/y.webp (long side capped at 1600px). The
+   Wall tiles load this; the viewer loads the HD original (data-full). */
+function wallSrc(src) {
+  if (src.indexOf('/images/') !== 0) return src;
+  return '/images/sm/' + src.slice('/images/'.length).replace(/\.[^./]+$/, '') + '.webp';
+}
+
 function tileMarkup(item, idx, isClone) {
   var size = WALL_TILE_SIZES[idx % WALL_TILE_SIZES.length];
   var dest = item.destinationUrl || '';
@@ -385,162 +379,244 @@ function tileMarkup(item, idx, isClone) {
   var alt = (wallImage && wallImage.alt) || (item.cover && item.cover.alt) || '';
   var src = (wallImage && wallImage.src) || (item.cover && item.cover.src) || '';
   var tabindex = isClone ? ' tabindex="-1"' : '';
-  var loading = (!isClone && idx === 0) ? 'eager' : 'lazy';
 
   return '<a class="tile ' + size + '" href="#" data-nav' + tabindex +
     ' data-dest="' + escapeAttr(dest) + '"' +
     ' data-discipline-label="' + escapeAttr(label) + '"' +
     ' data-title="' + escapeAttr(title) + '"' +
-    ' data-role="' + escapeAttr(role) + '">' +
-    '<img src="' + escapeAttr(src) + '" alt="' + escapeAttr(alt) + '" loading="' + loading + '" decoding="async">' +
+    ' data-role="' + escapeAttr(role) + '" draggable="false">' +
+    '<img src="' + escapeAttr(wallSrc(src)) + '" data-full="' + escapeAttr(src) + '" alt="' + escapeAttr(alt) + '" decoding="async" draggable="false">' +
     '</a>';
 }
 
-function renderCopy(containerId, isClone) {
-  var grid = document.querySelector('#' + containerId + ' .wall');
-  if (!grid) return;
+function renderCopy(grid, isClone) {
   grid.innerHTML = wallItems.map(function (item, idx) { return tileMarkup(item, idx, isClone); }).join('');
 }
 
-renderCopy('copyTop', true);
-renderCopy('copyMid', false);
-renderCopy('copyBottom', true);
+renderCopy(document.getElementById('wallGrid'), false);
 
-/* === Seamless vertical loop + "Wall breathes" — unified desktop/mobile ===
-   Unchanged from wall-final-test.html. Native document scroll only: the
-   browser owns scrolling throughout — we only ever reassign scrollY after
-   the fact (never preventDefault, never a custom wheel/touch engine).
-   Three stacked copies already exist in the DOM (#copyTop / #copyMid /
-   #copyBottom), now populated above from stories.js instead of being
-   hand-authored — fixed at load, nothing grows after that. */
+/* === Two-axis pan + seamless 2D loop — unified desktop/mobile ============
+   The page never scrolls. Wheel/trackpad (both axes; Shift+wheel pans
+   sideways), mouse or finger drag with a fling, and the arrow/Page keys all
+   move one unbounded target offset (tx, ty); every animation frame eases
+   the current offset (x, y) toward it and writes a single translate3d on
+   the plane. The plane only ever shifts by the offset modulo one copy, so
+   the copies laid out on a grid read as one endless Wall in every
+   direction — no teleport, no scroll events, nothing that touches layout
+   while moving. That, plus the standard-quality images, is the lag fix;
+   the old per-tile "breathe" scale (which shrank tiles and opened black
+   gaps while scrolling) is gone. */
 (function () {
-  var copyTop = document.getElementById('copyTop');
-  var copyMid = document.getElementById('copyMid');
-  var copyBottom = document.getElementById('copyBottom');
+  var stage = document.getElementById('wallStage');
+  var plane = document.getElementById('wallPlane');
+  var main = document.getElementById('copyMain');
 
   function reveal() { document.body.classList.add('wall-ready'); }
 
-  if (!copyTop || !copyMid || !copyBottom) { reveal(); return; }
+  if (!stage || !plane || !main) { reveal(); return; }
 
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var root = document.documentElement;
-  var H = 0;
-  var scrollEndTimer = null;
-  var resizeTimer = null;
-  var SCROLL_END_DELAY = 60;
+  var GAP = 2;              // must match .wall gap
+  var EASE = 0.16;          // share of the remaining distance covered per 60fps frame
+  var WHEEL_GAIN = 1.15;
+  var FLING = 260;          // ms of release velocity carried into the glide
+  var DRAG_SLOP = 6;        // px a press may move and still count as a tap
+  var KEY_STEP = 0.4;       // share of the viewport per arrow press
   var RESIZE_DEBOUNCE = 180;
 
-  function measure() { H = copyMid.offsetTop - copyTop.offsetTop; }
+  var stepX = 0, stepY = 0; // one copy + one gap
+  var x = 0, y = 0;         // current offset
+  var tx = 0, ty = 0;       // target offset
+  var rafId = null, lastT = 0;
+  var locked = false;       // viewer open
+  var clones = [];
+  var resizeTimer = null;
+  var dpr = window.devicePixelRatio || 1;
 
-  /* Loop teleport is deliberately deferred to scroll-END (see onScroll
-     below) rather than run on every 'scroll' tick. Root cause of the
-     mobile instability report: iOS Safari's native kinetic scrolling
-     fires continuous 'scroll' events throughout its momentum phase, and
-     calling window.scrollTo() WHILE that momentum is still running
-     interrupts/resets it — perceived as the scroll randomly slowing or
-     stopping mid-flick. All three copies are pixel-identical, so the
-     teleport is invisible whenever it fires; deferring it until momentum
-     has actually settled (same SCROLL_END_DELAY window already used for
-     the breathe effect) avoids ever fighting the OS's own physics.
-     Desktop's synthetic wheel-inertia (below) fires 'scroll' every rAF
-     frame too, so this settles at the same natural point there as well —
-     nothing about its own GAIN/FRICTION/velocity model changes. */
-  function reposition() {
-    if (H <= 0) return;
-    var y = window.scrollY;
-    if (y < H * 0.5) {
-      window.scrollTo({ top: y + H, left: 0, behavior: 'auto' });
-    } else if (y > H * 1.5) {
-      window.scrollTo({ top: y - H, left: 0, behavior: 'auto' });
+  function mod(a, n) { return ((a % n) + n) % n; }
+  function snap(v) { return Math.round(v * dpr) / dpr; }
+
+  function layout() {
+    stepX = main.offsetWidth + GAP;
+    stepY = main.offsetHeight + GAP;
+    clones.forEach(function (c) { c.remove(); });
+    clones = [];
+    var nx = Math.ceil(window.innerWidth / stepX) + 1;
+    var ny = Math.ceil(window.innerHeight / stepY) + 1;
+    for (var j = 0; j < ny; j++) {
+      for (var i = 0; i < nx; i++) {
+        if (!i && !j) continue;
+        var copy = document.createElement('div');
+        copy.className = 'wall-copy';
+        copy.setAttribute('aria-hidden', 'true');
+        copy.style.transform = 'translate(' + (i * stepX) + 'px,' + (j * stepY) + 'px)';
+        var grid = document.createElement('div');
+        grid.className = 'wall';
+        renderCopy(grid, true);
+        copy.appendChild(grid);
+        plane.appendChild(copy);
+        clones.push(copy);
+      }
     }
   }
 
-  function onScroll() {
-    if (!reduceMotion) { root.classList.add('is-scrolling'); }
-    if (scrollEndTimer) clearTimeout(scrollEndTimer);
-    scrollEndTimer = setTimeout(function () {
-      if (!reduceMotion) { root.classList.remove('is-scrolling'); }
-      reposition();
-    }, SCROLL_END_DELAY);
+  function apply() {
+    plane.style.transform = 'translate3d(' + snap(-mod(x, stepX)) + 'px,' + snap(-mod(y, stepY)) + 'px,0)';
   }
 
-  /* Viewport/layout can change the composition's height (breakpoint
-     switch, font/image load settling). Re-measure on resize, but keep the
-     visitor's logical position in the sequence (0 = top of the middle
-     copy, 1 = bottom of it) rather than an absolute pixel offset, so a
-     resize never throws them at an unrelated image. Debounced; no
-     continuous observers. */
-  function onResize() {
+  function frame(t) {
+    var dt = lastT ? Math.min(t - lastT, 64) : 16.7;
+    lastT = t;
+    if (dragging || reduceMotion) {
+      x = tx; y = ty;
+    } else {
+      var k = 1 - Math.pow(1 - EASE, dt / 16.7);
+      x += (tx - x) * k;
+      y += (ty - y) * k;
+      if (Math.abs(tx - x) < 0.2 && Math.abs(ty - y) < 0.2) { x = tx; y = ty; }
+    }
+    apply();
+    if (x === tx && y === ty) { rafId = null; lastT = 0; return; }
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function kick() { if (rafId === null) rafId = requestAnimationFrame(frame); }
+
+  /* Wheel / trackpad. Trackpads already send their own momentum, so the
+     easing above only smooths it; a notched mouse wheel gets its glide
+     from the same easing. Ctrl+wheel (pinch) is left to the browser. */
+  stage.addEventListener('wheel', function (e) {
+    if (locked || e.ctrlKey) return;
+    e.preventDefault();
+    var unit = e.deltaMode === 1 ? 16 : (e.deltaMode === 2 ? window.innerHeight : 1);
+    var dx = e.deltaX * unit;
+    var dy = e.deltaY * unit;
+    if (e.shiftKey && !dx) { dx = dy; dy = 0; }
+    tx += dx * WHEEL_GAIN;
+    ty += dy * WHEEL_GAIN;
+    kick();
+  }, { passive: false });
+
+  /* Drag (mouse, pen, touch). Moves are tracked on window so a drag that
+     leaves the stage still ends; no pointer capture, so a tap still
+     delivers its click to the tile under the finger. */
+  var dragging = false, pointerId = null, moved = false, suppressClick = false;
+  var startX = 0, startY = 0, lastX = 0, lastY = 0, lastMoveT = 0, vx = 0, vy = 0;
+
+  stage.addEventListener('pointerdown', function (e) {
+    if (locked || pointerId !== null || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    var wasGliding = Math.abs(tx - x) > 2 || Math.abs(ty - y) > 2;
+    tx = x; ty = y;                // grabbing stops a glide
+    pointerId = e.pointerId;
+    dragging = true;
+    moved = false;
+    suppressClick = wasGliding;    // a tap that stops a glide doesn't open a tile
+    startX = lastX = e.clientX;
+    startY = lastY = e.clientY;
+    lastMoveT = e.timeStamp;
+    vx = vy = 0;
+  });
+
+  window.addEventListener('pointermove', function (e) {
+    if (e.pointerId !== pointerId) return;
+    if (!moved) {
+      if (Math.abs(e.clientX - startX) < DRAG_SLOP && Math.abs(e.clientY - startY) < DRAG_SLOP) return;
+      moved = true;
+      suppressClick = true;
+      stage.classList.add('is-dragging');
+    }
+    var dx = e.clientX - lastX;
+    var dy = e.clientY - lastY;
+    var dt = Math.max(e.timeStamp - lastMoveT, 1);
+    vx = 0.7 * (-dx / dt) + 0.3 * vx;
+    vy = 0.7 * (-dy / dt) + 0.3 * vy;
+    tx -= dx; ty -= dy;
+    lastX = e.clientX; lastY = e.clientY; lastMoveT = e.timeStamp;
+    kick();
+  });
+
+  function endDrag(e) {
+    if (e.pointerId !== pointerId) return;
+    pointerId = null;
+    dragging = false;
+    stage.classList.remove('is-dragging');
+    if (moved && !reduceMotion && e.timeStamp - lastMoveT < 80) {
+      tx += vx * FLING;
+      ty += vy * FLING;
+    }
+    kick();
+  }
+  window.addEventListener('pointerup', endDrag);
+  window.addEventListener('pointercancel', endDrag);
+
+  stage.addEventListener('click', function (e) {
+    if (suppressClick) { e.preventDefault(); e.stopPropagation(); suppressClick = false; }
+  }, true);
+  stage.addEventListener('dragstart', function (e) { e.preventDefault(); });
+
+  /* Keyboard: arrows pan a step, Page Up/Down and Space a screen. */
+  document.addEventListener('keydown', function (e) {
+    if (locked || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+    var menu = document.getElementById('mobileNavOverlay');
+    if (menu && menu.classList.contains('is-open')) return;
+    var sx = window.innerWidth * KEY_STEP, sy = window.innerHeight * KEY_STEP;
+    switch (e.key) {
+      case 'ArrowLeft': tx -= sx; break;
+      case 'ArrowRight': tx += sx; break;
+      case 'ArrowUp': ty -= sy; break;
+      case 'ArrowDown': ty += sy; break;
+      case 'PageUp': ty -= window.innerHeight * 0.8; break;
+      case 'PageDown': ty += window.innerHeight * 0.8; break;
+      case ' ': ty += (e.shiftKey ? -1 : 1) * window.innerHeight * 0.8; break;
+      default: return;
+    }
+    e.preventDefault();
+    kick();
+  });
+
+  /* Tabbing through the real copy brings an off-screen tile into view. The
+     plane only shows the real copy at offsets 0..step, so the target is
+     picked inside that range (no wrap) to keep the focused tile — not one
+     of its clones — on screen. The stage itself must never scroll. */
+  stage.addEventListener('focusin', function (e) {
+    stage.scrollLeft = 0; stage.scrollTop = 0;
+    var tile = e.target.closest && e.target.closest('a.tile');
+    if (!tile || !main.contains(tile) || !tile.matches(':focus-visible')) return;
+    var r = tile.getBoundingClientRect();
+    if (r.left >= 0 && r.right <= window.innerWidth && r.top >= 0 && r.bottom <= window.innerHeight) return;
+    var wantX = Math.min(Math.max(tile.offsetLeft + tile.offsetWidth / 2 - window.innerWidth / 2, 0), stepX - 1);
+    var wantY = Math.min(Math.max(tile.offsetTop + tile.offsetHeight / 2 - window.innerHeight / 2, 0), stepY - 1);
+    tx = x + (wantX - mod(x, stepX));
+    ty = y + (wantY - mod(y, stepY));
+    kick();
+  });
+  stage.addEventListener('scroll', function () { stage.scrollLeft = 0; stage.scrollTop = 0; });
+
+  /* Breakpoint switches change the cell size, so re-measure and rebuild the
+     clones, keeping the visitor at the same place in the composition. */
+  window.addEventListener('resize', function () {
     if (resizeTimer) clearTimeout(resizeTimer);
     resizeTimer = setTimeout(function () {
-      if (H <= 0) { measure(); return; }
-      var frac = (window.scrollY - copyMid.offsetTop) / H;
-      measure();
-      if (H > 0) {
-        window.scrollTo({ top: copyMid.offsetTop + frac * H, left: 0, behavior: 'auto' });
-      }
+      var fx = mod(x, stepX) / stepX, fy = mod(y, stepY) / stepY;
+      dpr = window.devicePixelRatio || 1;
+      layout();
+      x = tx = fx * stepX;
+      y = ty = fy * stepY;
+      apply();
     }, RESIZE_DEBOUNCE);
-  }
+  });
 
-  window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', onResize);
+  window.addEventListener('wall:viewer-open', function () {
+    locked = true;
+    pointerId = null; dragging = false;
+    stage.classList.remove('is-dragging');
+    tx = x; ty = y;
+  });
+  window.addEventListener('wall:viewer-close', function () { locked = false; });
 
-  measure();
-  if (H > 0) { window.scrollTo(0, H); }
+  layout();
+  apply();
   reveal();
-})();
-
-/* === Desktop wheel synthetic inertia =====================================
-   Unchanged from wall-final-test.html (the validation debug overlay that
-   sat alongside this block in the prototype has been removed — it was
-   explicitly marked in that file as "TEMPORARY DEBUG OVERLAY — validation
-   build only... remove once the inertia feel is approved"; this is now
-   production, so it's removed per that note, not redesigned). Real
-   document scrolling only (window.scrollBy inside rAF) — the page itself
-   is never transformed, so the seamless loop above needs no special
-   handling. */
-(function () {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-  function isDesktop() { return window.innerWidth >= 768; }
-
-  var GAIN = 1.9;
-  var FRICTION = 0.92;
-  var STOP_THRESHOLD = 0.5;
-  var MAX_VELOCITY = 140;
-
-  var velocity = 0;
-  var rafId = null;
-  var viewerOpen = false;
-
-  function stop() {
-    velocity = 0;
-    if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
-  }
-
-  function tick() {
-    window.scrollBy(0, velocity);
-    velocity *= FRICTION;
-    if (Math.abs(velocity) < STOP_THRESHOLD) {
-      velocity = 0;
-      rafId = null;
-      return;
-    }
-    rafId = requestAnimationFrame(tick);
-  }
-
-  function onWheel(e) {
-    if (!isDesktop() || viewerOpen) return;
-    e.preventDefault();
-    velocity += e.deltaY * GAIN;
-    if (velocity > MAX_VELOCITY) velocity = MAX_VELOCITY;
-    if (velocity < -MAX_VELOCITY) velocity = -MAX_VELOCITY;
-    if (rafId === null) { rafId = requestAnimationFrame(tick); }
-  }
-
-  window.addEventListener('wheel', onWheel, { passive: false });
-  window.addEventListener('wall:viewer-open', function () { viewerOpen = true; stop(); });
-  window.addEventListener('wall:viewer-close', function () { viewerOpen = false; });
 })();
 
 /* === Editorial image viewer ===============================================
@@ -548,8 +624,11 @@ renderCopy('copyBottom', true);
    only renders when its destination is in BUILT_DESTINATIONS (declared at
    the top of this script), so a tile whose real page doesn't exist yet
    (everything except /film, for now) opens the viewer to show the image
-   and its known metadata, but offers no dead link forward. Loop, breathe,
-   hover, and nav code are untouched. */
+   and its known metadata, but offers no dead link forward. It opens with
+   the tile's standard-quality image and swaps in the HD original as soon
+   as that has loaded. Clicking the blurred backdrop closes it. The page
+   never scrolls, so no scroll lock is needed — the pan engine just stops
+   taking input while it's open (wall:viewer-open / wall:viewer-close). */
 (function () {
   var viewer = document.getElementById('viewer');
   var stageImg = document.getElementById('viewerImg');
@@ -560,7 +639,6 @@ renderCopy('copyBottom', true);
   var closeBtn = document.getElementById('viewerClose');
   if (!viewer || !stageImg || !closeBtn) return;
 
-  var savedScrollY = 0;
   var lastActiveTile = null;
   var isOpen = false;
 
@@ -603,6 +681,14 @@ renderCopy('copyBottom', true);
     lastActiveTile = tile;
     stageImg.src = img.currentSrc || img.src;
     stageImg.alt = img.alt || '';
+    var full = img.getAttribute('data-full');
+    if (full) {
+      var hd = new Image();
+      hd.onload = function () {
+        if (isOpen && lastActiveTile === tile) { stageImg.src = full; }
+      };
+      hd.src = full;
+    }
 
     disciplineEl.textContent = tile.getAttribute('data-discipline-label') || '';
     titleEl.textContent = tile.getAttribute('data-title') || '';
@@ -618,13 +704,6 @@ renderCopy('copyBottom', true);
       ctaEl.style.display = 'none';
     }
 
-    /* Scroll lock that preserves exact position (fixed-body technique) —
-       robust on iOS Safari, unlike plain overflow:hidden. */
-    savedScrollY = window.scrollY;
-    document.body.style.position = 'fixed';
-    document.body.style.top = (-savedScrollY) + 'px';
-    document.body.style.width = '100%';
-
     window.dispatchEvent(new CustomEvent('wall:viewer-open'));
 
     viewer.classList.add('is-open');
@@ -639,24 +718,23 @@ renderCopy('copyBottom', true);
     viewer.classList.remove('is-open');
     document.removeEventListener('keydown', onKeydown, true);
 
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.width = '';
-    window.scrollTo(0, savedScrollY);
-
     window.dispatchEvent(new CustomEvent('wall:viewer-close'));
 
-    if (lastActiveTile) { lastActiveTile.focus(); }
+    if (lastActiveTile) { lastActiveTile.focus({ preventScroll: true }); }
     lastActiveTile = null;
   }
 
   closeBtn.addEventListener('click', closeViewer);
+  viewer.addEventListener('click', function (e) {
+    if (e.target === viewer || e.target.classList.contains('viewer-stage')) { closeViewer(); }
+  });
 
-  document.querySelectorAll('a.tile[data-nav]').forEach(function (a) {
-    a.addEventListener('click', function (e) {
-      e.preventDefault();
-      openViewer(a);
-    });
+  // Delegated: clone copies are rebuilt whenever the viewport resizes.
+  document.getElementById('wallStage').addEventListener('click', function (e) {
+    var a = e.target.closest('a.tile[data-nav]');
+    if (!a) return;
+    e.preventDefault();
+    openViewer(a);
   });
 })();
 </script>
