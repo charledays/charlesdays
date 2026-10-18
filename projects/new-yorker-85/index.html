@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New Yorker 85' — Art Direction by Charles Days</title>
+<meta name="description" content="New Yorker 85', an art direction project by Charles Days built around a car carrying family memory — a Chrysler New Yorker restored and reimagined.">
+<link rel="canonical" href="https://charlesdays.art/projects/new-yorker-85/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="New Yorker 85' — Art Direction by Charles Days">
+<meta property="og:description" content="New Yorker 85', an art direction project by Charles Days built around a car carrying family memory — a Chrysler New Yorker restored and reimagined.">
+<meta property="og:url" content="https://charlesdays.art/projects/new-yorker-85/">
+<meta property="og:image" content="https://charlesdays.art/images/stories/new-yorker-85/cover.png">
+<meta property="og:image:alt" content="Chrysler New Yorker amarillo con intervención gráfica blanca, persona fotografiando el capó">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=Space+Grotesk:wght@500;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+:root{
+  --bg:#000;--text:#f5f2ed;--text-muted:#c7cbd6;
+  /* Same warm bone editorial surface approved for INTERNAZIONALE/HIGHEND —
+     reused verbatim, not a new value. */
+  --surface-bg:#f3eee5;
+  --surface-text:#211d19;
+  --surface-text-muted:#5e574c;
+--font-display:'Space Grotesk', sans-serif;}
+html{background:var(--bg);}
+html,body{color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
+
+/* ===== nav — reused as-is from index.html / film.html ===== */
+.proto-nav{position:fixed;top:0;left:0;right:0;z-index:50;height:52px;display:flex;justify-content:flex-end;align-items:center;padding:0 1.1rem;background:transparent;}
+.proto-logo,.proto-menu a{text-shadow:0 1px 3px rgba(0,0,0,0.75),0 2px 10px rgba(0,0,0,0.55),0 5px 20px rgba(0,0,0,0.35);}
+.proto-logo{position:absolute;left:50%;top:50%;transform:translate(-50%,calc(-50% + 6px));display:inline-flex;align-items:center;}
+.proto-logo-img{filter:drop-shadow(0 1px 2px rgba(0,0,0,0.95)) drop-shadow(0 2px 5px rgba(0,0,0,0.6));}
+.proto-logo-img{display:block;width:118px;height:auto;margin-top:-8px;}
+@media (min-width:768px){.proto-logo-img{width:135px;margin-top:0;}}
+.proto-menu{display:none;}
+.proto-menu a{font-size:0.75rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);text-decoration:none;opacity:0.72;}
+.proto-menu a:hover{opacity:1;}
+.proto-menu a[aria-current="page"]{opacity:1;}
+.proto-menu a:focus-visible,.proto-logo:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;}
+@media (min-width:768px){.proto-menu{display:flex;gap:1.5rem;}}
+
+/* ===== mobile nav — MENU/CLOSE overlay, mobile-only (<768px). Desktop
+   nav (.proto-menu) is completely untouched; this is an independent
+   addition that reuses the same nav bar for its own header (logo stays
+   pinned top-left, this toggle occupies the same top-right slot the
+   desktop menu uses, so only one of the two is ever visible/laid out
+   at a given width). ===== */
+.proto-menu-toggle{display:inline-block;background:none;border:none;padding:0;font-family:'DM Sans',sans-serif;font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);opacity:0.72;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,0.55),0 2px 10px rgba(0,0,0,0.35);}
+.proto-menu-toggle:hover{opacity:1;}
+.proto-menu-toggle:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;opacity:1;}
+@media (min-width:768px){.proto-menu-toggle{display:none;}}
+
+.mobile-nav-overlay{position:fixed;inset:0;z-index:45;background:var(--bg);display:flex;align-items:center;opacity:0;visibility:hidden;transition:opacity .25s ease;}
+.mobile-nav-overlay.is-open{opacity:1;visibility:visible;}
+.mobile-nav-links{display:flex;flex-direction:column;gap:1.4rem;padding:0 1.6rem;width:100%;}
+.mobile-nav-links a{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,10vw,2.6rem);letter-spacing:0.03em;color:#f5f2ed;text-decoration:none;opacity:0.85;}
+.mobile-nav-links a:hover,.mobile-nav-links a:focus-visible{opacity:1;}
+.mobile-nav-links a[aria-current="page"]{opacity:1;text-decoration:underline;text-underline-offset:0.3em;}
+.mobile-nav-links a:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:4px;}
+@media (min-width:768px){.mobile-nav-overlay{display:none;}}
+@media (prefers-reduced-motion:reduce){.mobile-nav-overlay{transition:none;}}
+
+
+
+/* ======================================================================
+   OPENING FRAME PROTOTYPE — NEW YORKER 85' only. Independent file, same
+   isolated-per-project pattern already established for HIGHEND and
+   INTERNAZIONALE — not a modification of either. Everything above this
+   comment is the untouched cinematic-strip system (same markup/CSS/
+   behavior). Everything below is scoped to this file and only ever
+   activates for the new-yorker-85 strip.
+
+   FIRST PASS — STRUCTURAL ONLY. Reused unchanged: FLIP continuity
+   technique, two-movement timing, paper-over-black concept, bone
+   surface color, fixed exit control + adaptive contrast + aura, inertia
+   mechanism/constants, teardown, and the approved 55vw desktop paper
+   width (present from the start here, not retrofitted). The body
+   sequence below renders New Yorker 85's real stories.js content
+   (context, credits, all 6 supportingImages) in a plain, single-image-
+   per-step composition — no creative pairing/rhythm has been designed
+   yet; that is deliberately deferred to a follow-up pass per instruction.
+   The Opening anchor uses INTERNAZIONALE's height-based sizing technique
+   (not HIGHEND's width-based one), since New Yorker's own source photos
+   are portrait (3:4, matching cover.png's native ratio) rather than
+   landscape.
+   ====================================================================== */
+
+.of-hero{
+  position:fixed;z-index:150;
+  object-fit:cover;pointer-events:none;
+}
+.of-hero.is-animating{
+  transition:
+    top .6s cubic-bezier(.22,1,.36,1),
+    left .6s cubic-bezier(.22,1,.36,1),
+    width .6s cubic-bezier(.22,1,.36,1),
+    height .6s cubic-bezier(.22,1,.36,1),
+    object-position .6s cubic-bezier(.22,1,.36,1);
+}
+.of-hero.is-settling{
+  transition:
+    top .6s cubic-bezier(.22,1,.36,1),
+    left .6s cubic-bezier(.22,1,.36,1),
+    width .6s cubic-bezier(.22,1,.36,1),
+    height .6s cubic-bezier(.22,1,.36,1),
+    object-position .6s cubic-bezier(.22,1,.36,1);
+}
+
+/* Movement 2's landing composition — same flex+aspect-ratio technique as
+   INTERNAZIONALE (JS only reads the anchor's live rect once). Always row
+   (no column/row media-query switch): a portrait anchor at this height
+   is narrower than INTERNAZIONALE's own square at the same height, so
+   it fits a narrow viewport at least as comfortably. */
+.of-frame{
+  position:fixed;inset:0;z-index:152;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:4vw;padding:0 6vw;
+  transform:translateY(-2.4vh);
+  opacity:0;pointer-events:none;
+  transition:opacity .32s ease;
+}
+.of-frame.is-visible{opacity:1;}
+
+.of-frame-text{max-width:min(26vw,380px);}
+.of-frame-role{font-size:0.68rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1rem;text-shadow:0 1px 6px rgba(0,0,0,0.5);}
+.of-frame-title{font-family:var(--font-display);font-weight:700;text-transform:uppercase;font-size:clamp(1.8rem,3.9vw,3.5rem);line-height:0.98;letter-spacing:-0.01em;color:var(--text);text-shadow:0 2px 16px rgba(0,0,0,0.45);}
+.of-frame-year{margin-top:0.7rem;font-size:0.78rem;letter-spacing:0.18em;color:var(--text-muted);text-shadow:0 1px 6px rgba(0,0,0,0.5);}
+
+/* Invisible layout marker only — the real .of-hero <img> is animated to
+   match this box's rendered rect. aspect-ratio 3/4 matches cover.png's
+   own native ratio (1272×1696), so object-fit:cover shows the complete
+   frame with no cropped edges once the hero settles here. */
+.of-anchor{height:clamp(300px,58vh,600px);aspect-ratio:3/4;flex:0 0 auto;}
+
+@media (prefers-reduced-motion:reduce){
+  .of-frame{transition:opacity .01s linear;}
+}
+
+.of-scroll{
+  position:fixed;inset:0;z-index:155;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  overflow-anchor:none;
+  opacity:0;pointer-events:none;transition:opacity .3s ease;
+}
+.of-scroll.is-active{opacity:1;pointer-events:auto;}
+
+.of-spacer{height:calc(100svh - 34px);position:relative;}
+@media (min-width:900px){
+  /* Approved desktop opening interaction (same system as VIDABANDIDA
+     TRACKS): the paper begins substantially lower and the entrance
+     animation (see #of-sequence.is-entering/.is-settling below) slides
+     it up into this raised resting position — ~210px of real paper
+     visible before any scroll input. */
+  .of-spacer{height:calc(100svh - 210px);}
+}
+
+/* The PAPER — same approved concept as HIGHEND/INTERNAZIONALE: narrower
+   than the viewport, centered, so the darker Art Direction backdrop
+   stays visible at both sides. Approved 55vw desktop width is present
+   here from the start (built after HIGHEND/INTERNAZIONALE's system was
+   approved), not retrofitted afterward. */
+.of-sequence{width:min(92vw,1440px);margin:0 auto;background:var(--surface-bg);}
+@media (min-width:1200px){
+  .of-sequence{width:55vw;}
+}
+
+/* Entrance slide (approved system, same as VIDABANDIDA TRACKS): the
+   paper itself starts ~120px below its raised resting position and
+   animates up into it once, right as the project opens. Only ever
+   toggled on desktop widths (see the JS trigger in openNewYorker) —
+   mobile/tablet never receive these classes. */
+#of-sequence.is-entering{transform:translateY(120px);}
+#of-sequence.is-settling{transform:translateY(0);transition:transform 1s cubic-bezier(.22,.61,.36,1);}
+
+/* Opening-only "continues below" cue (approved system, same as
+   VIDABANDIDA TRACKS) — no text, no arrow, no icon: a long, thin,
+   centered editorial line. Belongs to #of-scroll's own scrollable
+   content (a child of .of-spacer, NOT fixed/sticky), positioned
+   absolutely against that spacer so it scrolls away with the opening
+   state the instant the user scrolls. Appears once the paper entrance
+   animation settles, makes a very small, slow, bounce-free vertical
+   drift, then is explicitly faded out and disabled by JS as soon as
+   real scroll input begins. 140px height, same as VIDABANDIDA TRACKS —
+   same .of-frame-text/.of-frame-title/.of-frame-year values, so the
+   same ~168px gap and the same cap apply. */
+.of-continue-cue{
+  position:absolute;left:50%;bottom:14px;
+  width:1px;height:140px;
+  background:rgba(245,242,237,0.28);
+  transform:translateX(-50%);
+  opacity:0;pointer-events:none;
+  transition:opacity .4s ease;
+}
+.of-continue-cue.is-visible{opacity:1;}
+.of-continue-cue.is-breathing{animation:of-continue-drift 2.6s ease-in-out infinite;}
+@keyframes of-continue-drift{
+  0%,100%{transform:translateX(-50%) translateY(0);}
+  50%{transform:translateX(-50%) translateY(6px);}
+}
+@media (prefers-reduced-motion:reduce){
+  .of-continue-cue{transition:opacity .01s linear;}
+  .of-continue-cue.is-breathing{animation:none;}
+}
+
+.seq-img{display:block;width:100%;height:auto;}
+
+/* STEP 1 — detail-01, opening image. Plain single-image beat, first
+   pass only — no creative pairing/rhythm decided yet. */
+.ny-image{max-width:900px;margin:0 auto;padding:1.2rem 1.4rem 2rem;}
+.ny-image .seq-img{max-width:480px;margin:0 auto;}
+@media (min-width:900px){
+  .ny-image{padding:1.5rem 2.4rem 2.5rem;}
+  .ny-image .seq-img{max-width:560px;}
+}
+
+/* STEP 2 — brief project story (role + canonical context), standalone,
+   same pattern already used for HIGHEND's story beat. */
+.ny-story{max-width:620px;margin:0 auto;padding:2.5rem 1.4rem;}
+.ny-story-body{font-size:0.98rem;line-height:1.7;color:var(--surface-text);white-space:pre-line;font-weight:300;}
+@media (min-width:900px){
+  .ny-story{padding:3rem 2.4rem;}
+  .ny-story-body{font-size:1.03rem;}
+}
+
+/* STEP 5 — credits + detail-04 (finished vehicle), one composed spread —
+   same structural pattern as HIGHEND's/INTERNAZIONALE's credit spreads,
+   but built with a percentage gap and min-width:0 from the start (no
+   viewport-relative gap introduced, so no later 55vw containment fix is
+   needed here). */
+.ny-detail{
+  max-width:1200px;margin:0 auto;padding:1.5rem 1.4rem;
+  display:flex;flex-direction:column;gap:1.75rem;
+}
+.ny-detail-credits{max-width:320px;}
+.ny-credit{margin-bottom:1rem;}
+.ny-credit:last-child{margin-bottom:0;}
+.ny-credit-role{display:block;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--surface-text-muted);margin-bottom:0.3rem;}
+.ny-credit-name{display:block;font-size:0.92rem;color:var(--surface-text);font-weight:300;}
+.ny-detail .seq-img{max-width:420px;margin:0 auto 0 0;}
+@media (min-width:900px){
+  .ny-detail{padding:2.5rem 2.4rem;flex-direction:row-reverse;align-items:center;gap:4%;}
+  .ny-detail-credits{flex:0 0 auto;}
+  .ny-detail .seq-img{max-width:560px;margin:0;min-width:0;}
+}
+
+/* EPILOGUE — after detail-06. externalLinks[0] is already a real,
+   confirmed URL (the Instagram process Reel) — surfaced directly, same
+   principle already used for HIGHEND's DJ-set link. */
+.ny-epilogue{max-width:640px;margin:0 auto;padding:2rem 1.4rem 6rem;}
+.ny-epilogue-kicker{font-size:0.66rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--surface-text-muted);margin-bottom:1rem;}
+.ny-epilogue-link{display:inline-flex;align-items:center;gap:0.4em;margin-bottom:3rem;padding-bottom:0.3rem;font-size:0.74rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--surface-text);text-decoration:none;border-bottom:1.5px solid rgba(33,29,25,0.45);}
+.ext-icon{width:13px;height:13px;flex-shrink:0;}
+.ny-epilogue-link:hover{border-color:var(--surface-text);}
+.ny-epilogue-link:focus-visible{outline:2px solid var(--surface-text);outline-offset:3px;}
+.ny-epilogue-return{
+  display:inline-block;font-family:'DM Sans',sans-serif;
+  font-size:0.9rem;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--surface-text);text-decoration:none;
+  padding:13px 2px;
+}
+.ny-epilogue-return:hover{opacity:0.65;}
+@media (min-width:900px){
+  .ny-epilogue{padding:2.5rem 2.4rem 7rem;}
+}
+
+/* Fixed exit — identical rules to the HIGHEND/INTERNAZIONALE-approved
+   control (reused verbatim). ONLY TEXT: no background, gradient,
+   shadow-halo, pseudo-element, or blur — only the approved subtle aura
+   and the adaptive color swap. */
+.of-exit{
+  position:fixed;bottom:1.3rem;left:1.2rem;z-index:200;
+  font-size:0.875rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--text);text-decoration:none;opacity:0;pointer-events:none;
+  background:none;box-shadow:none;filter:none;
+  -webkit-backdrop-filter:none;backdrop-filter:none;outline:none;
+  text-shadow:0 0 8px rgba(0,0,0,.4);
+  transition:opacity .3s ease;
+  padding:13px 14px;
+  display:inline-block;
+}
+.of-exit::before,.of-exit::after{content:none;}
+.of-exit.is-visible{opacity:.8;pointer-events:auto;}
+.of-exit:hover,.of-exit:focus-visible{opacity:1;}
+.of-exit.is-on-surface{color:var(--surface-text);}
+
+@media (min-width:768px){
+  .of-exit{bottom:1.6rem;left:2.4rem;}
+}
+</style>
+</head>
+<body>
+
+<nav class="proto-nav">
+  <a class="proto-logo" href="/"><img class="proto-logo-img" src="/images/brand/charlesdays-wordmark.png" alt="Charles Days"></a>
+  <div class="proto-menu">
+    <a href="/art-direction/" aria-current="page">ART DIRECTION</a>
+    <a href="/tattoo/">TATTOO</a>
+    <a href="/film/">FILM</a>
+    <a href="/about/">ABOUT</a>
+  <a href="/manifiesto/">MANIFIESTO</a>
+  </div>
+  <button type="button" class="proto-menu-toggle" id="mobileMenuToggle" aria-expanded="false" aria-controls="mobileNavOverlay">MENU</button>
+</nav>
+
+<div class="mobile-nav-overlay" id="mobileNavOverlay" role="dialog" aria-modal="true" aria-label="Menú principal" aria-hidden="true">
+  <nav class="mobile-nav-links" aria-label="Navegación móvil">
+    <a href="/art-direction/" aria-current="page">ART DIRECTION</a>
+    <a href="/tattoo/">TATTOO</a>
+    <a href="/film/">FILM</a>
+    <a href="/about/">ABOUT</a>
+    <a href="/manifiesto/">MANIFIESTO</a>
+  </nav>
+</div>
+
+<script>
+(function () {
+  var toggle = document.getElementById('mobileMenuToggle');
+  var overlay = document.getElementById('mobileNavOverlay');
+  if (!toggle || !overlay) return;
+  var isOpen = false;
+
+  function openMenu() {
+    isOpen = true;
+    overlay.classList.add('is-open');
+    overlay.removeAttribute('aria-hidden');
+    toggle.textContent = 'CLOSE';
+    toggle.setAttribute('aria-expanded', 'true');
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    var firstLink = overlay.querySelector('a');
+    if (firstLink) firstLink.focus();
+  }
+
+  function closeMenu() {
+    isOpen = false;
+    overlay.classList.remove('is-open');
+    overlay.setAttribute('aria-hidden', 'true');
+    toggle.textContent = 'MENU';
+    toggle.setAttribute('aria-expanded', 'false');
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+    toggle.focus();
+  }
+
+  toggle.addEventListener('click', function () {
+    if (isOpen) { closeMenu(); } else { openMenu(); }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (isOpen && e.key === 'Escape') { closeMenu(); }
+  });
+})();
+</script>
+
+<main>
+  <h1 class="sr-only">New Yorker 85' — Charles Days</h1>
+</main>
+
+<!-- Opening Frame prototype layers — inert until NEW YORKER 85' is clicked -->
+<div class="of-frame" id="of-frame">
+  <div class="of-frame-text">
+    <p class="of-frame-role" id="of-frame-role"></p>
+    <h2 class="of-frame-title" id="of-frame-title"></h2>
+    <p class="of-frame-year" id="of-frame-year"></p>
+  </div>
+  <div class="of-anchor" id="of-anchor"></div>
+</div>
+
+<a href="/art-direction/" class="of-exit" id="of-exit">&larr; ART DIRECTION</a>
+
+<div class="of-scroll" id="of-scroll">
+  <div class="of-spacer">
+    <div class="of-continue-cue" id="of-continue-cue" aria-hidden="true"></div>
+  </div>
+  <div class="of-sequence" id="of-sequence"></div>
+</div>
+
+<script type="module">
+/* Standalone visual prototype (Opening Frame pass) for NEW YORKER 85'.
+   Reads the real entry directly from stories.js. Does not modify
+   art-direction-cinematic-strips-prototype.html, internazionale-opening-
+   frame-prototype.html or highend-night-car-meet-opening-frame-
+   prototype.html — this file embeds its own copy of the strip list
+   (same pattern already established by the other two prototypes), so it
+   can be evaluated independently. Only the click behavior for the
+   new-yorker-85 strip differs; every other strip keeps today's no-op
+   preventDefault. */
+import { stories } from '/stories.js';
+
+var byId = {};
+stories.forEach(function (s) { byId[s.id] = s; });
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/* Shared external-link glyph — same icon/markup used sitewide (About,
+   Tattoo, every project epilogue), replacing the previous emoji. */
+var EXT_ICON_SVG = '<svg class="ext-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+
+/* ======================================================================
+   VISUAL SEQUENCE — NEW YORKER 85' only, FIRST PASS. Built from the real
+   supportingImages array in stories.js, matched by filename fragment.
+   Canonical `context`, `role`, and `credits` are used verbatim
+   (HTML-escaped only), never rewritten. Presentation order below
+   follows supportingImages' own stored order exactly (01→06) — no
+   creative rhythm/pairing has been designed yet; that is deliberately
+   deferred to a follow-up pass, per instruction.
+   ====================================================================== */
+function findSupportingImage(story, fragment) {
+  return story.supportingImages.filter(function (img) {
+    return img.src.indexOf(fragment) !== -1;
+  })[0];
+}
+
+function seqImg(image) {
+  return '<img class="seq-img" src="' + image.src + '" alt="' + esc(image.alt || '') + '" loading="lazy" decoding="async">';
+}
+
+/* Same grouping approach approved for HIGHEND/INTERNAZIONALE's credits:
+   group by identical role, first-appearance order, presentation-only
+   pluralization (role + "s" when a group has more than one name).
+   Charles' own role is not added as a credit row — stories.js has no
+   credits entry for him here either (same situation as the other two
+   projects), so none is invented; his role is surfaced via story.role
+   instead (see of-frame-role and the story-step kicker). */
+function nyCredits(story) {
+  var order = [];
+  var byRole = {};
+  story.credits.forEach(function (c) {
+    if (!byRole[c.role]) { byRole[c.role] = []; order.push(c.role); }
+    byRole[c.role].push(c.name);
+  });
+  return '<div class="ny-detail-credits">' +
+    order.map(function (role) {
+      var names = byRole[role];
+      var label = names.length > 1 ? role + 's' : role;
+      return '<p class="ny-credit">' +
+        '<span class="ny-credit-role">' + esc(label) + '</span>' +
+        names.map(function (n) { return '<span class="ny-credit-name">' + esc(n) + '</span>'; }).join('') +
+      '</p>';
+    }).join('') +
+    /* LOCATION row — same .ny-credit markup/typography as every credit
+       group above, sourced from story.location (already stored in
+       stories.js). Not part of story.credits itself (location is its
+       own field in the content model), so it's appended here rather
+       than folded into the credits-grouping loop above. */
+    (story.location ?
+      '<p class="ny-credit">' +
+        '<span class="ny-credit-role">Location</span>' +
+        '<span class="ny-credit-name">' + esc(story.location) + '</span>' +
+      '</p>'
+      : '') +
+  '</div>';
+}
+
+function buildNewYorkerSequence(story) {
+  var img01 = findSupportingImage(story, 'detail-01');
+  var img02 = findSupportingImage(story, 'detail-02');
+  var img03 = findSupportingImage(story, 'detail-03');
+  var img04 = findSupportingImage(story, 'detail-04');
+  var img05 = findSupportingImage(story, 'detail-05');
+  var img06 = findSupportingImage(story, 'detail-06');
+  var role = Array.isArray(story.role) ? story.role.join(', ') : '';
+
+  return '' +
+    /* STEP 1 — detail-01, opening image. */
+    '<section class="seq ny-image">' + seqImg(img01) + '</section>' +
+
+    /* STEP 2 — brief project story, standalone. */
+    '<section class="seq ny-story">' +
+      '<p class="seq-kicker">' + esc(role) + '</p>' +
+      '<p class="ny-story-body">' + esc(story.context || '') + '</p>' +
+    '</section>' +
+
+    /* STEP 3 — detail-02. */
+    '<section class="seq ny-image">' + seqImg(img02) + '</section>' +
+
+    /* STEP 4 — detail-03. */
+    '<section class="seq ny-image">' + seqImg(img03) + '</section>' +
+
+    /* STEP 5 — finished-vehicle DETAIL hero + credits spread. */
+    '<section class="seq ny-detail">' + nyCredits(story) + seqImg(img04) + '</section>' +
+
+    /* STEP 6 — detail-05, Charles standing by the finished car. */
+    '<section class="seq ny-image">' + seqImg(img05) + '</section>' +
+
+    /* STEP 7 — detail-06, behind-the-scenes. */
+    '<section class="seq ny-image">' + seqImg(img06) + '</section>' +
+
+    buildEpilogue(story);
+}
+
+function buildEpilogue(story) {
+  var reelLink = story.externalLinks && story.externalLinks[0];
+
+  return '<section class="seq ny-epilogue">' +
+    (reelLink ?
+      '<div>' +
+        '<p class="ny-epilogue-kicker">Relacionado</p>' +
+        '<a href="' + reelLink.url + '" target="_blank" rel="noopener noreferrer" class="ny-epilogue-link">' + esc(reelLink.label) + EXT_ICON_SVG + '</a>' +
+      '</div>'
+      : '') +
+    /* Real navigation back to the main ART DIRECTION page — this is
+       the end-of-project exit, distinct from the persistent #of-exit
+       control used mid-sequence (which still closes/resets in place). */
+    '<a href="/art-direction/" class="ny-epilogue-return" id="of-exit-end">&larr; RETURN TO ART DIRECTION</a>' +
+  '</section>';
+}
+
+document.getElementById('of-sequence').innerHTML = buildNewYorkerSequence(byId['new-yorker-85']);
+openNewYorker(byId['new-yorker-85']);
+
+/* ======================================================================
+   OPENING FRAME — NEW YORKER 85' only. Same FLIP-continuity technique
+   and two-movement timing already approved for INTERNAZIONALE/HIGHEND
+   (reused unchanged). IMMERSIVE_CROP is a TEMPORARY placeholder
+   object-position for the momentary full-viewport beat — flagged here
+   for real art direction review, exactly like the other two projects'
+   own placeholder crops were. */
+var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var IMMERSIVE_CROP = '50% 40%'; // TEMPORARY — placeholder for art direction review
+
+var BEAT_MS = 130;    // full-frame pause between the two movements
+var SETTLE_MS = 600;  // Movement 2 duration — matches .of-hero.is-settling
+var TEXT_LEAD_MS = Math.round(SETTLE_MS * 2 / 3);
+var PAPER_ENTER_MS = 1000; // matches #of-sequence.is-settling's transition-duration below
+
+/* Paper entrance slide — approved system, same as VIDABANDIDA TRACKS.
+   Runs once, right as the paper fades in: starts 120px below the
+   approved resting position, animates up into it, then both classes
+   are cleared so .of-sequence is left with no transform at all — no
+   residual effect on scroll/inertia. Skipped entirely below the 900px
+   desktop breakpoint used for the raised resting position itself. */
+function animatePaperEntrance() {
+  if (window.innerWidth < 900) return;
+  var paperEl = document.getElementById('of-sequence');
+  paperEl.classList.add('is-entering');
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      paperEl.classList.add('is-settling');
+      paperEl.classList.remove('is-entering');
+    });
+  });
+  setTimeout(function () {
+    paperEl.classList.remove('is-settling');
+    showContinueCue();
+  }, PAPER_ENTER_MS);
+}
+
+/* Opening-only "continues below" cue — approved system, same as
+   VIDABANDIDA TRACKS. Fades in once the paper entrance settles, then
+   breathes a few px down and back. Belongs only to the opening state:
+   as soon as real scroll input arrives it is faded out and disabled
+   for the rest of that open session. */
+function showContinueCue() {
+  if (window.innerWidth < 900) return;
+  var cueEl = document.getElementById('of-continue-cue');
+  cueEl.classList.add('is-visible');
+  cueEl.classList.add('is-breathing');
+}
+
+function hideContinueCue() {
+  var cueEl = document.getElementById('of-continue-cue');
+  cueEl.classList.remove('is-visible', 'is-breathing');
+}
+
+function openNewYorker(story) {
+  document.documentElement.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
+  document.getElementById('of-scroll').scrollTop = 0;
+
+  var hero = document.createElement('img');
+  hero.className = 'of-hero';
+  hero.src = story.cover.src;
+  hero.alt = '';
+  hero.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(hero);
+
+  var frameEl = document.getElementById('of-frame');
+  var anchorEl = document.getElementById('of-anchor');
+  var scrollEl = document.getElementById('of-scroll');
+  var exitEl = document.getElementById('of-exit');
+
+  document.getElementById('of-frame-title').textContent = story.title || '';
+  document.getElementById('of-frame-year').textContent = story.year ? String(story.year) : '';
+  document.getElementById('of-frame-role').textContent = Array.isArray(story.role) ? story.role.join(', ') : '';
+
+  function settleImmersive() {
+    hero.style.top = '0px';
+    hero.style.left = '0px';
+    hero.style.width = window.innerWidth + 'px';
+    hero.style.height = window.innerHeight + 'px';
+    hero.style.objectPosition = IMMERSIVE_CROP;
+  }
+
+  function settleToArtwork() {
+    var r = anchorEl.getBoundingClientRect();
+    hero.style.top = r.top + 'px';
+    hero.style.left = r.left + 'px';
+    hero.style.width = r.width + 'px';
+    hero.style.height = r.height + 'px';
+    hero.style.objectPosition = '50% 50%';
+  }
+
+  if (reduceMotion) {
+    settleToArtwork();
+    scrollEl.classList.add('is-active');
+    frameEl.classList.add('is-visible');
+    exitEl.classList.add('is-visible');
+    showContinueCue();
+    return;
+  }
+
+  settleImmersive();
+
+  setTimeout(function () {
+    hero.classList.add('is-settling');
+    settleToArtwork();
+
+    setTimeout(function () {
+      scrollEl.classList.add('is-active');
+      frameEl.classList.add('is-visible');
+      exitEl.classList.add('is-visible');
+      animatePaperEntrance();
+    }, TEXT_LEAD_MS);
+  }, BEAT_MS);
+
+  /* Opening-only cue: the moment real scroll input arrives, fade it out
+     and stop it from ever reappearing for the rest of this open
+     session. */
+  if (scrollEl._cueHideHandler) {
+    scrollEl.removeEventListener('scroll', scrollEl._cueHideHandler);
+  }
+  var cueDismissed = false;
+  scrollEl._cueHideHandler = function () {
+    if (cueDismissed) return;
+    if (scrollEl.scrollTop > 4) {
+      cueDismissed = true;
+      hideContinueCue();
+      scrollEl.removeEventListener('scroll', scrollEl._cueHideHandler);
+    }
+  };
+  scrollEl.addEventListener('scroll', scrollEl._cueHideHandler);
+
+  if (scrollEl._exitContrastHandler) {
+    scrollEl.removeEventListener('scroll', scrollEl._exitContrastHandler);
+  }
+  scrollEl._exitContrastHandler = function () {
+    var spacer = document.querySelector('.of-spacer');
+    var pastSpacer = scrollEl.scrollTop >= spacer.offsetHeight - 8;
+    var exitRect = exitEl.getBoundingClientRect();
+    var paperRect = document.getElementById('of-sequence').getBoundingClientRect();
+    var overPaper = exitRect.left >= paperRect.left && exitRect.right <= paperRect.right;
+    exitEl.classList.toggle('is-on-surface', pastSpacer && overPaper);
+  };
+  scrollEl.addEventListener('scroll', scrollEl._exitContrastHandler);
+  scrollEl._exitContrastHandler();
+}
+
+
+/* ======================================================================
+   SCROLL INERTIA — identical mechanism/constants to HIGHEND/
+   INTERNAZIONALE (reused unchanged), retargeted at this file's own
+   #of-scroll. */
+var reduceMotionForInertia = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+var INERTIA_GAIN = 1.9;
+var INERTIA_FRICTION = 0.92;
+var INERTIA_STOP = 0.5;
+var INERTIA_MAX = 140;
+
+var inertiaVelocity = 0;
+var inertiaRaf = null;
+
+function isDesktopWidth() { return window.innerWidth >= 900; }
+
+function stopInertia() {
+  inertiaVelocity = 0;
+  if (inertiaRaf !== null) { cancelAnimationFrame(inertiaRaf); inertiaRaf = null; }
+}
+
+function inertiaTick() {
+  var scrollEl = document.getElementById('of-scroll');
+  scrollEl.scrollTop += inertiaVelocity;
+  inertiaVelocity *= INERTIA_FRICTION;
+  if (Math.abs(inertiaVelocity) < INERTIA_STOP) {
+    inertiaVelocity = 0;
+    inertiaRaf = null;
+    return;
+  }
+  inertiaRaf = requestAnimationFrame(inertiaTick);
+}
+
+if (!reduceMotionForInertia) {
+  window.addEventListener('wheel', function (e) {
+    var scrollEl = document.getElementById('of-scroll');
+    if (!isDesktopWidth() || !scrollEl.classList.contains('is-active')) return;
+    e.preventDefault();
+    inertiaVelocity += e.deltaY * INERTIA_GAIN;
+    if (inertiaVelocity > INERTIA_MAX) inertiaVelocity = INERTIA_MAX;
+    if (inertiaVelocity < -INERTIA_MAX) inertiaVelocity = -INERTIA_MAX;
+    if (inertiaRaf === null) { inertiaRaf = requestAnimationFrame(inertiaTick); }
+  }, { passive: false });
+}
+</script>
+</body>
+</html>
