@@ -762,10 +762,13 @@ function openHighend(story) {
    (item 8: reused unchanged), retargeted at this file's own #of-scroll. */
 var reduceMotionForInertia = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-var INERTIA_GAIN = 1.9;
+/* Each wheel impulse travels about GAIN / (1 - FRICTION) times its native
+   distance (~1.25x): close to the browser's own step, plus a short soft tail.
+   (1.9 here meant ~24x, too fast to read text.) */
+var INERTIA_GAIN = 0.1;
 var INERTIA_FRICTION = 0.92;
 var INERTIA_STOP = 0.5;
-var INERTIA_MAX = 140;
+var INERTIA_MAX = 60;
 
 var inertiaVelocity = 0;
 var inertiaRaf = null;
@@ -794,7 +797,9 @@ if (!reduceMotionForInertia) {
     var scrollEl = document.getElementById('of-scroll');
     if (!isDesktopWidth() || !scrollEl.classList.contains('is-active')) return;
     e.preventDefault();
-    inertiaVelocity += e.deltaY * INERTIA_GAIN;
+    // Firefox reports lines/pages instead of pixels.
+    var dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
+    inertiaVelocity += dy * INERTIA_GAIN;
     if (inertiaVelocity > INERTIA_MAX) inertiaVelocity = INERTIA_MAX;
     if (inertiaVelocity < -INERTIA_MAX) inertiaVelocity = -INERTIA_MAX;
     if (inertiaRaf === null) { inertiaRaf = requestAnimationFrame(inertiaTick); }
