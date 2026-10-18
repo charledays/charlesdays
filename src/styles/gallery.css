@@ -1,4 +1,4 @@
-/* Shared look for the gallery-style sections (Film & Photo, Exhibitions,
+/* Shared look for the gallery-style sections (Film, Exhibitions,
    About, Projects): black room, images first, small museum-label type.
    Pages import this once in their frontmatter; components add only
    their own layout on top. */

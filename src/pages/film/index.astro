@@ -1,21 +1,18 @@
 ---
-/* FILM & PHOTO — stills, campaigns and photography, hung as gallery walls.
-   Each series is one row of photos at the same height and their own
-   natural width (nothing cropped), so the mixed sizes read as one body of
-   work instead of a grid of forced crops. Content comes straight from
-   stories.js: every entry with discipline "film" and a series, in file
-   order; the reel/post link (externalLinks[0]) is offered in the viewer. */
+/* FILM — one grid per series, every still in the same 4:5 frame (cropped
+   to fill), so the page reads as an even contact sheet. Each still is a
+   plain link straight to its reel (externalLinks[0]) in a new tab — no
+   viewer in between. Content comes straight from stories.js: every entry
+   with discipline "film" and a series, in file order. */
 import Base from '../../layouts/Base.astro';
 import PageHead from '../../components/PageHead.astro';
-import GalleryRow from '../../components/GalleryRow.astro';
-import Viewer from '../../components/Viewer.astro';
-import { stories } from '../../lib/media';
+import { stories, smSrc } from '../../lib/media';
 import '../../styles/gallery.css';
 
 const SERIES = [
-  { key: 'vidabandida', label: 'VIDABANDIDA', kicker: 'Universo en curso' },
-  { key: 'days-off', label: 'DAYS OFF', kicker: 'Serie' },
-  { key: 'lost-frames', label: 'LOST FRAMES', kicker: 'Serie' },
+  { key: 'vidabandida', label: 'VIDABANDIDA' },
+  { key: 'days-off', label: 'DAYS OFF' },
+  { key: 'lost-frames', label: 'LOST FRAMES' },
 ];
 
 const rows = SERIES.map((s) => ({
@@ -23,45 +20,102 @@ const rows = SERIES.map((s) => ({
   items: stories
     .filter((e) => e.discipline?.includes('film') && e.series === s.key && e.cover?.src)
     .map((e) => ({
-      src: e.cover!.src,
+      id: e.id,
+      src: smSrc(e.cover!.src),
       alt: e.cover!.alt || e.title || '',
-      caption: e.title,
-      meta: e.year,
+      title: e.title,
+      year: e.year,
       link: e.externalLinks?.[0]?.url,
-      linkLabel: e.externalLinks?.[0]?.label,
+      linkLabel: e.externalLinks?.[0]?.label || 'Watch Reel',
     })),
 })).filter((r) => r.items.length);
+
+const pad = (n: number) => String(n).padStart(2, '0');
 ---
 <Base>
   <PageHead
     slot="head"
-    title="Film & Photo — Charles Days"
-    description="Charles Days — film y fotografía: stills, campañas y series fotográficas."
+    title="Film / Moving Image — Charles Days"
+    description="Charles Days — Film y moving image: frames, campañas e imágenes en movimiento."
     image="/images/wall/avirex.png"
     imageAlt="Fotograma de un proyecto de Film de Charles Days"
   />
 
   <main class="g-page">
     <header class="g-head g-wrap">
-      <p class="g-kicker">Stills · Campañas · Fotografía</p>
-      <h1 class="g-title">FILM &amp; PHOTO</h1>
+      <p class="g-kicker">Frames · Campaigns · Moving image</p>
+      <h1 class="g-title">FILM</h1>
       <nav class="g-index" aria-label="Series">
-        {rows.map((r) => <a href={`#${r.key}`}>{r.label}<sup>{String(r.items.length).padStart(2, '0')}</sup></a>)}
+        {rows.map((r) => <a href={`#${r.key}`}>{r.label}<sup>{pad(r.items.length)}</sup></a>)}
       </nav>
     </header>
 
-    {rows.map((r, i) => (
-      <GalleryRow id={r.key} title={r.label} kicker={r.kicker} items={r.items} size={i === 0 ? 'lg' : 'md'} />
+    {rows.map((r) => (
+      <section class="fm-series g-wrap" id={r.key} aria-labelledby={`${r.key}-title`}>
+        <h2 class="fm-title" id={`${r.key}-title`}>{r.label}<sup>{pad(r.items.length)}</sup></h2>
+        <div class="fm-grid">
+          {r.items.map((it, i) => {
+            const body = (
+              <>
+                <div class="fm-frame">
+                  <img src={it.src} alt={it.alt} width="800" height="1000" loading={i < 4 ? 'eager' : 'lazy'} decoding="async" />
+                  {it.link && <span class="fm-overlay">{it.linkLabel} ↗</span>}
+                </div>
+                <div class="fm-meta">
+                  <span class="fm-name">{it.title}</span>
+                  {it.year && <span class="fm-year">{it.year}</span>}
+                </div>
+              </>
+            );
+            return it.link
+              ? <a class="fm-card" data-id={it.id} href={it.link} target="_blank" rel="noopener noreferrer">{body}</a>
+              : <div class="fm-card" data-id={it.id}>{body}</div>;
+          })}
+        </div>
+      </section>
     ))}
 
     <footer class="g-foot g-wrap">
-      <span>Charles Days · Film &amp; Photo</span>
+      <span>Charles Days · Film</span>
       <span class="g-foot-links">
         <a class="g-link" href="/about/#contacto">Contacto</a>
         <a class="g-link" href="https://www.instagram.com/charlesdays.art" target="_blank" rel="noopener noreferrer">Instagram ↗</a>
       </span>
     </footer>
   </main>
-
-  <Viewer />
 </Base>
+
+<style>
+  .fm-series{margin-bottom:clamp(3.5rem,8vw,6rem);scroll-margin-top:var(--nav-h);}
+  .fm-title{margin-bottom:1.3rem;font-family:var(--font-display);font-weight:700;font-size:clamp(1.5rem,3.2vw,2.6rem);letter-spacing:-0.02em;line-height:1;text-transform:uppercase;}
+  .fm-title sup{font-size:0.38em;font-weight:500;letter-spacing:0.08em;color:var(--muted);margin-left:0.5em;vertical-align:super;}
+
+  .fm-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.8rem 0.8rem;}
+  @media (min-width:768px){.fm-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.4rem;}}
+  @media (min-width:1200px){.fm-grid{gap:1.8rem;}}
+
+  .fm-card{display:block;text-decoration:none;color:inherit;}
+  .fm-frame{position:relative;overflow:hidden;background:#0a0a0a;aspect-ratio:4/5;}
+  .fm-frame img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease;}
+  a.fm-card:hover .fm-frame img,a.fm-card:focus-visible .fm-frame img{transform:scale(1.035);}
+  a.fm-card:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:3px;}
+
+  /* INTERNAZIONALE STATEMENT: the still has faint white margins baked into
+     its sides; a small zoom trims them (framing fix, kept under reduced motion). */
+  .fm-card[data-id="internazionale-statement"] .fm-frame img{transform:scale(1.14);}
+  a.fm-card[data-id="internazionale-statement"]:hover .fm-frame img{transform:scale(1.18);}
+
+  .fm-overlay{position:absolute;inset:0;display:flex;align-items:flex-end;padding:0.8rem;background:linear-gradient(transparent 55%,rgba(0,0,0,0.55));opacity:0;transition:opacity .3s ease;font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);}
+  a.fm-card:hover .fm-overlay,a.fm-card:focus-visible .fm-overlay{opacity:1;}
+
+  .fm-meta{margin-top:0.65rem;display:flex;justify-content:space-between;align-items:baseline;gap:0.6rem;}
+  @media (max-width:767px){.fm-meta{flex-direction:column;align-items:flex-start;gap:0.2rem;}}
+  .fm-name{font-family:var(--font-display);font-weight:500;font-size:0.82rem;color:var(--text);}
+  .fm-year{font-size:0.62rem;color:var(--muted);letter-spacing:0.06em;flex:0 0 auto;}
+
+  @media (prefers-reduced-motion:reduce){
+    .fm-frame img,.fm-overlay{transition:none;}
+    a.fm-card:hover .fm-frame img{transform:none;}
+    a.fm-card[data-id="internazionale-statement"]:hover .fm-frame img{transform:scale(1.14);}
+  }
+</style>
