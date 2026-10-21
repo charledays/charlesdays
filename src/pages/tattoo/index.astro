@@ -3,15 +3,36 @@ import Base from '../../layouts/Base.astro';
 ---
 <Base>
 <Fragment slot="head">
-<title>Tattoo Artist in Lima — Charles Days</title>
-<meta name="description" content="Black and red ornamental and black and grey realism tattoo work by Charles Days in Lima, Peru. View selected tattoos and request a quote via WhatsApp.">
+<title>Tatuador en Lima — Realismo black and grey y ornamental black and red | Charles Days</title>
+<meta name="description" content="Tatuajes de realismo black and grey, ornamental black and red, lettering y fineline en Lima (Surco y Miraflores). Diseños propios, +10 años. Mira el trabajo y cotiza por WhatsApp.">
 <link rel="canonical" href="https://charlesdays.art/tattoo/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Tattoo Artist in Lima — Charles Days">
-<meta property="og:description" content="Black and red ornamental and black and grey realism tattoo work by Charles Days in Lima, Peru. View selected tattoos and request a quote via WhatsApp.">
+<meta property="og:title" content="Tatuador en Lima — Realismo black and grey y ornamental black and red | Charles Days">
+<meta property="og:description" content="Tatuajes de realismo black and grey, ornamental black and red, lettering y fineline en Lima (Surco y Miraflores). Diseños propios, +10 años. Mira el trabajo y cotiza por WhatsApp.">
 <meta property="og:url" content="https://charlesdays.art/tattoo/">
 <meta property="og:image" content="https://charlesdays.art/images/wall/tattoo-neck-sky.jpg">
-<meta property="og:image:alt" content="Tatuaje de cabeza y cuello, fotografiado al aire libre con cielo y mar de fondo">
+<meta property="og:image:alt" content="Tatuaje ornamental negro estilo neotribal en cabeza, cuello y espalda, frente al mar">
+<script is:inline type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "@id": "https://charlesdays.art/#charles-days",
+  "name": "Charles Days",
+  "jobTitle": "Tatuador",
+  "url": "https://charlesdays.art/tattoo/",
+  "image": "https://charlesdays.art/images/wall/tattoo-neck-sky.jpg",
+  "telephone": "+51923386692",
+  "knowsAbout": ["Realismo black and grey", "Ornamental black and red", "Lettering", "Dark lettering", "Fineline", "Tatuaje"],
+  "areaServed": [
+    { "@type": "Place", "name": "Santiago de Surco, Lima, Perú" },
+    { "@type": "Place", "name": "Miraflores, Lima, Perú" }
+  ],
+  "sameAs": [
+    "https://www.instagram.com/charlesdays.art",
+    "https://www.tiktok.com/@charlesdayss"
+  ]
+}
+</script>
 <style is:inline>
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=Space+Grotesk:wght@500;700&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -159,7 +180,8 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;}
         <div class="tt-styles">
           <span class="tt-style">Ornamental black <b>&amp; red</b></span>
           <span class="tt-style">Realism black &amp; grey</span>
-          <span class="tt-style">Lettering</span>
+          <span class="tt-style">Lettering · Dark lettering</span>
+          <span class="tt-style">Fineline</span>
         </div>
       </div>
       <div class="tt-actions">
@@ -186,6 +208,7 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;}
             <label class="q-pill"><input type="radio" name="style" value="Ornamental black & red"><span>Ornamental black &amp; red</span></label>
             <label class="q-pill"><input type="radio" name="style" value="Realismo black & grey"><span>Realismo black &amp; grey</span></label>
             <label class="q-pill"><input type="radio" name="style" value="Lettering"><span>Lettering</span></label>
+            <label class="q-pill"><input type="radio" name="style" value="Fineline"><span>Fineline</span></label>
             <label class="q-pill"><input type="radio" name="style" value="Aún no sé"><span>Aún no sé</span></label>
           </div>
         </fieldset>
@@ -263,30 +286,30 @@ import { stories } from '/stories.js';
 var byId = {};
 stories.forEach(function (s) { byId[s.id] = s; });
 
-function fromStory(id, w, h) {
+function fromStory(id, w, h, alt) {
   var s = byId[id];
-  return { src: s.cover.src, alt: s.cover.alt || '', w: w, h: h };
+  return { src: s.cover.src, alt: alt || s.cover.alt || '', w: w, h: h };
 }
 
 var abdomen = byId['tattoo-black-red'].supportingImages[0];
 
 var TILES = [
-  fromStory('tattoo-neck-sky', 900, 1600),
-  { src: '/images/tattoo/tiki.jpg', alt: 'Tatuaje de máscara tiki con hojas, antebrazo', w: 900, h: 1600 },
-  fromStory('tattoo-eagle-profile', 332, 378),
-  { src: '/images/tattoo/wolf.jpg', alt: 'Tatuaje realista de lobo, brazo', w: 1200, h: 1600 },
-  { src: '/images/tattoo/chameleon.jpg', alt: 'Tatuaje realista de camaleón, pierna', w: 1279, h: 1600 },
-  { src: '/images/tattoo/chest-ornamental-black.jpg', alt: 'Tatuaje ornamental negro, pecho/torso', w: 1200, h: 1600 },
-  fromStory('tattoo-black-red', 900, 1600),
-  { src: '/images/tattoo/head-lettering.jpg', alt: 'Tatuaje de letras en la cabeza y detrás de la oreja', w: 900, h: 1600 },
-  { src: '/images/tattoo/raccoon.jpg', alt: 'Tatuaje realista de mapache, antebrazo', w: 1279, h: 1600 },
-  { src: '/images/tattoo/lettering-arm.jpg', alt: 'Tatuaje de letras góticas, pierna', w: 1201, h: 1600 },
-  fromStory('tattoo-leg-red-black', 900, 1600),
-  { src: '/images/tattoo/freddy.jpg', alt: 'Tatuaje realista de Freddy Krueger, muslo', w: 1200, h: 1600 },
-  fromStory('tattoo-ornamental-face', 1200, 1600),
-  { src: abdomen.src, alt: abdomen.alt || '', w: 1200, h: 1600 },
-  { src: '/images/wall/tattoo-eagle.png', alt: 'Tatuaje de águila, brazo completo', w: 731, h: 1397 },
-  { src: '/images/tattoo/lettering-floral.jpg', alt: 'Tatuaje de letras con detalle floral, brazo completo', w: 900, h: 1600 }
+  fromStory('tattoo-neck-sky', 900, 1600, 'Tatuaje ornamental negro estilo neotribal en cabeza, cuello y espalda, frente al mar'),
+  { src: '/images/tattoo/tiki.jpg', alt: 'Tatuaje en línea negra de máscara tiki con hojas en antebrazo', w: 900, h: 1600 },
+  fromStory('tattoo-eagle-profile', 332, 378, 'Tatuaje realista black and grey de águila de perfil en pierna'),
+  { src: '/images/tattoo/wolf.jpg', alt: 'Tatuaje realista de lobo con detalles en rojo y ornamental negro en brazo', w: 1200, h: 1600 },
+  { src: '/images/tattoo/chameleon.jpg', alt: 'Tatuaje realista black and grey de camaleón en pierna', w: 1279, h: 1600 },
+  { src: '/images/tattoo/chest-ornamental-black.jpg', alt: 'Tatuaje ornamental negro estilo neotribal en pecho y abdomen', w: 1200, h: 1600 },
+  fromStory('tattoo-black-red', 900, 1600, 'Tatuaje ornamental black and red estilo neotribal en pecho y hombro'),
+  { src: '/images/tattoo/head-lettering.jpg', alt: 'Dark lettering en la cabeza y detrás de la oreja', w: 900, h: 1600 },
+  { src: '/images/tattoo/raccoon.jpg', alt: 'Tatuaje realista black and grey de mapache en antebrazo', w: 1279, h: 1600 },
+  { src: '/images/tattoo/lettering-arm.jpg', alt: 'Dark lettering gótico en pierna', w: 1201, h: 1600 },
+  fromStory('tattoo-leg-red-black', 900, 1600, 'Tatuaje ornamental black and red estilo neotribal en pantorrilla'),
+  { src: '/images/tattoo/freddy.jpg', alt: 'Tatuaje realista black and grey de Freddy Krueger con detalles en rojo en muslo', w: 1200, h: 1600 },
+  fromStory('tattoo-ornamental-face', 1200, 1600, 'Tatuaje ornamental negro estilo neotribal en rostro y cabeza, de la oreja a la mandíbula'),
+  { src: abdomen.src, alt: 'Tatuaje ornamental black and red estilo neotribal en pecho y abdomen', w: 1200, h: 1600 },
+  { src: '/images/wall/tattoo-eagle.png', alt: 'Tatuaje realista black and grey de águila en brazo completo', w: 731, h: 1397 },
+  { src: '/images/tattoo/lettering-floral.jpg', alt: 'Dark lettering con detalle floral en brazo completo', w: 900, h: 1600 }
 ];
 
 /* /images/x/y.jpg -> /images/sm/x/y.webp (same mapping as the Wall). */
