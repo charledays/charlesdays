@@ -2,6 +2,8 @@
 import Base from '../../layouts/Base.astro';
 import { byId, smSrc } from '../../lib/media';
 
+const whatsappUrl = 'https://wa.me/51923386692?text=' + encodeURIComponent('Hola Charles, vi tus tatuajes y me gustaría conversar sobre una idea.');
+
 function fromStory(id: string, w: number, h: number, alt: string) {
   const s = byId[id];
   if (!s?.cover) throw new Error(`Missing tattoo cover: ${id}`);
@@ -157,7 +159,6 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;}
 .tt-work{break-inside:avoid;margin:0 0 1rem;}
 .tt-work figcaption{padding:.5rem .35rem;font-size:.75rem;line-height:1.5;color:#b8bdc9;}
 .tt-style-info{scroll-margin-top:calc(var(--nav-h) + 1.5rem);}
-.tt-nojs{padding:1rem 0;line-height:1.7;}.tt-nojs a{color:inherit;}
 .tt-gallery{columns:2;column-gap:6px;padding:0 6px;}
 @media (min-width:600px){.tt-gallery{columns:210px;width:min(100% - 2 * var(--gutter),var(--container));margin:0 auto;padding:0;}}
 .tt-photo{position:relative;display:block;width:100%;margin:0 0 6px;break-inside:avoid;overflow:hidden;background:#111;cursor:zoom-in;border:0;padding:0;}
@@ -165,61 +166,17 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;}
 @media (hover:hover){.tt-photo:hover img{filter:brightness(1);}}
 .tt-photo:focus-visible{outline:2px solid rgba(255,255,255,0.9);outline-offset:-2px;}
 
-/* --- quote: a compact band between the header and the gallery, over the
-   wide black-and-gold calligraphy canvas from Manifiesto. Kept short so
-   the first photos still show below it on a laptop screen. --- */
-.tt-quote{scroll-margin-top:calc(var(--nav-h) + 1rem);position:relative;margin-bottom:1.2rem;overflow:hidden;isolation:isolate;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);}
+/* Direct contact after the portfolio: one native link, no form or JavaScript. */
+.tt-quote{scroll-margin-top:calc(var(--nav-h) + 1rem);position:relative;margin-top:2rem;overflow:hidden;isolation:isolate;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);}
 .tt-quote-bg{position:absolute;inset:0;z-index:-1;}
-.tt-quote-bg img{width:100%;height:100%;object-fit:cover;object-position:75% 50%;filter:brightness(.55) contrast(1.05);}
-.tt-quote-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,0.25) 0%,rgba(0,0,0,0.15) 40%,rgba(0,0,0,0.7) 70%,rgba(0,0,0,0.85) 100%),linear-gradient(to bottom,#000 0%,rgba(0,0,0,0) 18%,rgba(0,0,0,0) 82%,#000 100%);}
-.tt-quote-inner{display:grid;gap:1.4rem;padding:1.8rem 0;}
-.tt-quote-h{font-family:var(--font-display);font-weight:700;font-size:clamp(1.8rem,4vw,3rem);letter-spacing:-0.03em;line-height:0.92;color:var(--text);text-shadow:0 4px 30px rgba(0,0,0,0.5);}
-.tt-quote-p{margin-top:0.9rem;max-width:22rem;font-size:0.86rem;line-height:1.55;color:#d6d3cd;}
-.tt-quote-inner .g-kicker{margin-bottom:0.8rem;}
-/* Frosted glass over the calligraphy. The blur is limited to this one
-   card (the page-wide blur layer was what made scrolling heavy before). */
-.tt-card{background:rgba(14,14,14,0.42);-webkit-backdrop-filter:blur(20px) saturate(1.15);backdrop-filter:blur(20px) saturate(1.15);border:1px solid rgba(245,242,237,0.16);border-radius:6px;padding:1.2rem 1.1rem 1rem;}
-@media (min-width:900px){
-  .tt-quote-inner{grid-template-columns:1fr minmax(0,680px);align-items:center;gap:4vw;padding:1.6rem 0;}
-  .tt-card{padding:1.1rem 1.4rem 1rem;}
-  .q-group{margin-bottom:0.45rem;}
-  .q-fields{margin-top:0.5rem;}
-  /* each choice row: legend on the left, options beside it */
-  .q-group-row{display:grid;grid-template-columns:4.6rem 1fr;align-items:baseline;}
-  .q-group-row .q-legend{float:left;margin:0;}
-  .q-fields{display:grid;grid-template-columns:1fr 2fr;gap:0 1.4rem;}
-}
-
-/* Choices are real radio inputs; each shows as plain text that gets a soft
-   fill when picked — no boxes, no pills, no step numbers. */
-.q-group{border:0;margin:0 0 0.9rem;padding:0;min-width:0;}
-.q-legend{font-size:0.62rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.6rem;padding:0;}
-.q-pills{display:flex;flex-wrap:wrap;gap:0.15rem 0.3rem;margin-left:-0.6rem;}
-.q-pill{position:relative;}
-.q-pill input{position:absolute;opacity:0;width:1px;height:1px;}
-.q-pill span{display:inline-flex;align-items:baseline;gap:0.45em;font-size:0.84rem;color:rgba(245,242,237,0.78);padding:0.35rem 0.55rem;border-radius:4px;cursor:pointer;user-select:none;transition:background .15s ease,color .15s ease;}
-.q-pill span small{font-size:0.66rem;color:inherit;opacity:0.6;}
-.q-pill span:hover{color:var(--text);background:rgba(245,242,237,0.08);}
-.q-pill input:checked + span{background:var(--text);color:#0b0b0b;}
-.q-pill input:focus-visible + span{outline:2px solid rgba(255,255,255,0.9);outline-offset:1px;}
-
-.q-field{display:block;margin-bottom:0.9rem;}
-.q-label{display:block;font-size:0.62rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.2rem;}
-.q-input,.q-textarea{width:100%;background:transparent;border:0;border-bottom:1px solid rgba(245,242,237,0.28);border-radius:0;color:var(--text);font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:400;padding:0.6rem 0;transition:border-color .15s ease;}
-.q-textarea{min-height:2.6rem;line-height:1.5;resize:vertical;}
-.q-input::placeholder,.q-textarea::placeholder{color:rgba(245,242,237,0.35);}
-.q-input:focus,.q-textarea:focus{outline:none;border-bottom-color:var(--text);}
-.q-submit{margin-top:0.4rem;width:100%;display:flex;align-items:center;justify-content:space-between;gap:0.6em;background:var(--text);color:#0b0b0b;border:0;border-radius:4px;font-family:'DM Sans',sans-serif;font-weight:500;font-size:0.74rem;letter-spacing:0.18em;text-transform:uppercase;padding:0.95rem 1.3rem;cursor:pointer;transition:background .2s ease,color .2s ease;}
-.q-submit:hover{background:#e2312d;color:#fff;}
-.q-submit:focus-visible{outline:2px solid #fff;outline-offset:3px;}
-.q-submit svg{width:18px;height:18px;}
-.q-open{display:none;}
-/* Phones: the form starts folded behind one button so the photos stay close. */
-@media (max-width:899px){
-  .tt-quote.is-folded .tt-card{display:none;}
-  .tt-quote.is-folded .q-open{display:flex;margin-top:1.2rem;}
-}
-.q-note{margin-top:0.7rem;font-size:0.66rem;letter-spacing:0.03em;color:var(--text-muted);}
+.tt-quote-bg img{width:100%;height:100%;object-fit:cover;object-position:75% 50%;filter:brightness(.35);}
+.tt-quote-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.25),rgba(0,0,0,.8));}
+.tt-quote-inner{display:grid;gap:1.5rem;padding:2.5rem 0;}
+.tt-quote-inner .g-kicker{margin-bottom:.8rem;}
+.tt-quote-h{font-family:var(--font-display);font-weight:700;font-size:clamp(1.8rem,4vw,3rem);letter-spacing:-.03em;line-height:1.05;}
+.tt-quote-p{margin-top:.9rem;max-width:40rem;font-size:.95rem;line-height:1.6;color:#d6d3cd;}
+.tt-quote-inner>.tt-btn{justify-self:start;}
+@media(min-width:900px){.tt-quote-inner{grid-template-columns:1fr auto;align-items:center;gap:3rem;}}
 
 .tt-foot{padding:4rem 0 3rem;display:flex;justify-content:space-between;gap:1rem;font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-muted);}
 
@@ -259,78 +216,17 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;}
         </div>
       </div>
       <div class="tt-actions">
-        <a class="tt-btn tt-btn-solid" href="#cotizar">Cotizar un tatuaje</a>
+        <a class="tt-btn tt-btn-solid" href={whatsappUrl} target="_blank" rel="noopener noreferrer">Escríbeme por WhatsApp</a>
         <a class="tt-btn tt-btn-ghost" href="https://www.instagram.com/charlesdays.art" target="_blank" rel="noopener noreferrer">Instagram<svg class="ext-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
       </div>
     </header>
   </div>
-
-  <section class="tt-quote is-folded" id="cotizar" aria-labelledby="quoteTitle">
-    <div class="tt-quote-bg" aria-hidden="true"><img src="/images/sm/manifiesto/canvas-wide.webp" alt="" decoding="async"></div>
-    <div class="tt-wrap tt-quote-inner">
-      <div>
-        <p class="g-kicker">Cotización</p>
-        <h2 class="tt-quote-h" id="quoteTitle">¿TIENES<br>UNA IDEA?</h2>
-        <p class="tt-quote-p">Cuéntame qué tienes en mente y te llega directo a WhatsApp. Referencias, tamaño exacto y fecha los vemos ahí.</p>
-        <p class="q-note">Se abre WhatsApp con tu mensaje listo. No se guarda nada aquí.</p>
-        <button type="button" class="q-submit q-open" id="quoteOpen" aria-controls="inquiryForm" aria-expanded="false"><span>Cotiza tu tattoo</span><span aria-hidden="true">&darr;</span></button>
-      </div>
-
-      <form class="tt-card" id="inquiryForm">
-        <fieldset class="q-group q-group-row">
-          <legend class="q-legend">Estilo</legend>
-          <div class="q-pills">
-            <label class="q-pill"><input type="radio" name="style" value="Ornamental black & red"><span>Ornamental black &amp; red</span></label>
-            <label class="q-pill"><input type="radio" name="style" value="Realismo black & grey"><span>Realismo black &amp; grey</span></label>
-            <label class="q-pill"><input type="radio" name="style" value="Lettering"><span>Lettering</span></label>
-            <label class="q-pill"><input type="radio" name="style" value="Fineline"><span>Fineline</span></label>
-            <label class="q-pill"><input type="radio" name="style" value="Aún no sé"><span>Aún no sé</span></label>
-          </div>
-        </fieldset>
-
-        <fieldset class="q-group q-group-row">
-          <legend class="q-legend">Zona</legend>
-          <div class="q-pills">
-            <label class="q-pill"><input type="radio" name="zone" value="Brazo"><span>Brazo</span></label>
-            <label class="q-pill"><input type="radio" name="zone" value="Antebrazo"><span>Antebrazo</span></label>
-            <label class="q-pill"><input type="radio" name="zone" value="Pierna"><span>Pierna</span></label>
-            <label class="q-pill"><input type="radio" name="zone" value="Espalda"><span>Espalda</span></label>
-            <label class="q-pill"><input type="radio" name="zone" value="Pecho"><span>Pecho</span></label>
-            <label class="q-pill"><input type="radio" name="zone" value="Cuello / cabeza"><span>Cuello / cabeza</span></label>
-            <label class="q-pill"><input type="radio" name="zone" value="Otra"><span>Otra</span></label>
-          </div>
-        </fieldset>
-
-        <fieldset class="q-group q-group-row">
-          <legend class="q-legend">Tamaño</legend>
-          <div class="q-pills">
-            <label class="q-pill"><input type="radio" name="size" value="Pequeño (menos de 10 cm)"><span>Pequeño <small>&lt; 10 cm</small></span></label>
-            <label class="q-pill"><input type="radio" name="size" value="Mediano (10–20 cm)"><span>Mediano <small>10–20 cm</small></span></label>
-            <label class="q-pill"><input type="radio" name="size" value="Grande (más de 20 cm)"><span>Grande <small>&gt; 20 cm</small></span></label>
-            <label class="q-pill"><input type="radio" name="size" value="Proyecto grande / varias sesiones"><span>Varias sesiones</span></label>
-          </div>
-        </fieldset>
-
-        <fieldset class="q-group q-fields">
-          <label class="q-field"><span class="q-label">Nombre</span>
-            <input class="q-input" type="text" id="inquiryName" name="name" autocomplete="given-name" required>
-          </label>
-          <label class="q-field"><span class="q-label">Cuéntame la idea</span>
-            <textarea class="q-textarea" id="inquiryIdea" name="idea" rows="2" placeholder="Qué te quieres hacer, referencias, algo que signifique para ti…" required></textarea>
-          </label>
-        </fieldset>
-
-        <button class="q-submit" type="submit"><span>Enviar por WhatsApp</span><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 2a10 10 0 0 0-8.66 15l-1.3 4.76 4.88-1.28A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-2.9.76.78-2.83-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.14c-.25-.12-1.46-.72-1.69-.8-.23-.08-.39-.12-.55.12-.16.25-.63.8-.78.97-.14.16-.29.18-.53.06a6.7 6.7 0 0 1-3.34-2.92c-.25-.43.25-.4.72-1.34.08-.16.04-.3-.02-.42-.06-.12-.55-1.33-.76-1.82-.2-.48-.4-.41-.55-.42h-.47a.9.9 0 0 0-.65.3 2.74 2.74 0 0 0-.86 2.04 4.76 4.76 0 0 0 1 2.53 10.9 10.9 0 0 0 4.18 3.7c1.56.67 2.17.73 2.95.61.48-.07 1.46-.6 1.67-1.18.2-.58.2-1.07.14-1.18-.06-.1-.22-.16-.47-.28Z"/></svg></button>
-      </form>
-    </div>
-  </section>
 
   <section class="tt-wrap tt-gallery-heading" aria-labelledby="galleryTitle">
     <p class="g-kicker">Portafolio · Charles Days</p>
     <h2 id="galleryTitle">Mis trabajos de tatuaje</h2>
     <p>Explora una selección de realismo, ornamental y lettering. Abre cada foto para ver el trabajo en detalle.</p>
   </section>
-  <noscript><p class="tt-wrap tt-nojs">Para cotizar sin JavaScript, <a href="https://wa.me/51923386692?text=Hola%20Charles%2C%20quiero%20cotizar%20un%20tatuaje%20en%20Lima.">escríbeme por WhatsApp</a>.</p></noscript>
   <div class="tt-gallery" id="ttGallery" aria-label="Galería de tatuajes">
     {TILES.map((t, i) => (
       <figure class="tt-work">
@@ -341,6 +237,18 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;}
       </figure>
     ))}
   </div>
+
+  <section class="tt-quote" id="cotizar" aria-labelledby="quoteTitle">
+    <div class="tt-quote-bg" aria-hidden="true"><img src="/images/sm/manifiesto/canvas-wide.webp" alt="" loading="lazy" decoding="async"></div>
+    <div class="tt-wrap tt-quote-inner">
+      <div>
+        <p class="g-kicker">Conversemos</p>
+        <h2 class="tt-quote-h" id="quoteTitle">¿TIENES UNA IDEA?</h2>
+        <p class="tt-quote-p">Cuéntame tu idea o mándame una referencia. Vemos los detalles por WhatsApp.</p>
+      </div>
+      <a class="tt-btn tt-btn-solid" href={whatsappUrl} target="_blank" rel="noopener noreferrer">Escríbeme por WhatsApp <span aria-hidden="true">↗</span></a>
+    </div>
+  </section>
 
   <section class="tt-wrap tt-info" aria-labelledby="stylesTitle">
     <h2 id="stylesTitle">Estilos de tatuaje que trabajo en Lima</h2>
@@ -355,9 +263,9 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;}
   <section class="tt-wrap tt-info" aria-labelledby="bookingTitle">
     <h2 id="bookingTitle">¿Cómo tatuarte conmigo en Lima?</h2>
     <details open><summary>¿Dónde atiendes?</summary><p>Tatúo en Lima, en Surco y Miraflores. Escríbeme por WhatsApp para coordinar el lugar y la fecha de tu cita.</p></details>
-    <details><summary>¿Cómo puedo cotizar un tatuaje?</summary><p>Completa el formulario con tu nombre e idea. Puedes indicar el estilo, la zona del cuerpo y el tamaño aproximado. El botón abre WhatsApp con tu mensaje; por ahí conversamos sobre referencias, tamaño exacto y fecha.</p></details>
-    <details><summary>¿Qué estilos de tatuaje trabajas?</summary><p>Realismo black and grey, ornamental black and red, lettering, dark lettering y fineline. Si todavía no sabes qué estilo elegir, selecciona «Aún no sé» al cotizar y cuéntame tu idea.</p></details>
-    <a class="tt-btn tt-btn-solid" href="#cotizar">Cotizar mi tatuaje</a>
+    <details><summary>¿Cómo puedo cotizar un tatuaje?</summary><p>Escríbeme directamente por WhatsApp. Puedes contarme tu idea o enviarme una referencia; conversamos por ahí sobre el diseño, el tamaño, la zona del cuerpo y la fecha.</p></details>
+    <details><summary>¿Qué estilos de tatuaje trabajas?</summary><p>Realismo black and grey, ornamental black and red, lettering, dark lettering y fineline. Si todavía no sabes qué estilo elegir, escríbeme y lo conversamos.</p></details>
+    <a class="tt-btn tt-btn-solid" href={whatsappUrl} target="_blank" rel="noopener noreferrer">Hablemos de tu tatuaje</a>
   </section>
 
 
@@ -375,7 +283,7 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;}
 </div>
 
 <script is:inline type="module">
-/* Photos and descriptions are in the initial HTML. JavaScript only adds the viewer and quote handoff. */
+/* Photos and descriptions are in the initial HTML. JavaScript only adds the image viewer. */
 var TILES = Array.from(document.querySelectorAll('#ttGallery .tt-photo')).map(function (button) {
   return { src: button.getAttribute('data-full'), alt: button.querySelector('img').alt };
 });
@@ -452,32 +360,5 @@ function smSrc(src) {
   });
 })();
 
-/* === WhatsApp quote ======================================================
-   No backend. The chosen pills (all optional) plus name and idea become a
-   prefilled wa.me message; references, exact size and dates are handled
-   with Charles directly on WhatsApp afterwards. */
-var WHATSAPP_NUMBER = '51923386692'; // Charles' WhatsApp number
-
-document.getElementById('quoteOpen').addEventListener('click', function () {
-  document.getElementById('cotizar').classList.remove('is-folded');
-  this.setAttribute('aria-expanded', 'true');
-  document.getElementById('inquiryName').focus();
-});
-
-document.getElementById('inquiryForm').addEventListener('submit', function (e) {
-  e.preventDefault();
-  var form = e.target;
-  function picked(name) { var el = form.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : ''; }
-  var lines = ['Hola Charles, quiero cotizar un tattoo.', '', 'Mi nombre es: ' + document.getElementById('inquiryName').value.trim()];
-  if (picked('style')) lines.push('Estilo: ' + picked('style'));
-  if (picked('zone')) lines.push('Zona: ' + picked('zone'));
-  if (picked('size')) lines.push('Tamaño: ' + picked('size'));
-  lines.push('', 'Mi idea:', document.getElementById('inquiryIdea').value.trim());
-  window.open('https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(lines.join('\n')), '_blank', 'noopener');
-});
-
-/* Scrolling is native: the old synthetic wheel inertia fought this page's
-   scroll-behavior:smooth (each scrollBy was itself smooth-animated), which
-   made the wheel feel hijacked. scroll-behavior:smooth is gone too. */
 </script>
 </Base>
