@@ -146,7 +146,7 @@ body:has(#mobileNavOverlay.is-open) .proto-logo{display:none;}
    t-large=4), which divides evenly by 4 and 8 columns, so both tiers pack
    with zero empty cells and every copy is a solid rectangle. The 2px gap on
    the black background is the Wall's border; it stays put while panning. */
-.wall{--cols:4;--cell:46vw;display:grid;grid-template-columns:repeat(var(--cols),var(--cell));grid-auto-rows:var(--cell);grid-auto-flow:dense;gap:2px;background:var(--border);}
+.wall{--cols:4;--cell:46vw;width:calc(var(--cols) * var(--cell) + (var(--cols) - 1) * 2px);display:grid;grid-template-columns:repeat(var(--cols),var(--cell));grid-auto-rows:var(--cell);grid-auto-flow:dense;gap:2px;background:var(--border);}
 @media (min-width:768px){.wall{--cols:8;--cell:clamp(180px,15vw,260px);}}
 
 .tile{position:relative;display:block;overflow:hidden;background:#000;}
@@ -398,8 +398,13 @@ renderCopy(document.getElementById('wallGrid'), false);
   function snap(v) { return Math.round(v * dpr) / dpr; }
 
   function layout() {
-    stepX = main.offsetWidth + GAP;
-    stepY = main.offsetHeight + GAP;
+    // Safari can run the module before the imported stylesheet has settled.
+    // Never tile a zero-height/un-styled grid into hundreds of narrow copies.
+    var grid = document.getElementById('wallGrid');
+    var width = main.offsetWidth, height = main.offsetHeight;
+    if (!grid || getComputedStyle(grid).display !== 'grid' || width < 1 || height < 1) return false;
+    stepX = width + GAP;
+    stepY = height + GAP;
     clones.forEach(function (c) { c.remove(); });
     clones = [];
     var nx = Math.ceil(window.innerWidth / stepX) + 1;
@@ -419,6 +424,7 @@ renderCopy(document.getElementById('wallGrid'), false);
         clones.push(copy);
       }
     }
+    return true;
   }
 
   function apply() {
@@ -555,17 +561,31 @@ renderCopy(document.getElementById('wallGrid'), false);
 
   /* Breakpoint switches change the cell size, so re-measure and rebuild the
      clones, keeping the visitor at the same place in the composition. */
+  function refreshLayout() {
+    var fx = stepX ? mod(x, stepX) / stepX : 0;
+    var fy = stepY ? mod(y, stepY) / stepY : 0;
+    dpr = window.devicePixelRatio || 1;
+    if (!layout()) return;
+    x = tx = fx * stepX;
+    y = ty = fy * stepY;
+    apply();
+    reveal();
+  }
+
   window.addEventListener('resize', function () {
     if (resizeTimer) clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(function () {
-      var fx = mod(x, stepX) / stepX, fy = mod(y, stepY) / stepY;
-      dpr = window.devicePixelRatio || 1;
-      layout();
-      x = tx = fx * stepX;
-      y = ty = fy * stepY;
-      apply();
-    }, RESIZE_DEBOUNCE);
+    resizeTimer = setTimeout(refreshLayout, RESIZE_DEBOUNCE);
   });
+
+  // Watch the real copy, not its clones: late CSS/image layout and mobile
+  // viewport changes must update the repeat distance even without a resize.
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(function () {
+      if (main.offsetWidth + GAP !== stepX || main.offsetHeight + GAP !== stepY) refreshLayout();
+    }).observe(main);
+  }
+  window.addEventListener('load', refreshLayout, { once: true });
+  window.addEventListener('pageshow', refreshLayout);
 
   window.addEventListener('wall:viewer-open', function () {
     locked = true;
@@ -575,9 +595,7 @@ renderCopy(document.getElementById('wallGrid'), false);
   });
   window.addEventListener('wall:viewer-close', function () { locked = false; });
 
-  layout();
-  apply();
-  reveal();
+  refreshLayout();
 })();
 
 /* === Loading screen =======================================================

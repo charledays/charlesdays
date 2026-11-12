@@ -1,35 +1,86 @@
 ---
 import Base from '../../layouts/Base.astro';
+import { byId, smSrc } from '../../lib/media';
+
+function fromStory(id: string, w: number, h: number, alt: string) {
+  const s = byId[id];
+  if (!s?.cover) throw new Error(`Missing tattoo cover: ${id}`);
+  return { src: s.cover.src, alt: alt || s.cover.alt || '', w: w, h: h };
+}
+
+const abdomen = byId['tattoo-black-red'].supportingImages?.[0];
+if (!abdomen) throw new Error('Missing tattoo supporting image: tattoo-black-red');
+
+const TILES = [
+  fromStory('tattoo-neck-sky', 900, 1600, 'Tatuaje ornamental negro estilo neotribal en cabeza, cuello y espalda, frente al mar'),
+  { src: '/images/tattoo/tiki.jpg', alt: 'Tatuaje en línea negra de máscara tiki con hojas en antebrazo', w: 900, h: 1600 },
+  fromStory('tattoo-eagle-profile', 332, 378, 'Tatuaje realista black and grey de águila de perfil en pierna'),
+  { src: '/images/tattoo/wolf.jpg', alt: 'Tatuaje realista de lobo con detalles en rojo y ornamental negro en brazo', w: 1200, h: 1600 },
+  { src: '/images/tattoo/chameleon.jpg', alt: 'Tatuaje realista black and grey de camaleón en pierna', w: 1279, h: 1600 },
+  { src: '/images/tattoo/chest-ornamental-black.jpg', alt: 'Tatuaje ornamental negro estilo neotribal en pecho y abdomen', w: 1200, h: 1600 },
+  fromStory('tattoo-black-red', 900, 1600, 'Tatuaje ornamental black and red estilo neotribal en pecho y hombro'),
+  { src: '/images/tattoo/head-lettering.jpg', alt: 'Dark lettering en la cabeza y detrás de la oreja', w: 900, h: 1600 },
+  { src: '/images/tattoo/raccoon.jpg', alt: 'Tatuaje realista black and grey de mapache en antebrazo', w: 1279, h: 1600 },
+  { src: '/images/tattoo/lettering-arm.jpg', alt: 'Dark lettering gótico en pierna', w: 1201, h: 1600 },
+  fromStory('tattoo-leg-red-black', 900, 1600, 'Tatuaje ornamental black and red estilo neotribal en pantorrilla'),
+  { src: '/images/tattoo/freddy.jpg', alt: 'Tatuaje realista black and grey de Freddy Krueger con detalles en rojo en muslo', w: 1200, h: 1600 },
+  fromStory('tattoo-ornamental-face', 1200, 1600, 'Tatuaje ornamental negro estilo neotribal en rostro y cabeza, de la oreja a la mandíbula'),
+  { src: abdomen.src, alt: 'Tatuaje ornamental black and red estilo neotribal en pecho y abdomen', w: 1200, h: 1600 },
+  { src: '/images/wall/tattoo-eagle.png', alt: 'Tatuaje realista black and grey de águila en brazo completo', w: 731, h: 1397 },
+  { src: '/images/tattoo/lettering-floral.jpg', alt: 'Dark lettering con detalle floral en brazo completo', w: 900, h: 1600 }
+];
+
+
 ---
 <Base>
 <Fragment slot="head">
-<title>Tatuador en Lima — Realismo black and grey y ornamental black and red | Charles Days</title>
-<meta name="description" content="Tatuajes de realismo black and grey, ornamental black and red, lettering y fineline en Lima (Surco y Miraflores). Diseños propios, +10 años. Mira el trabajo y cotiza por WhatsApp.">
+<title>Tatuador en Lima | Realismo y ornamental — Charles Days</title>
+<meta name="description" content="Tatuajes con diseños propios en Surco y Miraflores, Lima. Realismo black and grey, ornamental, lettering y fineline. Mira mis trabajos y cotiza por WhatsApp.">
 <link rel="canonical" href="https://charlesdays.art/tattoo/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:locale" content="es_PE">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Tatuador en Lima — Realismo black and grey y ornamental black and red | Charles Days">
-<meta property="og:description" content="Tatuajes de realismo black and grey, ornamental black and red, lettering y fineline en Lima (Surco y Miraflores). Diseños propios, +10 años. Mira el trabajo y cotiza por WhatsApp.">
+<meta property="og:title" content="Tatuador en Lima | Realismo y ornamental — Charles Days">
+<meta property="og:description" content="Tatuajes con diseños propios en Surco y Miraflores, Lima. Realismo black and grey, ornamental, lettering y fineline. Mira mis trabajos y cotiza por WhatsApp.">
 <meta property="og:url" content="https://charlesdays.art/tattoo/">
 <meta property="og:image" content="https://charlesdays.art/images/wall/tattoo-neck-sky.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <meta property="og:image:alt" content="Tatuaje ornamental negro estilo neotribal en cabeza, cuello y espalda, frente al mar">
 <script is:inline type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "Person",
-  "@id": "https://charlesdays.art/#charles-days",
-  "name": "Charles Days",
-  "jobTitle": "Tatuador",
-  "url": "https://charlesdays.art/tattoo/",
-  "image": "https://charlesdays.art/images/wall/tattoo-neck-sky.jpg",
-  "telephone": "+51923386692",
-  "knowsAbout": ["Realismo black and grey", "Ornamental black and red", "Lettering", "Dark lettering", "Fineline", "Tatuaje"],
-  "areaServed": [
-    { "@type": "Place", "name": "Santiago de Surco, Lima, Perú" },
-    { "@type": "Place", "name": "Miraflores, Lima, Perú" }
-  ],
-  "sameAs": [
-    "https://www.instagram.com/charlesdays.art",
-    "https://www.tiktok.com/@charlesdayss"
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": "https://charlesdays.art/#charles-days",
+      "name": "Charles Days",
+      "jobTitle": "Tatuador y artista visual",
+      "url": "https://charlesdays.art/about/",
+      "telephone": "+51923386692",
+      "knowsAbout": ["Realismo black and grey", "Ornamental black and red", "Lettering", "Dark lettering", "Fineline"],
+      "sameAs": ["https://www.instagram.com/charlesdays.art", "https://www.tiktok.com/@charlesdayss"]
+    },
+    {
+      "@type": "Service",
+      "@id": "https://charlesdays.art/tattoo/#servicio",
+      "name": "Tatuajes personalizados en Lima por Charles Days",
+      "serviceType": "Tatuajes de realismo, ornamental, lettering y fineline",
+      "url": "https://charlesdays.art/tattoo/",
+      "provider": { "@id": "https://charlesdays.art/#charles-days" },
+      "areaServed": [
+        { "@type": "Place", "name": "Santiago de Surco, Lima, Perú" },
+        { "@type": "Place", "name": "Miraflores, Lima, Perú" }
+      ]
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://charlesdays.art/tattoo/#pagina",
+      "url": "https://charlesdays.art/tattoo/",
+      "name": "Charles Days — Tatuador en Lima",
+      "inLanguage": "es-PE",
+      "about": { "@id": "https://charlesdays.art/tattoo/#servicio" },
+      "primaryImageOfPage": { "@type": "ImageObject", "contentUrl": "https://charlesdays.art/images/wall/tattoo-neck-sky.jpg" }
+    }
   ]
 }
 </script>
@@ -63,9 +114,24 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;}
 
 /* --- header: same kicker + big title as every section (/assets/nav.css),
    then the styles as square tags and two square actions --- */
+.tt-head .tt-title{font-size:clamp(2.4rem,5.5vw,5rem);line-height:1.02;overflow-wrap:break-word;}
+.tt-title span{font-size:.65em;}
+.tt-intro{max-width:62ch;margin-top:1.2rem;font-size:.95rem;line-height:1.7;color:#d6d3cd;}
+.tt-info{padding:3rem 0;border-bottom:1px solid var(--hair);}
+.tt-info h2{font-family:var(--font-display);font-size:clamp(1.5rem,3vw,2.2rem);margin-bottom:1.2rem;}
+.tt-info h3{font-size:1rem;margin-bottom:.5rem;}
+.tt-info p{max-width:68ch;color:#d6d3cd;line-height:1.75;font-size:.95rem;}
+.tt-info-grid{display:grid;gap:1.7rem;}
+@media(min-width:900px){.tt-info-grid{grid-template-columns:1fr 1fr;}}
+.tt-info details{padding:1rem 0;border-top:1px solid var(--hair);}
+.tt-info summary{cursor:pointer;line-height:1.5;font-weight:500;}
+.tt-info details p{margin-top:.7rem;}
+.tt-info .tt-btn{margin-top:1.5rem;}
 .tt-head{display:grid;gap:1.6rem;padding-bottom:1.8rem;}
 .tt-styles{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:1.4rem;}
-.tt-style{font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text);border:1px solid var(--hair-strong);border-radius:4px;padding:0.55rem 0.85rem;}
+.tt-style{text-decoration:none;font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text);border:1px solid var(--hair-strong);border-radius:4px;padding:0.55rem 0.85rem;}
+.tt-style:hover,.tt-style:focus-visible{background:var(--text);color:#000;}
+.tt-style:focus-visible{outline:2px solid var(--text);outline-offset:3px;}
 .tt-style b{font-weight:500;color:#e2312d;}
 .tt-actions{display:flex;flex-wrap:wrap;gap:0.6rem;align-items:stretch;}
 .tt-btn{display:inline-flex;align-items:center;gap:0.6em;font-size:0.7rem;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;text-decoration:none;padding:1rem 1.4rem;border:1px solid var(--text);border-radius:4px;transition:background .2s ease,color .2s ease;}
@@ -85,6 +151,13 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;}
    the photo just brightens.
    Pinterest-style: the column count follows the viewport (2 on phones,
    then as many ~210px columns as fit the content width). --- */
+.tt-gallery-heading{padding:1.5rem 0;}
+.tt-gallery-heading h2{font-family:var(--font-display);font-size:clamp(1.5rem,3vw,2.2rem);margin:.7rem 0;}
+.tt-gallery-heading>p:last-child{color:#d6d3cd;max-width:65ch;line-height:1.6;font-size:.9rem;}
+.tt-work{break-inside:avoid;margin:0 0 1rem;}
+.tt-work figcaption{padding:.5rem .35rem;font-size:.75rem;line-height:1.5;color:#b8bdc9;}
+.tt-style-info{scroll-margin-top:calc(var(--nav-h) + 1.5rem);}
+.tt-nojs{padding:1rem 0;line-height:1.7;}.tt-nojs a{color:inherit;}
 .tt-gallery{columns:2;column-gap:6px;padding:0 6px;}
 @media (min-width:600px){.tt-gallery{columns:210px;width:min(100% - 2 * var(--gutter),var(--container));margin:0 auto;padding:0;}}
 .tt-photo{position:relative;display:block;width:100%;margin:0 0 6px;break-inside:avoid;overflow:hidden;background:#111;cursor:zoom-in;border:0;padding:0;}
@@ -95,7 +168,7 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;}
 /* --- quote: a compact band between the header and the gallery, over the
    wide black-and-gold calligraphy canvas from Manifiesto. Kept short so
    the first photos still show below it on a laptop screen. --- */
-.tt-quote{position:relative;margin-bottom:1.2rem;overflow:hidden;isolation:isolate;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);}
+.tt-quote{scroll-margin-top:calc(var(--nav-h) + 1rem);position:relative;margin-bottom:1.2rem;overflow:hidden;isolation:isolate;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);}
 .tt-quote-bg{position:absolute;inset:0;z-index:-1;}
 .tt-quote-bg img{width:100%;height:100%;object-fit:cover;object-position:75% 50%;filter:brightness(.55) contrast(1.05);}
 .tt-quote-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,0.25) 0%,rgba(0,0,0,0.15) 40%,rgba(0,0,0,0.7) 70%,rgba(0,0,0,0.85) 100%),linear-gradient(to bottom,#000 0%,rgba(0,0,0,0) 18%,rgba(0,0,0,0) 82%,#000 100%);}
@@ -175,16 +248,18 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;}
   <div class="tt-wrap">
     <header class="tt-head g-head">
       <div>
-        <p class="g-kicker">Lima, Perú · +10 años · Diseños propios</p>
-        <h1 class="g-title">TATTOO</h1>
+        <p class="g-kicker">Charles Days · +10 años · Diseños propios</p>
+        <h1 class="g-title tt-title">Tatuador en Lima</h1>
+        <p class="tt-intro">Tatúo en Surco y Miraflores, Lima, Perú. Trabajo realismo black and grey, ornamental black and red, lettering y fineline. Cuéntame tu idea y conversemos sobre tu próximo tattoo.</p>
         <div class="tt-styles">
-          <span class="tt-style">Ornamental black <b>&amp; red</b></span>
-          <span class="tt-style">Realism black &amp; grey</span>
-          <span class="tt-style">Lettering · Dark lettering</span>
-          <span class="tt-style">Fineline</span>
+          <a class="tt-style" href="#ornamental">Ornamental black <b>&amp; red</b></a>
+          <a class="tt-style" href="#realismo">Realismo black &amp; grey</a>
+          <a class="tt-style" href="#lettering">Lettering · Dark lettering</a>
+          <a class="tt-style" href="#fineline">Fineline</a>
         </div>
       </div>
       <div class="tt-actions">
+        <a class="tt-btn tt-btn-solid" href="#cotizar">Cotizar un tatuaje</a>
         <a class="tt-btn tt-btn-ghost" href="https://www.instagram.com/charlesdays.art" target="_blank" rel="noopener noreferrer">Instagram<svg class="ext-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
       </div>
     </header>
@@ -250,7 +325,40 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;}
     </div>
   </section>
 
-  <div class="tt-gallery" id="ttGallery" aria-label="Galería de tatuajes"></div>
+  <section class="tt-wrap tt-gallery-heading" aria-labelledby="galleryTitle">
+    <p class="g-kicker">Portafolio · Charles Days</p>
+    <h2 id="galleryTitle">Mis trabajos de tatuaje</h2>
+    <p>Explora una selección de realismo, ornamental y lettering. Abre cada foto para ver el trabajo en detalle.</p>
+  </section>
+  <noscript><p class="tt-wrap tt-nojs">Para cotizar sin JavaScript, <a href="https://wa.me/51923386692?text=Hola%20Charles%2C%20quiero%20cotizar%20un%20tatuaje%20en%20Lima.">escríbeme por WhatsApp</a>.</p></noscript>
+  <div class="tt-gallery" id="ttGallery" aria-label="Galería de tatuajes">
+    {TILES.map((t, i) => (
+      <figure class="tt-work">
+        <button type="button" class="tt-photo" data-i={i} data-full={t.src} aria-label={`Ver: ${t.alt}`}>
+          <img src={smSrc(t.src)} alt={t.alt} width={t.w} height={t.h} loading="lazy" decoding="async" />
+        </button>
+        <figcaption>{t.alt}</figcaption>
+      </figure>
+    ))}
+  </div>
+
+  <section class="tt-wrap tt-info" aria-labelledby="stylesTitle">
+    <h2 id="stylesTitle">Estilos de tatuaje que trabajo en Lima</h2>
+    <div class="tt-info-grid">
+      <div class="tt-style-info" id="realismo"><h3>Realismo black and grey</h3><p>Trabajo en negro y grises. En la galería puedes ver águilas, un camaleón, un mapache y otros proyectos de realismo.</p></div>
+      <div class="tt-style-info" id="ornamental"><h3>Ornamental black and red</h3><p>Diseños ornamentales en negro y rojo, con trabajos de estilo neotribal en pecho, espalda, brazos y piernas.</p></div>
+      <div class="tt-style-info" id="lettering"><h3>Lettering y dark lettering</h3><p>Letras y composiciones tipográficas para la piel. Explora los trabajos de dark lettering y lettering gótico de la galería.</p></div>
+      <div class="tt-style-info" id="fineline"><h3>Fineline</h3><p>También trabajo tatuajes de línea fina. Envíame tu idea, la zona del cuerpo y el tamaño aproximado para conversar sobre el diseño.</p></div>
+    </div>
+  </section>
+
+  <section class="tt-wrap tt-info" aria-labelledby="bookingTitle">
+    <h2 id="bookingTitle">¿Cómo tatuarte conmigo en Lima?</h2>
+    <details open><summary>¿Dónde atiendes?</summary><p>Tatúo en Lima, en Surco y Miraflores. Escríbeme por WhatsApp para coordinar el lugar y la fecha de tu cita.</p></details>
+    <details><summary>¿Cómo puedo cotizar un tatuaje?</summary><p>Completa el formulario con tu nombre e idea. Puedes indicar el estilo, la zona del cuerpo y el tamaño aproximado. El botón abre WhatsApp con tu mensaje; por ahí conversamos sobre referencias, tamaño exacto y fecha.</p></details>
+    <details><summary>¿Qué estilos de tatuaje trabajas?</summary><p>Realismo black and grey, ornamental black and red, lettering, dark lettering y fineline. Si todavía no sabes qué estilo elegir, selecciona «Aún no sé» al cotizar y cuéntame tu idea.</p></details>
+    <a class="tt-btn tt-btn-solid" href="#cotizar">Cotizar mi tatuaje</a>
+  </section>
 
 
   <footer class="tt-wrap tt-foot">
@@ -267,67 +375,13 @@ html,body{color:var(--text);font-family:'DM Sans',sans-serif;}
 </div>
 
 <script is:inline type="module">
-/* Tattoo page — dark, image-first rebuild. Replaces the bone "paper"
-   column (cropped photos in two balanced strips, a light inline form)
-   with: a masonry gallery showing every photo uncropped at its own
-   aspect ratio, a blurred pop-out viewer with prev/next (HD original
-   swapped in once loaded), and a visual quote builder that hands the
-   whole brief to WhatsApp.
-
-   Content is unchanged: same curated set and order as before, read from
-   stories.js (discipline: ["tattoo"]) plus confirmed local tattoo photos.
-   head-neck-night.jpg stays out (duplicate angle of tattoo-neck-sky) and
-   sloth-hand stays out (only source is visibly degraded) — see the
-   provenance notes in stories.js. Grid images are the standard-quality
-   WebPs from scripts/make-sm-images.sh; w/h are those files' real
-   (EXIF-rotated) pixel sizes, used to reserve each tile's space. */
-import { stories } from '/stories.js';
-
-var byId = {};
-stories.forEach(function (s) { byId[s.id] = s; });
-
-function fromStory(id, w, h, alt) {
-  var s = byId[id];
-  return { src: s.cover.src, alt: alt || s.cover.alt || '', w: w, h: h };
-}
-
-var abdomen = byId['tattoo-black-red'].supportingImages[0];
-
-var TILES = [
-  fromStory('tattoo-neck-sky', 900, 1600, 'Tatuaje ornamental negro estilo neotribal en cabeza, cuello y espalda, frente al mar'),
-  { src: '/images/tattoo/tiki.jpg', alt: 'Tatuaje en línea negra de máscara tiki con hojas en antebrazo', w: 900, h: 1600 },
-  fromStory('tattoo-eagle-profile', 332, 378, 'Tatuaje realista black and grey de águila de perfil en pierna'),
-  { src: '/images/tattoo/wolf.jpg', alt: 'Tatuaje realista de lobo con detalles en rojo y ornamental negro en brazo', w: 1200, h: 1600 },
-  { src: '/images/tattoo/chameleon.jpg', alt: 'Tatuaje realista black and grey de camaleón en pierna', w: 1279, h: 1600 },
-  { src: '/images/tattoo/chest-ornamental-black.jpg', alt: 'Tatuaje ornamental negro estilo neotribal en pecho y abdomen', w: 1200, h: 1600 },
-  fromStory('tattoo-black-red', 900, 1600, 'Tatuaje ornamental black and red estilo neotribal en pecho y hombro'),
-  { src: '/images/tattoo/head-lettering.jpg', alt: 'Dark lettering en la cabeza y detrás de la oreja', w: 900, h: 1600 },
-  { src: '/images/tattoo/raccoon.jpg', alt: 'Tatuaje realista black and grey de mapache en antebrazo', w: 1279, h: 1600 },
-  { src: '/images/tattoo/lettering-arm.jpg', alt: 'Dark lettering gótico en pierna', w: 1201, h: 1600 },
-  fromStory('tattoo-leg-red-black', 900, 1600, 'Tatuaje ornamental black and red estilo neotribal en pantorrilla'),
-  { src: '/images/tattoo/freddy.jpg', alt: 'Tatuaje realista black and grey de Freddy Krueger con detalles en rojo en muslo', w: 1200, h: 1600 },
-  fromStory('tattoo-ornamental-face', 1200, 1600, 'Tatuaje ornamental negro estilo neotribal en rostro y cabeza, de la oreja a la mandíbula'),
-  { src: abdomen.src, alt: 'Tatuaje ornamental black and red estilo neotribal en pecho y abdomen', w: 1200, h: 1600 },
-  { src: '/images/wall/tattoo-eagle.png', alt: 'Tatuaje realista black and grey de águila en brazo completo', w: 731, h: 1397 },
-  { src: '/images/tattoo/lettering-floral.jpg', alt: 'Dark lettering con detalle floral en brazo completo', w: 900, h: 1600 }
-];
-
-/* /images/x/y.jpg -> /images/sm/x/y.webp (same mapping as the Wall). */
+/* Photos and descriptions are in the initial HTML. JavaScript only adds the viewer and quote handoff. */
+var TILES = Array.from(document.querySelectorAll('#ttGallery .tt-photo')).map(function (button) {
+  return { src: button.getAttribute('data-full'), alt: button.querySelector('img').alt };
+});
 function smSrc(src) {
   return '/images/sm/' + src.slice('/images/'.length).replace(/\.[^./]+$/, '') + '.webp';
 }
-
-function esc(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-document.getElementById('ttGallery').innerHTML = TILES.map(function (t, i) {
-  return '<button type="button" class="tt-photo" data-i="' + i + '" aria-label="Ver: ' + esc(t.alt) + '">' +
-    '<img src="' + smSrc(t.src) + '" alt="' + esc(t.alt) + '" width="' + t.w + '" height="' + t.h + '"' +
-    ' loading="' + (i < 4 ? 'eager' : 'lazy') + '" decoding="async">' +
-  '</button>';
-}).join('');
 
 /* === Pop-out viewer ===================================================== */
 (function () {
