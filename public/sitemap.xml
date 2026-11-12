@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://charlesdays.art/</loc>
   </url>
@@ -8,6 +8,54 @@
   </url>
   <url>
     <loc>https://charlesdays.art/tattoo/</loc>
+    <image:image>
+      <image:loc>https://charlesdays.art/images/sm/wall/tattoo-neck-sky.webp</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://charlesdays.art/images/sm/tattoo/tiki.webp</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://charlesdays.art/images/sm/tattoo/eagle-profile.webp</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://charlesdays.art/images/sm/tattoo/wolf.webp</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://charlesdays.art/images/sm/tattoo/chameleon.webp</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://charlesdays.art/images/sm/tattoo/chest-ornamental-black.webp</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://charlesdays.art/images/sm/wall/tattoo-black-red.webp</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://charlesdays.art/images/sm/tattoo/head-lettering.webp</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://charlesdays.art/images/sm/tattoo/raccoon.webp</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://charlesdays.art/images/sm/tattoo/lettering-arm.webp</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://charlesdays.art/images/sm/wall/tattoo-leg-red-black.webp</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://charlesdays.art/images/sm/tattoo/freddy.webp</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://charlesdays.art/images/sm/tattoo/head-lettering-02.webp</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://charlesdays.art/images/sm/stories/tattoo-black-red/detail-01.webp</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://charlesdays.art/images/sm/wall/tattoo-eagle.webp</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://charlesdays.art/images/sm/tattoo/lettering-floral.webp</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://charlesdays.art/film/</loc>
